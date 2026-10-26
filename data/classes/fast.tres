@@ -21,6 +21,7 @@ display_name = "Hook"
 damage = 7
 knockback = Vector2(150, -60)
 stun_time = 0.5
+knocks_down = true
 windup = 0.08
 active = 0.08
 recovery = 0.2

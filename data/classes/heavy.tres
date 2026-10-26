@@ -21,6 +21,7 @@ display_name = "Kick"
 damage = 12
 knockback = Vector2(220, -100)
 stun_time = 0.7
+knocks_down = true
 windup = 0.15
 active = 0.1
 recovery = 0.3

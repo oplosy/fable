@@ -2,6 +2,8 @@ class_name Fighter
 extends CharacterBody2D
 
 const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
+## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
+const FIGHTERS_LAYER := 2
 
 enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 
@@ -23,8 +25,12 @@ var firearm: Weapon
 ## Radians within the half-circle the fighter faces: 0 level, -PI/2 straight up, PI/2 straight down.
 ## Kept when turning around.
 var aim_angle := 0.0
+## From the character; a bare default class when there is none.
+var fighter_class: FighterClass
 
 var _hit_stun := 0.0
+var _down_time := 0.0
+var _getup_invulnerable := 0.0
 var _flash_tween: Tween
 
 @onready var _visuals: Node2D = $Visuals
@@ -36,10 +42,11 @@ var _flash_tween: Tween
 
 
 func _ready() -> void:
-	melee.fighter = self
 	if character:
 		_placeholder.color = character.placeholder_color
-		melee.fighter_class = character.fighter_class
+	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
+	melee.fighter = self
+	melee.fighter_class = fighter_class
 	if controller == null:
 		controller = FighterController.new()
 	if controller.get_parent() == null:
@@ -84,8 +91,16 @@ func is_dead() -> bool:
 	return health.is_dead()
 
 
+func is_knocked_down() -> bool:
+	return _down_time > 0.0
+
+
+func is_invulnerable() -> bool:
+	return (is_knocked_down() and fighter_class.downed_invulnerable) or _getup_invulnerable > 0.0
+
+
 func can_act() -> bool:
-	return not is_stunned() and not is_dead()
+	return not is_stunned() and not is_dead() and not is_knocked_down()
 
 
 func aim_direction() -> Vector2:
@@ -93,31 +108,67 @@ func aim_direction() -> Vector2:
 
 
 ## A negative `stun` uses the fighter's default hit_stun_time.
-func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0) -> void:
-	if is_dead():
+## `knocks_down` puts the fighter on the ground instead of stunning it.
+func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down := false) -> void:
+	if is_dead() or is_invulnerable():
 		return
 	health.take_damage(damage)
 	velocity += knockback
-	_hit_stun = stun if stun >= 0.0 else hit_stun_time
 	melee.cancel()
 	if _flash_tween:
 		_flash_tween.kill()
 	_flash_tween = create_tween()
 	_flash_tween.tween_property(_visuals, "modulate", Color.WHITE, 0.15).from(Color(3, 3, 3))
+	if is_dead():
+		return
+	# Already-downed fighters (only hittable if the class allows it) are never knocked down again.
+	if knocks_down and not is_knocked_down():
+		_knock_down()
+	elif not is_knocked_down():
+		_hit_stun = stun if stun >= 0.0 else hit_stun_time
+
+
+func _knock_down() -> void:
+	_down_time = fighter_class.knockdown_time
+	_hit_stun = 0.0
+	_lie_down(true)
+	_update_hittable()
+
+
+func _get_up() -> void:
+	_down_time = 0.0
+	_getup_invulnerable = fighter_class.getup_invulnerability
+	_lie_down(false)
+	_update_hittable()
+
+
+## Out of the fighters layer, projectiles and melee pass over the fighter; it still collides with the world.
+func _update_hittable() -> void:
+	collision_layer = 0 if is_dead() or is_invulnerable() else FIGHTERS_LAYER
+
+
+## Placeholder pose: lie down backwards. Replaced by knockdown and death animations later.
+func _lie_down(down: bool) -> void:
+	_visuals.rotation = -facing * PI / 2.0 if down else 0.0
+	_visuals.position.y = -6.0 if down else 0.0
 
 
 func _on_died() -> void:
-	# Leave the fighters layer so projectiles pass through the body; keep colliding with the world.
-	collision_layer = 0
-	# Placeholder fall: lie down backwards. Replaced by the death animation later.
-	_visuals.rotation = -facing * PI / 2.0
-	_visuals.position.y = -6.0
+	_lie_down(true)
+	_update_hittable()
 	melee.cancel()
 
 
 func _physics_process(delta: float) -> void:
 	controller.poll()
 	_hit_stun = maxf(_hit_stun - delta, 0.0)
+	if is_knocked_down() and not is_dead():
+		_down_time -= delta
+		if _down_time <= 0.0:
+			_get_up()
+	elif _getup_invulnerable > 0.0:
+		_getup_invulnerable = maxf(_getup_invulnerable - delta, 0.0)
+		_update_hittable()
 	var acting := can_act()
 	# A melee attack commits the fighter: no moving, turning, jumping or slot changes until it ends.
 	var unlocked := acting and not melee.is_attacking()

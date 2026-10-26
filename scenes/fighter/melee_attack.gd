@@ -9,6 +9,8 @@ extends Resource
 @export var knockback := Vector2(40, 0)
 ## How long the target is stunned; must cover the gap to the next attack of a combo.
 @export var stun_time := 0.35
+## Knocks the target to the ground instead of stunning it (combo finishers, jump kicks).
+@export var knocks_down := false
 @export var windup := 0.05
 @export var active := 0.08
 @export var recovery := 0.12

@@ -4,8 +4,6 @@ extends Node
 ## Runs a fighter's melee combo: timing, chaining, the end-of-combo pause and hit detection.
 ## Hits come from a physics shape query, so they never depend on sprite art.
 
-const FIGHTERS_LAYER := 2
-
 var fighter: Fighter
 var fighter_class: FighterClass
 
@@ -90,11 +88,11 @@ func _apply_hits(attack: MeleeAttack) -> void:
 	var query := PhysicsShapeQueryParameters2D.new()
 	query.shape = shape
 	query.transform = Transform2D(0.0, fighter.global_position + Vector2(attack.hitbox_offset.x * fighter.facing, attack.hitbox_offset.y))
-	query.collision_mask = FIGHTERS_LAYER
+	query.collision_mask = Fighter.FIGHTERS_LAYER
 	query.exclude = [fighter.get_rid()]
 	for result in fighter.get_world_2d().direct_space_state.intersect_shape(query):
 		var body: Node = result.collider
 		if body in _already_hit or not body.has_method("take_hit"):
 			continue
 		_already_hit.append(body)
-		body.take_hit(attack.damage, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), attack.stun_time)
+		body.take_hit(attack.damage, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), attack.stun_time, attack.knocks_down)
