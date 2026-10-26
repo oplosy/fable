@@ -66,8 +66,7 @@ Current melee rules (prototype, easy to change):
 - Getting hit cancels the current attack and the combo.
 - A melee hit stuns long enough for the next attack in the combo to connect.
 
-To discuss:
-- Knockdown: can a fighter be hit while on the ground; invulnerability while getting up?
+- **Downed fighters**: cannot be hit while lying down, and are briefly invulnerable while getting up; projectiles pass over them. This is a per-class setting so it can be revisited; allowing hits on the ground would also need a rule against re-knocking-down (endless knockdown loops).
 
 ## Damage and Hit Reactions
 
