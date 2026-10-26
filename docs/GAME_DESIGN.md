@@ -35,6 +35,27 @@ Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `p
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
 
+## Character Classes and Melee
+
+- Characters belong to classes that change how they fight; a character's look and its class are separate data.
+- Each class has its own melee combo, a fixed chain of attacks. After the last attack of the chain there is a pause before the fighter can attack again, so melee is never unlimited.
+- Examples: fast classes chain 4 punches; big classes chain punch, punch, kick.
+- Planned interactions (not built yet): a kick knocks the target to the ground; more interactions of this kind will follow.
+
+Current melee rules (prototype, easy to change):
+- Attack in the melee slot starts the class combo; pressing attack again during an attack queues the next one.
+- Each attack has wind-up, active and recovery time; it hits each target at most once, only during its active time.
+- Movement input is ignored on the ground while attacking; the fighter keeps facing the same way.
+- Getting hit cancels the current attack and the combo.
+- A melee hit stuns long enough for the next attack in the combo to connect.
+
+To discuss (details worth deciding before they are built):
+- Knockdown: how long the fighter lies down, whether it can be hit on the ground, invulnerability while getting up.
+- Air attacks: can fighters punch or kick while jumping, and does that differ per class?
+- Defence: blocking, dodging/rolling, or breaking out of a combo.
+- Disarming: melee hits knocking the firearm out of the target's hands, as in Superfighters.
+- Per-class stats beyond melee: run speed, jump height, health.
+
 ## Damage and Hit Reactions
 
 - Fighters have health (100 by default); weapons define damage and knockback.
