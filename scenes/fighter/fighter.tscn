@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/fighter/fighter.gd" id="1_fighter"]
+[ext_resource type="Script" path="res://scenes/components/health.gd" id="2_health"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(12, 28)
@@ -12,6 +13,9 @@ script = ExtResource("1_fighter")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -14)
 shape = SubResource("body_shape")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
 
 [node name="Visuals" type="Node2D" parent="."]
 

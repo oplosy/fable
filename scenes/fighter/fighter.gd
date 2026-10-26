@@ -25,6 +25,7 @@ var aim_angle := 0.0
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
 @onready var _hand: Marker2D = $Visuals/Hand
+@onready var health: Health = $Health
 
 
 func _ready() -> void:
@@ -54,6 +55,10 @@ func aim_direction() -> Vector2:
 	return Vector2(facing * cos(aim_angle), sin(aim_angle))
 
 
+func take_hit(damage: int) -> void:
+	health.take_damage(damage)
+
+
 func _physics_process(delta: float) -> void:
 	controller.poll()
 
@@ -81,6 +86,6 @@ func _physics_process(delta: float) -> void:
 		var wants_fire := controller.attack_held if firearm.data.automatic else controller.attack
 		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
-			firearm.try_fire(aim_direction(), get_parent())
+			firearm.try_fire(aim_direction(), get_parent(), self)
 
 	move_and_slide()

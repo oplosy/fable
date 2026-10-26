@@ -17,7 +17,7 @@ func _physics_process(delta: float) -> void:
 
 
 ## Spawns a projectile into `world` travelling along the unit vector `direction`.
-func try_fire(direction: Vector2, world: Node) -> bool:
+func try_fire(direction: Vector2, world: Node, shooter: Node2D) -> bool:
 	if _cooldown > 0.0:
 		return false
 	_cooldown = data.fire_interval
@@ -26,6 +26,7 @@ func try_fire(direction: Vector2, world: Node) -> bool:
 	projectile.velocity = direction * data.projectile_speed
 	projectile.rotation = direction.angle()
 	projectile.damage = data.damage
+	projectile.shooter = shooter
 	world.add_child(projectile)
 	projectile.global_position = to_global(data.muzzle - data.grip)
 	return true
