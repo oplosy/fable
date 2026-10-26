@@ -9,6 +9,7 @@ var aim := 0.0 ## -1 up .. 1 down
 var jump := false ## Pressed this physics frame.
 var attack := false ## Pressed this physics frame.
 var attack_held := false
+var select_slot := -1 ## Fighter.Slot chosen this physics frame, -1 for none.
 
 
 ## Called by the Fighter at the start of each physics frame.

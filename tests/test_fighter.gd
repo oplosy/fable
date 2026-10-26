@@ -129,3 +129,17 @@ func run() -> void:
 		check(is_equal_approx(bullet.rotation, aim.angle()), "bullet is rotated to the aim")
 		var muzzle := fighter.firearm.to_global(fighter.firearm.data.muzzle - fighter.firearm.data.grip)
 		check(bullet.global_position.distance_to(muzzle) < bullet.velocity.length() / 30.0, "bullet starts at the rotated muzzle")
+
+	await _press("p1_slot_1")
+	check(fighter.active_slot == Fighter.Slot.MELEE and not fighter.firearm.visible, "key 1 selects melee and puts the firearm away")
+	await _press("p1_slot_3")
+	check(fighter.active_slot == Fighter.Slot.MELEE, "empty throwable slot cannot be selected")
+	await _press("p1_slot_2")
+	check(fighter.active_slot == Fighter.Slot.FIREARM and fighter.firearm.visible, "key 2 selects and draws the firearm")
+
+
+func _press(action: String) -> void:
+	Input.action_press(action)
+	await physics_frames(2)
+	Input.action_release(action)
+	await physics_frames(1)

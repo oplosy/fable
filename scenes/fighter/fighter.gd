@@ -52,6 +52,21 @@ func equip_firearm(data: WeaponData) -> void:
 	active_slot = Slot.FIREARM
 
 
+## Empty slots cannot be selected; melee (bare hands) is always available.
+func select_slot(slot: Slot) -> bool:
+	match slot:
+		Slot.MELEE:
+			pass
+		Slot.FIREARM:
+			if firearm == null:
+				return false
+		_:
+			# Throwables and power-ups do not exist yet, so these slots are always empty.
+			return false
+	active_slot = slot
+	return true
+
+
 ## The firearm is in hand only while standing on the floor; moving puts it away.
 func is_firearm_drawn() -> bool:
 	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0 and can_act()
@@ -96,6 +111,9 @@ func _physics_process(delta: float) -> void:
 	controller.poll()
 	_hit_stun = maxf(_hit_stun - delta, 0.0)
 	var acting := can_act()
+
+	if acting and controller.select_slot >= 0:
+		select_slot(controller.select_slot)
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
