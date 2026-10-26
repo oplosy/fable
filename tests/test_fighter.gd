@@ -90,6 +90,29 @@ func _initialize() -> void:
 	Input.action_release("p1_attack")
 	_check(get_nodes_in_group("projectiles").size() == 1, "semi-auto pistol fires once while held")
 
+	Input.action_press("p1_up")
+	await _physics_frames(30)
+	_check(fighter.aim_angle < -0.3 and fighter.aim_angle > -PI / 2.0, "W raises the aim gradually")
+	await _physics_frames(90)
+	Input.action_release("p1_up")
+	_check(is_equal_approx(fighter.aim_angle, -PI / 2.0), "aim stops at straight up")
+	_check(fighter.aim_direction().y < -0.99, "aim points up")
+
+	Input.action_press("p1_down")
+	await _physics_frames(150)
+	Input.action_release("p1_down")
+	_check(is_equal_approx(fighter.aim_angle, PI / 2.0), "S lowers the aim to straight down")
+
+	var held_angle := fighter.aim_angle
+	Input.action_press("p1_right")
+	Input.action_press("p1_up")
+	await _physics_frames(10)
+	Input.action_release("p1_up")
+	Input.action_release("p1_right")
+	await _physics_frames(30)
+	_check(fighter.aim_angle == held_angle, "aim does not change while moving")
+	_check(fighter.facing == 1 and fighter.aim_direction().x >= 0.0, "aim is kept and mirrored after turning")
+
 	print("FAILED" if _failed else "ALL PASSED")
 	quit(1 if _failed else 0)
 

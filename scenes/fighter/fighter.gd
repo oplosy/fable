@@ -12,11 +12,15 @@ enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 @export var acceleration := 900.0
 @export var friction := 1100.0
 @export var jump_velocity := -300.0
+@export var aim_speed_degrees := 90.0
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var facing := 1
 var active_slot := Slot.MELEE
 var firearm: Weapon
+## Radians within the half-circle the fighter faces: 0 level, -PI/2 straight up, PI/2 straight down.
+## Kept when turning around.
+var aim_angle := 0.0
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -46,6 +50,10 @@ func is_firearm_drawn() -> bool:
 	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0
 
 
+func aim_direction() -> Vector2:
+	return Vector2(facing * cos(aim_angle), sin(aim_angle))
+
+
 func _physics_process(delta: float) -> void:
 	controller.poll()
 
@@ -66,6 +74,10 @@ func _physics_process(delta: float) -> void:
 	if firearm:
 		var drawn := is_firearm_drawn()
 		firearm.visible = drawn
+		if drawn:
+			aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
+			# Visuals are mirrored by facing, so the same local angle points into the facing half.
+			_hand.rotation = aim_angle
 		var wants_fire := controller.attack_held if firearm.data.automatic else controller.attack
 		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
