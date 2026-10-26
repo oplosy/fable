@@ -45,7 +45,22 @@ func run() -> void:
 	check(not target.is_stunned(), "stun wears off")
 	check(target.velocity.x < 0.0, "target walks again after the stun")
 	check(target.get_node("Visuals").modulate == Color.WHITE, "flash fades back")
+
+	target.take_hit(1000)
+	await physics_frames(20)
+	check(target.is_dead() and target.health.current == 0, "lethal hit kills the target")
+	check(target.collision_layer == 0, "dead body leaves the fighters layer")
+	check(is_equal_approx(absf(target.get_node("Visuals").rotation), PI / 2.0), "dead body lies down")
+	check(is_zero_approx(target.velocity.x), "dead body ignores its move intent")
+
 	target.controller.move = 0.0
+	shooter.aim_angle = 0.0
+	shooter.global_position.x = target.global_position.x - 60.0
+	await physics_frames(2)
+	await _fire(shooter)
+	await physics_frames(12)
+	var bullets := get_nodes_in_group("projectiles")
+	check(bullets.size() == 1 and bullets[0].global_position.x > target.global_position.x + 10.0, "bullets pass through the dead body")
 
 
 func _spawn(at: Vector2) -> Fighter:

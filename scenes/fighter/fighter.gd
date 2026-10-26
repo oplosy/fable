@@ -40,6 +40,7 @@ func _ready() -> void:
 		controller = FighterController.new()
 	if controller.get_parent() == null:
 		add_child(controller)
+	health.died.connect(_on_died)
 
 
 func equip_firearm(data: WeaponData) -> void:
@@ -53,11 +54,19 @@ func equip_firearm(data: WeaponData) -> void:
 
 ## The firearm is in hand only while standing on the floor; moving puts it away.
 func is_firearm_drawn() -> bool:
-	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0 and not is_stunned()
+	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0 and can_act()
 
 
 func is_stunned() -> bool:
 	return _hit_stun > 0.0
+
+
+func is_dead() -> bool:
+	return health.is_dead()
+
+
+func can_act() -> bool:
+	return not is_stunned() and not is_dead()
 
 
 func aim_direction() -> Vector2:
@@ -65,6 +74,8 @@ func aim_direction() -> Vector2:
 
 
 func take_hit(damage: int, knockback := Vector2.ZERO) -> void:
+	if is_dead():
+		return
 	health.take_damage(damage)
 	velocity += knockback
 	_hit_stun = hit_stun_time
@@ -74,18 +85,25 @@ func take_hit(damage: int, knockback := Vector2.ZERO) -> void:
 	_flash_tween.tween_property(_visuals, "modulate", Color.WHITE, 0.15).from(Color(3, 3, 3))
 
 
+func _on_died() -> void:
+	# Leave the fighters layer so projectiles pass through the body; keep colliding with the world.
+	collision_layer = 0
+	# Placeholder fall: lie down backwards. Replaced by the death animation later.
+	_visuals.rotation = -facing * PI / 2.0
+	_visuals.position.y = -6.0
+
 func _physics_process(delta: float) -> void:
 	controller.poll()
 	_hit_stun = maxf(_hit_stun - delta, 0.0)
-	var can_act := not is_stunned()
+	var acting := can_act()
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if can_act and controller.jump and is_on_floor():
+	if acting and controller.jump and is_on_floor():
 		velocity.y = jump_velocity
 
-	var direction := controller.move if can_act else 0.0
+	var direction := controller.move if acting else 0.0
 	if direction:
 		velocity.x = move_toward(velocity.x, direction * run_speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
