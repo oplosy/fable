@@ -1,0 +1,51 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="RectangleShape2D" id="floor_shape"]
+size = Vector2(640, 32)
+
+[sub_resource type="RectangleShape2D" id="wall_shape"]
+size = Vector2(16, 328)
+
+[node name="TestArena" type="Node2D"]
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(320, 344)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("floor_shape")
+
+[node name="Visual" type="ColorRect" parent="Floor"]
+offset_left = -320.0
+offset_top = -16.0
+offset_right = 320.0
+offset_bottom = 16.0
+mouse_filter = 2
+color = Color(0.69, 0.64, 0.54, 1)
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(8, 164)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("wall_shape")
+
+[node name="Visual" type="ColorRect" parent="LeftWall"]
+offset_left = -8.0
+offset_top = -164.0
+offset_right = 8.0
+offset_bottom = 164.0
+mouse_filter = 2
+color = Color(0.2, 0.25, 0.2, 1)
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(632, 164)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("wall_shape")
+
+[node name="Visual" type="ColorRect" parent="RightWall"]
+offset_left = -8.0
+offset_top = -164.0
+offset_right = 8.0
+offset_bottom = 164.0
+mouse_filter = 2
+color = Color(0.2, 0.25, 0.2, 1)
