@@ -8,6 +8,8 @@ extends Resource
 @export var melee_combo: Array[MeleeAttack] = []
 ## Pause after the full combo before the next attack; a combo cut short pauses proportionally less.
 @export var combo_cooldown := 0.6
+## Jump kick, once per jump. There are no air punches.
+@export var air_attack: MeleeAttack
 
 @export_group("Knockdown")
 ## Seconds a knocked-down fighter lies on the ground.

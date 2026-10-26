@@ -205,7 +205,8 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, direction * run_speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
-	else:
+	elif not melee.is_air_attacking() or is_on_floor():
+		# A jump kick keeps the jump's momentum.
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
 	if firearm:
@@ -221,7 +222,7 @@ func _physics_process(delta: float) -> void:
 			firearm.try_fire(aim_direction(), get_parent(), self)
 
 	if acting and active_slot == Slot.MELEE and controller.attack:
-		melee.request_attack()
+		melee.request_attack(not is_on_floor())
 	melee.physics_update(delta)
 	_update_attack_placeholder()
 

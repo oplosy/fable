@@ -93,6 +93,42 @@ func run() -> void:
 	heavy.take_hit(1000)
 	check(heavy.is_dead(), "a lethal hit kills once vulnerable")
 
+	await _test_jump_kick()
+
+
+func _test_jump_kick() -> void:
+	var kicker := _spawn(FAST, Vector2(400, 328))
+	var target := _spawn(HEAVY, Vector2(416, 328))
+	await physics_frames(10)
+
+	# Attack in the air is the jump kick, never a punch; one per jump.
+	await _press_jump(kicker)
+	await physics_frames(2)
+	check(not kicker.is_on_floor(), "kicker is airborne")
+	await _press_attack(kicker)
+	check(kicker.melee.is_air_attacking() and kicker.melee.current_attack() == FAST.fighter_class.air_attack, "attacking in the air starts the jump kick")
+	await physics_frames(int(FAST.fighter_class.air_attack.duration() * 60) + 2)
+	check(not kicker.melee.is_attacking(), "jump kick ends")
+	check(target.is_knocked_down(), "a landed jump kick knocks the target down")
+	if not kicker.is_on_floor():
+		await _press_attack(kicker)
+		check(not kicker.melee.is_attacking(), "only one jump kick per jump")
+	await physics_frames(60)
+	check(kicker.is_on_floor(), "kicker lands")
+
+	# Landing restores the kick.
+	await physics_frames(int(HEAVY.fighter_class.knockdown_time * 60) + 30)
+	await _press_jump(kicker)
+	await physics_frames(2)
+	await _press_attack(kicker)
+	check(kicker.melee.is_air_attacking(), "landing allows the next jump kick")
+
+
+func _press_jump(fighter: Fighter) -> void:
+	fighter.controller.jump = true
+	await physics_frames(1)
+	fighter.controller.jump = false
+
 
 func _spawn(data: CharacterData, at: Vector2) -> Fighter:
 	var fighter: Fighter = FIGHTER_SCENE.instantiate()

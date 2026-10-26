@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="FighterClass" load_steps=5 format=3]
+[gd_resource type="Resource" script_class="FighterClass" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scenes/fighter/fighter_class.gd" id="1_class"]
 [ext_resource type="Script" path="res://scenes/fighter/melee_attack.gd" id="2_attack"]
@@ -28,8 +28,22 @@ recovery = 0.2
 hitbox_offset = Vector2(12, -18)
 hitbox_size = Vector2(14, 10)
 
+[sub_resource type="Resource" id="jump_kick"]
+script = ExtResource("2_attack")
+display_name = "Jump Kick"
+damage = 8
+knockback = Vector2(160, -60)
+stun_time = 0.5
+knocks_down = true
+windup = 0.05
+active = 0.2
+recovery = 0.1
+hitbox_offset = Vector2(12, 0)
+hitbox_size = Vector2(16, 16)
+
 [resource]
 script = ExtResource("1_class")
 display_name = "Fast"
 melee_combo = Array[ExtResource("2_attack")]([SubResource("jab"), SubResource("jab"), SubResource("jab"), SubResource("hook")])
 combo_cooldown = 0.6
+air_attack = SubResource("jump_kick")
