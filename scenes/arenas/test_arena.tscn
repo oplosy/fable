@@ -49,3 +49,11 @@ offset_right = 8.0
 offset_bottom = 164.0
 mouse_filter = 2
 color = Color(0.2, 0.25, 0.2, 1)
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="P1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(320, 328)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 180)

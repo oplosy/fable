@@ -5,11 +5,16 @@ var _failed := false
 
 
 func _initialize() -> void:
+	# Godot does not exit on script errors, so fail instead of hanging.
+	create_timer(30.0).timeout.connect(func() -> void:
+		print("FAIL timed out")
+		quit(1))
+
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
-	var player: CharacterBody2D = main.get_node("Player")
-
 	await _physics_frames(30)
+	var player: CharacterBody2D = main.player
+
 	_check(player.is_on_floor(), "player rests on the floor")
 	var floor_y := player.position.y
 
