@@ -113,6 +113,23 @@ func _initialize() -> void:
 	_check(fighter.aim_angle == held_angle, "aim does not change while moving")
 	_check(fighter.facing == 1 and fighter.aim_direction().x >= 0.0, "aim is kept and mirrored after turning")
 
+	Input.action_press("p1_up")
+	await _physics_frames(60)
+	Input.action_release("p1_up")
+	await _physics_frames(30)
+	var aim := fighter.aim_direction()
+	Input.action_press("p1_attack")
+	await _physics_frames(2)
+	Input.action_release("p1_attack")
+	bullets = get_nodes_in_group("projectiles")
+	_check(bullets.size() == 1, "aimed shot spawns one bullet")
+	if bullets.size() == 1:
+		var bullet: Projectile = bullets[0]
+		_check(bullet.velocity.normalized().is_equal_approx(aim), "bullet travels along the aim")
+		_check(is_equal_approx(bullet.rotation, aim.angle()), "bullet is rotated to the aim")
+		var muzzle := fighter.firearm.to_global(fighter.firearm.data.muzzle - fighter.firearm.data.grip)
+		_check(bullet.global_position.distance_to(muzzle) < bullet.velocity.length() / 30.0, "bullet starts at the rotated muzzle")
+
 	print("FAILED" if _failed else "ALL PASSED")
 	quit(1 if _failed else 0)
 

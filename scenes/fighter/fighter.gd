@@ -81,6 +81,6 @@ func _physics_process(delta: float) -> void:
 		var wants_fire := controller.attack_held if firearm.data.automatic else controller.attack
 		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
-			firearm.try_fire(facing, get_parent())
+			firearm.try_fire(aim_direction(), get_parent())
 
 	move_and_slide()
