@@ -35,6 +35,15 @@ Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `p
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
 
+## Damage and Hit Reactions
+
+- Fighters have health (100 by default); weapons define damage and knockback.
+- A hit flashes the fighter, pushes it along the hit direction and stuns it briefly (0.25 s): no moving, jumping, aiming or firing.
+- At zero health the fighter dies: the body stays on the map lying down, ignores input, and projectiles pass through it.
+- A fighter's own projectiles never hit it.
+
+Prototype values (not yet tuned or confirmed): 100 health, pistol 10 damage and 100 px/s knockback, 0.25 s stun.
+
 ## Players and Modes
 
 - Multiplayer is a core requirement.
@@ -52,3 +61,5 @@ Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `p
 
 - The pistol is equipped at spawn until weapon pickups exist.
 - Only the firearm slot behaves; melee, throwable and power-up slots and slot switching are not implemented yet.
+- The main scene spawns an idle target dummy that respawns 1.5 s after dying; it is a testing aid, not a game mode.
+- Death is a placeholder (the rectangle rotates); the real death animation comes with sprites.
