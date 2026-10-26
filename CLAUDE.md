@@ -1,3 +1,7 @@
+# Game Design
+
+Agreed gameplay requirements and open questions live in @docs/GAME_DESIGN.md. Read it before designing a feature and add new requirements there as the user states them.
+
 # Architecture: Content Extensibility
 
 New maps, character designs and weapons will be added often, so adding content must not require changes to core scripts.
