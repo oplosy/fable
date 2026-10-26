@@ -30,6 +30,7 @@ var _flash_tween: Tween
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
 @onready var _hand: Marker2D = $Visuals/Hand
+@onready var _attack_placeholder: ColorRect = $Visuals/AttackPlaceholder
 @onready var health: Health = $Health
 @onready var melee: Melee = $Melee
 
@@ -153,5 +154,16 @@ func _physics_process(delta: float) -> void:
 	if acting and active_slot == Slot.MELEE and controller.attack:
 		melee.request_attack()
 	melee.physics_update(delta)
+	_update_attack_placeholder()
 
 	move_and_slide()
+
+
+## Shows the hit area while an attack can land. Replaced by attack animations later.
+func _update_attack_placeholder() -> void:
+	_attack_placeholder.visible = melee.is_hitting()
+	var attack := melee.current_attack()
+	if attack:
+		# Visuals are mirrored by facing, so the facing-right offset is used as is.
+		_attack_placeholder.position = attack.hitbox_offset - attack.hitbox_size / 2.0
+		_attack_placeholder.size = attack.hitbox_size
