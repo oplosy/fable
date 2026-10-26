@@ -4,6 +4,8 @@ extends CharacterBody2D
 const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
 
 @export var character: CharacterData
+## Without one the fighter stands idle (e.g. a target dummy).
+@export var controller: FighterController
 @export var run_speed := 120.0
 @export var acceleration := 900.0
 @export var friction := 1100.0
@@ -21,6 +23,10 @@ var weapon: Weapon
 func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
+	if controller == null:
+		controller = FighterController.new()
+	if controller.get_parent() == null:
+		add_child(controller)
 
 
 func equip(data: WeaponData) -> void:
@@ -32,13 +38,15 @@ func equip(data: WeaponData) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	controller.poll()
+
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if controller.jump and is_on_floor():
 		velocity.y = jump_velocity
 
-	var direction := Input.get_axis("move_left", "move_right")
+	var direction := controller.move
 	if direction:
 		velocity.x = move_toward(velocity.x, direction * run_speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
@@ -47,7 +55,7 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
 	if weapon:
-		var wants_fire := Input.is_action_pressed("fire") if weapon.data.automatic else Input.is_action_just_pressed("fire")
+		var wants_fire := controller.attack_held if weapon.data.automatic else controller.attack
 		if wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
 			weapon.try_fire(facing, get_parent())

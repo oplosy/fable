@@ -20,42 +20,42 @@ func _initialize() -> void:
 	var floor_y := fighter.position.y
 
 	var start_x := fighter.position.x
-	Input.action_press("move_right")
+	Input.action_press("p1_right")
 	await _physics_frames(30)
-	Input.action_release("move_right")
-	_check(fighter.position.x > start_x + 10.0, "move_right moves the fighter right")
+	Input.action_release("p1_right")
+	_check(fighter.position.x > start_x + 10.0, "p1_right moves the fighter right")
 	_check(fighter.facing == 1, "fighter faces right")
 
 	start_x = fighter.position.x
-	Input.action_press("move_left")
+	Input.action_press("p1_left")
 	await _physics_frames(30)
-	Input.action_release("move_left")
-	_check(fighter.position.x < start_x - 10.0, "move_left moves the fighter left")
+	Input.action_release("p1_left")
+	_check(fighter.position.x < start_x - 10.0, "p1_left moves the fighter left")
 	_check(fighter.facing == -1 and fighter.get_node("Visuals").scale.x == -1, "fighter faces and flips left")
 
-	Input.action_press("jump")
+	Input.action_press("p1_jump")
 	await _physics_frames(10)
-	Input.action_release("jump")
+	Input.action_release("p1_jump")
 	_check(fighter.position.y < floor_y - 20.0, "jump lifts the fighter")
 
 	await _physics_frames(90)
 	# Collision safe margin leaves a sub-pixel gap, so compare within half a pixel.
 	_check(fighter.is_on_floor() and absf(fighter.position.y - floor_y) < 0.5, "fighter lands back on the floor")
 
-	Input.action_press("move_right")
+	Input.action_press("p1_right")
 	await _physics_frames(300)
-	Input.action_release("move_right")
+	Input.action_release("p1_right")
 	_check(fighter.position.x < 632.0, "right wall stops the fighter")
 
 	_check(fighter.weapon != null and fighter.weapon.data.display_name == "Pistol", "fighter spawns with the pistol")
-	Input.action_press("move_left")
+	Input.action_press("p1_left")
 	await _physics_frames(20)
-	Input.action_release("move_left")
+	Input.action_release("p1_left")
 
 	# Fighter reads the press on the next physics frame, so wait two.
-	Input.action_press("fire")
+	Input.action_press("p1_attack")
 	await _physics_frames(2)
-	Input.action_release("fire")
+	Input.action_release("p1_attack")
 	var bullets := get_nodes_in_group("projectiles")
 	_check(bullets.size() == 1, "fire spawns one bullet")
 	if bullets.size() == 1:
@@ -63,17 +63,17 @@ func _initialize() -> void:
 		_check(bullet.velocity.x < 0.0 and bullet.global_position.x < fighter.global_position.x, "bullet leaves the muzzle facing left")
 		_check(bullet.get_parent() == main.arena, "bullet lives in the arena")
 
-	Input.action_press("fire")
+	Input.action_press("p1_attack")
 	await _physics_frames(2)
-	Input.action_release("fire")
+	Input.action_release("p1_attack")
 	_check(get_nodes_in_group("projectiles").size() == 1, "cooldown blocks a second shot")
 
 	await _physics_frames(120)
 	_check(get_nodes_in_group("projectiles").is_empty(), "bullet is removed after hitting the wall")
 
-	Input.action_press("fire")
+	Input.action_press("p1_attack")
 	await _physics_frames(30)
-	Input.action_release("fire")
+	Input.action_release("p1_attack")
 	_check(get_nodes_in_group("projectiles").size() == 1, "semi-auto pistol fires once while held")
 
 	print("FAILED" if _failed else "ALL PASSED")

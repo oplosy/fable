@@ -16,6 +16,7 @@ func _ready() -> void:
 
 	fighter = fighter_scene.instantiate()
 	fighter.character = character
+	fighter.controller = LocalController.new()
 	# Spawned into the arena so anything the fighter creates (projectiles) lives with the map.
 	arena.add_child(fighter)
 	fighter.global_position = arena.get_node("SpawnPoints").get_child(0).global_position
