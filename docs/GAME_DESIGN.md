@@ -32,7 +32,7 @@ Current defaults (not yet confirmed by the user, easy to change):
 
 Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `pN_` action set.
 
-- Open: jump is on K because W aims. Should W jump when no firearm is drawn, as in Superfighters?
+- Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
 
 ## Players and Modes
