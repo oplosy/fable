@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/arenas/test_arena.tscn" id="2_arena"]
 [ext_resource type="PackedScene" path="res://scenes/fighter/fighter.tscn" id="3_fighter"]
 [ext_resource type="Resource" path="res://data/characters/placeholder.tres" id="4_character"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="5_pistol"]
+[ext_resource type="Resource" path="res://data/characters/dummy.tres" id="6_dummy"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -12,3 +13,4 @@ arena_scene = ExtResource("2_arena")
 fighter_scene = ExtResource("3_fighter")
 character = ExtResource("4_character")
 starting_weapon = ExtResource("5_pistol")
+dummy_character = ExtResource("6_dummy")

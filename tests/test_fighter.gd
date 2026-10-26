@@ -78,10 +78,17 @@ func run() -> void:
 	await physics_frames(120)
 	check(get_nodes_in_group("projectiles").is_empty(), "bullet is removed after hitting the wall")
 
+	# Count spawns rather than live bullets: a shot may already have hit the dummy.
+	var shots := [0]
+	var count_shot := func(node: Node) -> void:
+		if node is Projectile:
+			shots[0] += 1
+	main.arena.child_entered_tree.connect(count_shot)
 	Input.action_press("p1_attack")
 	await physics_frames(30)
 	Input.action_release("p1_attack")
-	check(get_nodes_in_group("projectiles").size() == 1, "semi-auto pistol fires once while held")
+	main.arena.child_entered_tree.disconnect(count_shot)
+	check(shots[0] == 1, "semi-auto pistol fires once while held")
 
 	Input.action_press("p1_up")
 	await physics_frames(30)
