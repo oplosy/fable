@@ -31,11 +31,14 @@ var _flash_tween: Tween
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
 @onready var _hand: Marker2D = $Visuals/Hand
 @onready var health: Health = $Health
+@onready var melee: Melee = $Melee
 
 
 func _ready() -> void:
+	melee.fighter = self
 	if character:
 		_placeholder.color = character.placeholder_color
+		melee.fighter_class = character.fighter_class
 	if controller == null:
 		controller = FighterController.new()
 	if controller.get_parent() == null:
@@ -88,12 +91,14 @@ func aim_direction() -> Vector2:
 	return Vector2(facing * cos(aim_angle), sin(aim_angle))
 
 
-func take_hit(damage: int, knockback := Vector2.ZERO) -> void:
+## A negative `stun` uses the fighter's default hit_stun_time.
+func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0) -> void:
 	if is_dead():
 		return
 	health.take_damage(damage)
 	velocity += knockback
-	_hit_stun = hit_stun_time
+	_hit_stun = stun if stun >= 0.0 else hit_stun_time
+	melee.cancel()
 	if _flash_tween:
 		_flash_tween.kill()
 	_flash_tween = create_tween()
@@ -106,22 +111,26 @@ func _on_died() -> void:
 	# Placeholder fall: lie down backwards. Replaced by the death animation later.
 	_visuals.rotation = -facing * PI / 2.0
 	_visuals.position.y = -6.0
+	melee.cancel()
+
 
 func _physics_process(delta: float) -> void:
 	controller.poll()
 	_hit_stun = maxf(_hit_stun - delta, 0.0)
 	var acting := can_act()
+	# A melee attack commits the fighter: no moving, turning, jumping or slot changes until it ends.
+	var unlocked := acting and not melee.is_attacking()
 
-	if acting and controller.select_slot >= 0:
+	if unlocked and controller.select_slot >= 0:
 		select_slot(controller.select_slot)
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if acting and controller.jump and is_on_floor():
+	if unlocked and controller.jump and is_on_floor():
 		velocity.y = jump_velocity
 
-	var direction := controller.move if acting else 0.0
+	var direction := controller.move if unlocked else 0.0
 	if direction:
 		velocity.x = move_toward(velocity.x, direction * run_speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
@@ -140,5 +149,9 @@ func _physics_process(delta: float) -> void:
 		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
 			firearm.try_fire(aim_direction(), get_parent(), self)
+
+	if acting and active_slot == Slot.MELEE and controller.attack:
+		melee.request_attack()
+	melee.physics_update(delta)
 
 	move_and_slide()
