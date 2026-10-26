@@ -1,4 +1,4 @@
-# Run: godot --headless --path . -s res://tests/test_player_movement.gd
+# Run: godot --headless --path . -s res://tests/test_fighter.gd
 extends SceneTree
 
 var _failed := false
@@ -13,36 +13,39 @@ func _initialize() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await _physics_frames(30)
-	var player: CharacterBody2D = main.player
+	var fighter: Fighter = main.fighter
 
-	_check(player.is_on_floor(), "player rests on the floor")
-	var floor_y := player.position.y
+	_check(fighter.is_on_floor(), "fighter rests on the floor")
+	_check(fighter.get_node("Visuals/Placeholder").color == fighter.character.placeholder_color, "character data sets the look")
+	var floor_y := fighter.position.y
 
-	var start_x := player.position.x
+	var start_x := fighter.position.x
 	Input.action_press("move_right")
 	await _physics_frames(30)
 	Input.action_release("move_right")
-	_check(player.position.x > start_x + 10.0, "move_right moves the player right")
+	_check(fighter.position.x > start_x + 10.0, "move_right moves the fighter right")
+	_check(fighter.facing == 1, "fighter faces right")
 
-	start_x = player.position.x
+	start_x = fighter.position.x
 	Input.action_press("move_left")
 	await _physics_frames(30)
 	Input.action_release("move_left")
-	_check(player.position.x < start_x - 10.0, "move_left moves the player left")
+	_check(fighter.position.x < start_x - 10.0, "move_left moves the fighter left")
+	_check(fighter.facing == -1 and fighter.get_node("Visuals").scale.x == -1, "fighter faces and flips left")
 
 	Input.action_press("jump")
 	await _physics_frames(10)
 	Input.action_release("jump")
-	_check(player.position.y < floor_y - 20.0, "jump lifts the player")
+	_check(fighter.position.y < floor_y - 20.0, "jump lifts the fighter")
 
 	await _physics_frames(90)
 	# Collision safe margin leaves a sub-pixel gap, so compare within half a pixel.
-	_check(player.is_on_floor() and absf(player.position.y - floor_y) < 0.5, "player lands back on the floor")
+	_check(fighter.is_on_floor() and absf(fighter.position.y - floor_y) < 0.5, "fighter lands back on the floor")
 
 	Input.action_press("move_right")
 	await _physics_frames(300)
 	Input.action_release("move_right")
-	_check(player.position.x < 632.0, "right wall stops the player")
+	_check(fighter.position.x < 632.0, "right wall stops the fighter")
 
 	print("FAILED" if _failed else "ALL PASSED")
 	quit(1 if _failed else 0)

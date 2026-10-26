@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/fighter/fighter.gd" id="1_fighter"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(12, 28)
+
+[node name="Fighter" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_fighter")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("body_shape")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Placeholder" type="ColorRect" parent="Visuals"]
+offset_left = -6.0
+offset_top = -28.0
+offset_right = 6.0
+mouse_filter = 2
+
+[node name="Hand" type="Marker2D" parent="Visuals"]
+position = Vector2(4, -14)
