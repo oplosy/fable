@@ -1,3 +1,12 @@
+# Architecture: Content Extensibility
+
+New maps, character designs and weapons will be added often, so adding content must not require changes to core scripts.
+
+- **Maps**: each arena is a self-contained scene under `scenes/arenas/` that owns its geometry, `SpawnPoints` and `Camera2D`. The main scene only loads an arena. Detailed map work is deferred; only the test arena exists for now.
+- **Characters**: one shared `Fighter` scene; a character is a `CharacterData` resource under `data/characters/` (look only; gameplay stats are shared, as in Superfighters).
+- **Weapons**: one shared `Weapon` scene; a weapon is a `WeaponData` resource under `data/weapons/` plus its sprite. Weapons are separate sprites attached to the fighter's hand, never baked into character frames.
+- Prefer a new resource or scene over a new code branch when adding content.
+
 # Commit Conventions
 
 - Split work that would normally fit in a single commit into 4-5 small, logically separate commits.
