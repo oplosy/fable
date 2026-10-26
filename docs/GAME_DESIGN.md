@@ -13,19 +13,23 @@ Every fighter has four slots:
 | 3 | Throwable | Grenades, molotovs and other throwables. |
 | 4 | Power-up | Pickups found on the map: slow motion, speed boost, health regeneration, etc. |
 
-## Firearm Aiming
+## Firearm Handling and Aiming
 
-- No mouse aiming.
-- While aiming a firearm the fighter cannot move; the movement keys aim the weapon instead.
+- No mouse aiming and no separate aim mode or aim key.
+- With the firearm slot active and the fighter standing still, the firearm is drawn in hand; pressing attack fires it.
+- Left/right (A/D) always move the fighter. While moving, the firearm is put away and the run/walk animation plays; when the fighter stops, the firearm is drawn again because the firearm slot is still active. No firing while moving.
+- A faces the fighter left, D faces it right.
+- A vertical line through the fighter splits the space into a left and a right half-circle (180° each). The fighter aims within the half on the side it faces, from straight down to straight up.
 - Up (W) rotates the aim upward gradually, down (S) rotates it downward gradually.
-- Open: does aiming start whenever the firearm slot is active, or only while an aim key is held (as in Superfighters)? What do left/right do while aiming (turn around)?
+
+Example: the fighter walks, stops, the firearm appears in hand and attack fires it. Pressing A or D again puts the firearm away and the fighter runs; on stopping, the firearm is drawn again.
 
 ## Players and Modes
 
 - Multiplayer is a core requirement.
 - A versus-computer mode (bots) is also required.
-- Implication: fighters must not read `Input` directly; a controller (local player, bot, remote player) drives each fighter.
-- Open: local multiplayer on one machine, online, or both?
+- Multiplayer is both local (several players on one machine) and online.
+- Implication: fighters must not read `Input` directly; a controller (local player, bot, remote player) drives each fighter, and local players need separate key bindings.
 
 ## Maps
 
@@ -35,4 +39,4 @@ Every fighter has four slots:
 
 ## Current Prototype Deviations
 
-- The pistol currently fires horizontally while moving and is equipped at spawn; both change once slots and aiming are implemented.
+- The pistol currently fires horizontally while moving and is equipped at spawn; this changes once slots and firearm aiming are implemented.
