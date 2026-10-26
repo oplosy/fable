@@ -4,7 +4,7 @@ Where development stands and what comes next. Update this at the end of every wo
 
 ## Status (2026-10-26, end of session 1)
 
-Branch `main` at `2265922`, pushed to https://github.com/oplosy/fable. All 6 headless test suites pass. Placeholder art only (colored rectangles); no menus, maps, bots or networking yet.
+Branch `main` (last feature commit `d3ca36c`, jump kick), pushed to https://github.com/oplosy/fable. All 6 headless test suites pass. Placeholder art only (colored rectangles); no menus, maps, bots or networking yet.
 
 ## Built So Far
 
