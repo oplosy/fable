@@ -49,11 +49,13 @@ Player 1: A/D move, W/S aim, K jump, J attack, 1-4 select slot (empty slots cann
 - Examples: fast classes chain 4 punches; big classes chain punch, punch, kick.
 - Classes also differ in stats: run speed, jump height, health.
 
-Decided, not built yet:
-- **Knockdown**: a knocked-down fighter lies on the ground for 1-1.5 s, then gets up.
-- **Air attacks**: no punching in the air; fighters can kick while jumping. A jump kick that lands knocks the target down.
+Built:
+- **Knockdown**: a knocked-down fighter lies on the ground for 1-1.5 s (1.25 s by default, per class), then gets up.
+- **Air attacks**: no punching in the air; attack while airborne is the class's jump kick, once per jump (landing restores it). A jump kick that lands knocks the target down. The kick hits forward at foot level and keeps the jump's momentum.
 - **Combo finishers**: the last attack of every class combo (Fast's hook, Heavy's kick) knocks the target down. Single punches do not.
-- **Disarming**: a single punch never disarms. A knocked-down fighter drops its firearm (full combo or jump kick).
+- **Disarming**: a single punch never disarms. A knocked-down fighter drops its firearm (full combo or jump kick) into the arena.
+
+Decided, not built yet:
 - **Defence**: no blocking; rolling (see Movement).
 - **Combo breaker**: while being hit in a combo, pressing attack + jump together breaks free and pushes the attacker back slightly. It then has a long cooldown (around 10 s).
 
@@ -96,4 +98,5 @@ Prototype values (not yet tuned or confirmed): 100 health, pistol 10 damage and 
 - Melee uses bare hands only; melee weapons, throwables and power-ups are not implemented yet.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
 - The main scene spawns an idle target dummy that respawns 1.5 s after dying; it is a testing aid, not a game mode.
-- Death is a placeholder (the rectangle rotates); the real death animation comes with sprites.
+- Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
+- Dropped firearms cannot be picked up yet; pickups come later.
