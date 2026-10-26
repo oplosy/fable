@@ -81,6 +81,7 @@ p1_slot_4={
 2d_physics/layer_1="world"
 2d_physics/layer_2="fighters"
 2d_physics/layer_3="projectiles"
+2d_physics/layer_4="pickups"
 
 [rendering]
 

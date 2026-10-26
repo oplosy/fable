@@ -2,6 +2,7 @@ class_name Fighter
 extends CharacterBody2D
 
 const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
+const DROPPED_WEAPON_SCENE := preload("res://scenes/weapons/dropped_weapon.tscn")
 ## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
 const FIGHTERS_LAYER := 2
 
@@ -131,8 +132,25 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 func _knock_down() -> void:
 	_down_time = fighter_class.knockdown_time
 	_hit_stun = 0.0
+	_drop_firearm()
 	_lie_down(true)
 	_update_hittable()
+
+
+## The firearm falls into the arena and the fighter is left with bare hands.
+func _drop_firearm() -> void:
+	if firearm == null:
+		return
+	var dropped: DroppedWeapon = DROPPED_WEAPON_SCENE.instantiate()
+	dropped.data = firearm.data
+	dropped.position = get_parent().to_local(_hand.global_position)
+	dropped.linear_velocity = Vector2(-facing * 40.0, -120.0)
+	# Hits arrive from physics callbacks, where bodies cannot be added directly.
+	get_parent().add_child.call_deferred(dropped)
+	firearm.queue_free()
+	firearm = null
+	if active_slot == Slot.FIREARM:
+		active_slot = Slot.MELEE
 
 
 func _get_up() -> void:

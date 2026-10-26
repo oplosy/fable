@@ -4,6 +4,7 @@ extends "res://tests/test_case.gd"
 const FIGHTER_SCENE := preload("res://scenes/fighter/fighter.tscn")
 const FAST := preload("res://data/characters/placeholder.tres")
 const HEAVY := preload("res://data/characters/dummy.tres")
+const PISTOL := preload("res://data/weapons/pistol.tres")
 
 var arena: Node2D
 
@@ -64,9 +65,33 @@ func run() -> void:
 	check(heavy.is_knocked_down() and heavy.health.current == health_when_down - 20, "class setting allows hits on the ground")
 	check(is_equal_approx(heavy._down_time, down_time_left), "a downed fighter is not knocked down again")
 
-	# Death while down still kills.
+	# Knockdown disarms; single punches do not.
+	await physics_frames(int(heavy_class.knockdown_time * 60) + int(heavy_class.getup_invulnerability * 60) + 5)
+	heavy.fighter_class = heavy_class
+	_reset(heavy, 214)
+	heavy.equip_firearm(PISTOL)
+	await physics_frames(30)
+	await _press_attack(fast)
+	await physics_frames(20)
+	check(heavy.firearm != null and heavy.active_slot == Fighter.Slot.FIREARM, "a single punch does not disarm")
+	heavy.take_hit(0, Vector2.ZERO, -1.0, true)
+	await physics_frames(2)
+	check(heavy.firearm == null and heavy.active_slot == Fighter.Slot.MELEE, "knockdown drops the firearm and leaves bare hands")
+	var dropped := get_nodes_in_group("dropped_weapons")
+	check(dropped.size() == 1 and dropped[0].data == PISTOL, "the firearm lands in the arena")
+	await physics_frames(90)
+	if dropped.size() == 1:
+		var item: DroppedWeapon = dropped[0]
+		check(item.global_position.y < 328.0 and item.global_position.y > 300.0, "dropped firearm rests on the floor")
+	check(not heavy.select_slot(Fighter.Slot.FIREARM), "disarmed fighter cannot select the firearm slot")
+
+	# Invulnerability covers even lethal hits; once vulnerable they kill.
+	check(heavy.is_invulnerable(), "fighter is still getting up")
 	heavy.take_hit(1000)
-	check(heavy.is_dead(), "a lethal hit on the ground kills")
+	check(not heavy.is_dead(), "invulnerable fighter survives a lethal hit")
+	await physics_frames(int(heavy_class.getup_invulnerability * 60) + 2)
+	heavy.take_hit(1000)
+	check(heavy.is_dead(), "a lethal hit kills once vulnerable")
 
 
 func _spawn(data: CharacterData, at: Vector2) -> Fighter:
