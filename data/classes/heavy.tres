@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="FighterClass" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/fighter/fighter_class.gd" id="1_class"]
+[ext_resource type="Script" path="res://scenes/fighter/melee_attack.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="punch"]
+script = ExtResource("2_attack")
+display_name = "Punch"
+damage = 7
+knockback = Vector2(40, 0)
+stun_time = 0.45
+windup = 0.1
+active = 0.08
+recovery = 0.18
+hitbox_offset = Vector2(12, -18)
+hitbox_size = Vector2(16, 10)
+
+[sub_resource type="Resource" id="kick"]
+script = ExtResource("2_attack")
+display_name = "Kick"
+damage = 12
+knockback = Vector2(220, -100)
+stun_time = 0.7
+windup = 0.15
+active = 0.1
+recovery = 0.3
+hitbox_offset = Vector2(14, -8)
+hitbox_size = Vector2(18, 10)
+
+[resource]
+script = ExtResource("1_class")
+display_name = "Heavy"
+melee_combo = Array[ExtResource("2_attack")]([SubResource("punch"), SubResource("punch"), SubResource("kick")])
+combo_cooldown = 0.8

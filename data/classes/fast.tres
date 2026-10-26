@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="FighterClass" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/fighter/fighter_class.gd" id="1_class"]
+[ext_resource type="Script" path="res://scenes/fighter/melee_attack.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="jab"]
+script = ExtResource("2_attack")
+display_name = "Jab"
+damage = 4
+knockback = Vector2(30, 0)
+stun_time = 0.35
+windup = 0.05
+active = 0.07
+recovery = 0.1
+hitbox_offset = Vector2(12, -18)
+hitbox_size = Vector2(14, 8)
+
+[sub_resource type="Resource" id="hook"]
+script = ExtResource("2_attack")
+display_name = "Hook"
+damage = 7
+knockback = Vector2(150, -60)
+stun_time = 0.5
+windup = 0.08
+active = 0.08
+recovery = 0.2
+hitbox_offset = Vector2(12, -18)
+hitbox_size = Vector2(14, 10)
+
+[resource]
+script = ExtResource("1_class")
+display_name = "Fast"
+melee_combo = Array[ExtResource("2_attack")]([SubResource("jab"), SubResource("jab"), SubResource("jab"), SubResource("hook")])
+combo_cooldown = 0.6

@@ -1,6 +1,7 @@
 class_name CharacterData
 extends Resource
 
-# Characters are cosmetic, as in Superfighters; gameplay stats live on the Fighter.
+## A character's look; how it fights comes from its class.
 @export var display_name := ""
 @export var placeholder_color := Color.WHITE
+@export var fighter_class: FighterClass
