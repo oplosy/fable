@@ -13,6 +13,19 @@ New maps, character designs and weapons will be added often, so adding content m
 - **Weapons**: one shared `Weapon` scene; a weapon is a `WeaponData` resource under `data/weapons/` plus its sprite. Weapons are separate sprites attached to the fighter's hand, never baked into character frames.
 - Prefer a new resource or scene over a new code branch when adding content.
 
+# Architecture: Code Rules
+
+- Small, focused scenes and scripts. Movement, combat, weapons, health and animation stay separate.
+- Damage and hit detection never depend on sprite art (collision shapes and shape queries only).
+- Fighters never read `Input`; a controller (local, bot, remote) provides their intent.
+- Use signals where they simplify communication; avoid unnecessary abstractions and dependencies. Use Godot's native 2D physics and animation.
+- Build one milestone at a time, run the checks after each one, and do not add features that were not requested.
+
+# Art Pipeline
+
+- Sources are `.aseprite` files under `art/`, exported to PNG under `assets/` with the Aseprite CLI (`C:\Program Files\Aseprite\Aseprite.exe -b ... --script file.lua`).
+- `images/` holds reference screenshots only; it is excluded from Godot import (`.gdignore`), as is `art/`.
+
 # Running Tests
 
 Godot is not on PATH; the binary is `C:\Users\mesut\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.7.2-stable_win64_console.exe`.
