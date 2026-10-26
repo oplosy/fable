@@ -5,6 +5,7 @@ extends Area2D
 
 var velocity := Vector2.ZERO
 var damage := 0
+var knockback := 0.0
 ## The fighter that fired it; never hit by its own projectile.
 var shooter: Node2D
 
@@ -28,5 +29,5 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	_spent = true
 	if body.has_method("take_hit"):
-		body.take_hit(damage)
+		body.take_hit(damage, velocity.normalized() * knockback)
 	queue_free()

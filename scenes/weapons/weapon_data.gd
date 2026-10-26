@@ -11,5 +11,7 @@ extends Resource
 @export var automatic := false
 @export var fire_interval := 0.3
 @export var damage := 10
+## Speed (px/s) added to the hit fighter along the projectile's direction.
+@export var knockback := 100.0
 @export var projectile_scene: PackedScene
 @export var projectile_speed := 600.0

@@ -13,6 +13,8 @@ enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 @export var friction := 1100.0
 @export var jump_velocity := -300.0
 @export var aim_speed_degrees := 90.0
+## Seconds a hit fighter ignores its controller.
+@export var hit_stun_time := 0.25
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var facing := 1
@@ -21,6 +23,9 @@ var firearm: Weapon
 ## Radians within the half-circle the fighter faces: 0 level, -PI/2 straight up, PI/2 straight down.
 ## Kept when turning around.
 var aim_angle := 0.0
+
+var _hit_stun := 0.0
+var _flash_tween: Tween
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -48,27 +53,39 @@ func equip_firearm(data: WeaponData) -> void:
 
 ## The firearm is in hand only while standing on the floor; moving puts it away.
 func is_firearm_drawn() -> bool:
-	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0
+	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0 and not is_stunned()
+
+
+func is_stunned() -> bool:
+	return _hit_stun > 0.0
 
 
 func aim_direction() -> Vector2:
 	return Vector2(facing * cos(aim_angle), sin(aim_angle))
 
 
-func take_hit(damage: int) -> void:
+func take_hit(damage: int, knockback := Vector2.ZERO) -> void:
 	health.take_damage(damage)
+	velocity += knockback
+	_hit_stun = hit_stun_time
+	if _flash_tween:
+		_flash_tween.kill()
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(_visuals, "modulate", Color.WHITE, 0.15).from(Color(3, 3, 3))
 
 
 func _physics_process(delta: float) -> void:
 	controller.poll()
+	_hit_stun = maxf(_hit_stun - delta, 0.0)
+	var can_act := not is_stunned()
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if controller.jump and is_on_floor():
+	if can_act and controller.jump and is_on_floor():
 		velocity.y = jump_velocity
 
-	var direction := controller.move
+	var direction := controller.move if can_act else 0.0
 	if direction:
 		velocity.x = move_toward(velocity.x, direction * run_speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1

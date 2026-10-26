@@ -26,6 +26,7 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D) -> bool:
 	projectile.velocity = direction * data.projectile_speed
 	projectile.rotation = direction.angle()
 	projectile.damage = data.damage
+	projectile.knockback = data.knockback
 	projectile.shooter = shooter
 	world.add_child(projectile)
 	projectile.global_position = to_global(data.muzzle - data.grip)

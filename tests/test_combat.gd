@@ -18,9 +18,11 @@ func run() -> void:
 	shooter.equip_firearm(PISTOL)
 	await physics_frames(2)
 
+	var target_x := target.global_position.x
 	await _fire(shooter)
 	await physics_frames(15)
 	check(target.health.current == target.health.max_health - PISTOL.damage, "bullet damages the target")
+	check(target.global_position.x > target_x, "bullet knocks the target away from the shooter")
 	check(shooter.health.current == shooter.health.max_health, "shooter is not hurt by its own shot")
 	check(get_nodes_in_group("projectiles").is_empty(), "bullet is used up on hit")
 
@@ -30,6 +32,20 @@ func run() -> void:
 	await _fire(shooter)
 	await physics_frames(10)
 	check(shooter.health.current == shooter.health.max_health, "shooting straight down never hits the shooter")
+
+	target.controller.move = -1.0
+	await physics_frames(20)
+	check(target.velocity.x < 0.0, "target walks left before the hit")
+	target.take_hit(5, Vector2(200, 0))
+	await physics_frames(2)
+	check(target.is_stunned(), "hit stuns the target")
+	check(target.velocity.x > 0.0, "stunned target is pushed by knockback and ignores its move intent")
+	check(target.get_node("Visuals").modulate.r > 1.0, "hit flashes the target")
+	await physics_frames(20)
+	check(not target.is_stunned(), "stun wears off")
+	check(target.velocity.x < 0.0, "target walks again after the stun")
+	check(target.get_node("Visuals").modulate == Color.WHITE, "flash fades back")
+	target.controller.move = 0.0
 
 
 func _spawn(at: Vector2) -> Fighter:
