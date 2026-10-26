@@ -30,7 +30,7 @@ Current defaults (not yet confirmed by the user, easy to change):
 
 ## Controls
 
-Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `pN_` action set.
+Player 1: A/D move, W/S aim, K jump, J attack, 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
@@ -44,6 +44,8 @@ Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `p
 
 Current melee rules (prototype, easy to change):
 - Attack in the melee slot starts the class combo; pressing attack again during an attack queues the next one.
+- The pause after a combo scales with how far it got (full combo = full pause), so short chains cannot be spammed.
+- Prototype classes: Fast (jab, jab, jab, hook; 0.6 s pause) and Heavy (punch, punch, kick; 0.8 s pause). The player is Fast, the dummy is Heavy.
 - Each attack has wind-up, active and recovery time; it hits each target at most once, only during its active time.
 - Movement input is ignored on the ground while attacking; the fighter keeps facing the same way.
 - Getting hit cancels the current attack and the combo.
@@ -81,6 +83,7 @@ Prototype values (not yet tuned or confirmed): 100 health, pistol 10 damage and 
 ## Current Prototype Deviations
 
 - The pistol is equipped at spawn until weapon pickups exist.
-- Only the firearm slot behaves; melee, throwable and power-up slots and slot switching are not implemented yet.
+- Melee uses bare hands only; melee weapons, throwables and power-ups are not implemented yet.
+- The punch is shown as a placeholder box over the hit area until attack animations exist.
 - The main scene spawns an idle target dummy that respawns 1.5 s after dying; it is a testing aid, not a game mode.
 - Death is a placeholder (the rectangle rotates); the real death animation comes with sprites.
