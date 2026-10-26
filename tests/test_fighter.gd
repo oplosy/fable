@@ -1,145 +1,124 @@
 # Run: godot --headless --path . -s res://tests/test_fighter.gd
-extends SceneTree
-
-var _failed := false
+extends "res://tests/test_case.gd"
 
 
-func _initialize() -> void:
-	# Godot does not exit on script errors, so fail instead of hanging.
-	create_timer(30.0).timeout.connect(func() -> void:
-		print("FAIL timed out")
-		quit(1))
-
+func run() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
-	await _physics_frames(30)
+	await physics_frames(30)
 	var fighter: Fighter = main.fighter
 
-	_check(fighter.is_on_floor(), "fighter rests on the floor")
-	_check(fighter.get_node("Visuals/Placeholder").color == fighter.character.placeholder_color, "character data sets the look")
+	check(fighter.is_on_floor(), "fighter rests on the floor")
+	check(fighter.get_node("Visuals/Placeholder").color == fighter.character.placeholder_color, "character data sets the look")
 	var floor_y := fighter.position.y
 
 	var start_x := fighter.position.x
 	Input.action_press("p1_right")
-	await _physics_frames(30)
+	await physics_frames(30)
 	Input.action_release("p1_right")
-	_check(fighter.position.x > start_x + 10.0, "p1_right moves the fighter right")
-	_check(fighter.facing == 1, "fighter faces right")
+	check(fighter.position.x > start_x + 10.0, "p1_right moves the fighter right")
+	check(fighter.facing == 1, "fighter faces right")
 
 	start_x = fighter.position.x
 	Input.action_press("p1_left")
-	await _physics_frames(30)
+	await physics_frames(30)
 	Input.action_release("p1_left")
-	_check(fighter.position.x < start_x - 10.0, "p1_left moves the fighter left")
-	_check(fighter.facing == -1 and fighter.get_node("Visuals").scale.x == -1, "fighter faces and flips left")
+	check(fighter.position.x < start_x - 10.0, "p1_left moves the fighter left")
+	check(fighter.facing == -1 and fighter.get_node("Visuals").scale.x == -1, "fighter faces and flips left")
 
 	Input.action_press("p1_jump")
-	await _physics_frames(10)
+	await physics_frames(10)
 	Input.action_release("p1_jump")
-	_check(fighter.position.y < floor_y - 20.0, "jump lifts the fighter")
-	_check(not fighter.firearm.visible, "firearm is put away in the air")
+	check(fighter.position.y < floor_y - 20.0, "jump lifts the fighter")
+	check(not fighter.firearm.visible, "firearm is put away in the air")
 
-	await _physics_frames(90)
+	await physics_frames(90)
 	# Collision safe margin leaves a sub-pixel gap, so compare within half a pixel.
-	_check(fighter.is_on_floor() and absf(fighter.position.y - floor_y) < 0.5, "fighter lands back on the floor")
+	check(fighter.is_on_floor() and absf(fighter.position.y - floor_y) < 0.5, "fighter lands back on the floor")
 
 	Input.action_press("p1_right")
-	await _physics_frames(300)
+	await physics_frames(300)
 	Input.action_release("p1_right")
-	_check(fighter.position.x < 632.0, "right wall stops the fighter")
+	check(fighter.position.x < 632.0, "right wall stops the fighter")
 
-	_check(fighter.firearm != null and fighter.firearm.data.display_name == "Pistol", "fighter spawns with the pistol")
-	_check(fighter.active_slot == Fighter.Slot.FIREARM, "firearm slot is active")
-	await _physics_frames(2)
-	_check(fighter.firearm.visible, "standing fighter holds the firearm")
+	check(fighter.firearm != null and fighter.firearm.data.display_name == "Pistol", "fighter spawns with the pistol")
+	check(fighter.active_slot == Fighter.Slot.FIREARM, "firearm slot is active")
+	await physics_frames(2)
+	check(fighter.firearm.visible, "standing fighter holds the firearm")
 
 	Input.action_press("p1_left")
-	await _physics_frames(10)
-	_check(not fighter.firearm.visible, "moving puts the firearm away")
+	await physics_frames(10)
+	check(not fighter.firearm.visible, "moving puts the firearm away")
 	Input.action_press("p1_attack")
-	await _physics_frames(2)
+	await physics_frames(2)
 	Input.action_release("p1_attack")
-	_check(get_nodes_in_group("projectiles").is_empty(), "no firing while moving")
-	await _physics_frames(10)
+	check(get_nodes_in_group("projectiles").is_empty(), "no firing while moving")
+	await physics_frames(10)
 	Input.action_release("p1_left")
-	await _physics_frames(2)
-	_check(fighter.firearm.visible, "stopping draws the firearm again")
-	await _physics_frames(20)
+	await physics_frames(2)
+	check(fighter.firearm.visible, "stopping draws the firearm again")
+	await physics_frames(20)
 
 	# Fighter reads the press on the next physics frame, so wait two.
 	Input.action_press("p1_attack")
-	await _physics_frames(2)
+	await physics_frames(2)
 	Input.action_release("p1_attack")
 	var bullets := get_nodes_in_group("projectiles")
-	_check(bullets.size() == 1, "fire spawns one bullet")
+	check(bullets.size() == 1, "fire spawns one bullet")
 	if bullets.size() == 1:
 		var bullet: Projectile = bullets[0]
-		_check(bullet.velocity.x < 0.0 and bullet.global_position.x < fighter.global_position.x, "bullet leaves the muzzle facing left")
-		_check(bullet.get_parent() == main.arena, "bullet lives in the arena")
+		check(bullet.velocity.x < 0.0 and bullet.global_position.x < fighter.global_position.x, "bullet leaves the muzzle facing left")
+		check(bullet.get_parent() == main.arena, "bullet lives in the arena")
 
 	Input.action_press("p1_attack")
-	await _physics_frames(2)
+	await physics_frames(2)
 	Input.action_release("p1_attack")
-	_check(get_nodes_in_group("projectiles").size() == 1, "cooldown blocks a second shot")
+	check(get_nodes_in_group("projectiles").size() == 1, "cooldown blocks a second shot")
 
-	await _physics_frames(120)
-	_check(get_nodes_in_group("projectiles").is_empty(), "bullet is removed after hitting the wall")
+	await physics_frames(120)
+	check(get_nodes_in_group("projectiles").is_empty(), "bullet is removed after hitting the wall")
 
 	Input.action_press("p1_attack")
-	await _physics_frames(30)
+	await physics_frames(30)
 	Input.action_release("p1_attack")
-	_check(get_nodes_in_group("projectiles").size() == 1, "semi-auto pistol fires once while held")
+	check(get_nodes_in_group("projectiles").size() == 1, "semi-auto pistol fires once while held")
 
 	Input.action_press("p1_up")
-	await _physics_frames(30)
-	_check(fighter.aim_angle < -0.3 and fighter.aim_angle > -PI / 2.0, "W raises the aim gradually")
-	await _physics_frames(90)
+	await physics_frames(30)
+	check(fighter.aim_angle < -0.3 and fighter.aim_angle > -PI / 2.0, "W raises the aim gradually")
+	await physics_frames(90)
 	Input.action_release("p1_up")
-	_check(is_equal_approx(fighter.aim_angle, -PI / 2.0), "aim stops at straight up")
-	_check(fighter.aim_direction().y < -0.99, "aim points up")
+	check(is_equal_approx(fighter.aim_angle, -PI / 2.0), "aim stops at straight up")
+	check(fighter.aim_direction().y < -0.99, "aim points up")
 
 	Input.action_press("p1_down")
-	await _physics_frames(150)
+	await physics_frames(150)
 	Input.action_release("p1_down")
-	_check(is_equal_approx(fighter.aim_angle, PI / 2.0), "S lowers the aim to straight down")
+	check(is_equal_approx(fighter.aim_angle, PI / 2.0), "S lowers the aim to straight down")
 
 	var held_angle := fighter.aim_angle
 	Input.action_press("p1_right")
 	Input.action_press("p1_up")
-	await _physics_frames(10)
+	await physics_frames(10)
 	Input.action_release("p1_up")
 	Input.action_release("p1_right")
-	await _physics_frames(30)
-	_check(fighter.aim_angle == held_angle, "aim does not change while moving")
-	_check(fighter.facing == 1 and fighter.aim_direction().x >= 0.0, "aim is kept and mirrored after turning")
+	await physics_frames(30)
+	check(fighter.aim_angle == held_angle, "aim does not change while moving")
+	check(fighter.facing == 1 and fighter.aim_direction().x >= 0.0, "aim is kept and mirrored after turning")
 
 	Input.action_press("p1_up")
-	await _physics_frames(60)
+	await physics_frames(60)
 	Input.action_release("p1_up")
-	await _physics_frames(30)
+	await physics_frames(30)
 	var aim := fighter.aim_direction()
 	Input.action_press("p1_attack")
-	await _physics_frames(2)
+	await physics_frames(2)
 	Input.action_release("p1_attack")
 	bullets = get_nodes_in_group("projectiles")
-	_check(bullets.size() == 1, "aimed shot spawns one bullet")
+	check(bullets.size() == 1, "aimed shot spawns one bullet")
 	if bullets.size() == 1:
 		var bullet: Projectile = bullets[0]
-		_check(bullet.velocity.normalized().is_equal_approx(aim), "bullet travels along the aim")
-		_check(is_equal_approx(bullet.rotation, aim.angle()), "bullet is rotated to the aim")
+		check(bullet.velocity.normalized().is_equal_approx(aim), "bullet travels along the aim")
+		check(is_equal_approx(bullet.rotation, aim.angle()), "bullet is rotated to the aim")
 		var muzzle := fighter.firearm.to_global(fighter.firearm.data.muzzle - fighter.firearm.data.grip)
-		_check(bullet.global_position.distance_to(muzzle) < bullet.velocity.length() / 30.0, "bullet starts at the rotated muzzle")
-
-	print("FAILED" if _failed else "ALL PASSED")
-	quit(1 if _failed else 0)
-
-
-func _physics_frames(count: int) -> void:
-	for i in count:
-		await physics_frame
-
-
-func _check(condition: bool, label: String) -> void:
-	print(("PASS " if condition else "FAIL ") + label)
-	if not condition:
-		_failed = true
+		check(bullet.global_position.distance_to(muzzle) < bullet.velocity.length() / 30.0, "bullet starts at the rotated muzzle")
