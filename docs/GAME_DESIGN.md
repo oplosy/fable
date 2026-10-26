@@ -24,6 +24,17 @@ Every fighter has four slots:
 
 Example: the fighter walks, stops, the firearm appears in hand and attack fires it. Pressing A or D again puts the firearm away and the fighter runs; on stopping, the firearm is drawn again.
 
+Current defaults (not yet confirmed by the user, easy to change):
+- The aim angle is kept when turning around (mirrored into the new facing half).
+- The firearm is also put away while airborne.
+
+## Controls
+
+Player 1: A/D move, W/S aim, K jump, J attack. Each local player gets its own `pN_` action set.
+
+- Open: jump is on K because W aims. Should W jump when no firearm is drawn, as in Superfighters?
+- Open: player 2 key layout on a shared keyboard.
+
 ## Players and Modes
 
 - Multiplayer is a core requirement.
@@ -39,4 +50,5 @@ Example: the fighter walks, stops, the firearm appears in hand and attack fires 
 
 ## Current Prototype Deviations
 
-- The pistol currently fires horizontally while moving and is equipped at spawn; this changes once slots and firearm aiming are implemented.
+- The pistol is equipped at spawn until weapon pickups exist.
+- Only the firearm slot behaves; melee, throwable and power-up slots and slot switching are not implemented yet.
