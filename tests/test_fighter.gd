@@ -37,6 +37,7 @@ func _initialize() -> void:
 	await _physics_frames(10)
 	Input.action_release("p1_jump")
 	_check(fighter.position.y < floor_y - 20.0, "jump lifts the fighter")
+	_check(not fighter.firearm.visible, "firearm is put away in the air")
 
 	await _physics_frames(90)
 	# Collision safe margin leaves a sub-pixel gap, so compare within half a pixel.
@@ -47,10 +48,23 @@ func _initialize() -> void:
 	Input.action_release("p1_right")
 	_check(fighter.position.x < 632.0, "right wall stops the fighter")
 
-	_check(fighter.weapon != null and fighter.weapon.data.display_name == "Pistol", "fighter spawns with the pistol")
+	_check(fighter.firearm != null and fighter.firearm.data.display_name == "Pistol", "fighter spawns with the pistol")
+	_check(fighter.active_slot == Fighter.Slot.FIREARM, "firearm slot is active")
+	await _physics_frames(2)
+	_check(fighter.firearm.visible, "standing fighter holds the firearm")
+
 	Input.action_press("p1_left")
-	await _physics_frames(20)
+	await _physics_frames(10)
+	_check(not fighter.firearm.visible, "moving puts the firearm away")
+	Input.action_press("p1_attack")
+	await _physics_frames(2)
+	Input.action_release("p1_attack")
+	_check(get_nodes_in_group("projectiles").is_empty(), "no firing while moving")
+	await _physics_frames(10)
 	Input.action_release("p1_left")
+	await _physics_frames(2)
+	_check(fighter.firearm.visible, "stopping draws the firearm again")
+	await _physics_frames(20)
 
 	# Fighter reads the press on the next physics frame, so wait two.
 	Input.action_press("p1_attack")

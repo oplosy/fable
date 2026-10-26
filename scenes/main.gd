@@ -21,4 +21,4 @@ func _ready() -> void:
 	arena.add_child(fighter)
 	fighter.global_position = arena.get_node("SpawnPoints").get_child(0).global_position
 	if starting_weapon:
-		fighter.equip(starting_weapon)
+		fighter.equip_firearm(starting_weapon)

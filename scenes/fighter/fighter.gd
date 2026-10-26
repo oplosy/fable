@@ -3,6 +3,8 @@ extends CharacterBody2D
 
 const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
 
+enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
+
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
 @export var controller: FighterController
@@ -13,7 +15,8 @@ const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var facing := 1
-var weapon: Weapon
+var active_slot := Slot.MELEE
+var firearm: Weapon
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -29,12 +32,18 @@ func _ready() -> void:
 		add_child(controller)
 
 
-func equip(data: WeaponData) -> void:
-	if weapon:
-		weapon.queue_free()
-	weapon = WEAPON_SCENE.instantiate()
-	weapon.data = data
-	_hand.add_child(weapon)
+func equip_firearm(data: WeaponData) -> void:
+	if firearm:
+		firearm.queue_free()
+	firearm = WEAPON_SCENE.instantiate()
+	firearm.data = data
+	_hand.add_child(firearm)
+	active_slot = Slot.FIREARM
+
+
+## The firearm is in hand only while standing on the floor; moving puts it away.
+func is_firearm_drawn() -> bool:
+	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0
 
 
 func _physics_process(delta: float) -> void:
@@ -54,10 +63,12 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 
-	if weapon:
-		var wants_fire := controller.attack_held if weapon.data.automatic else controller.attack
-		if wants_fire:
+	if firearm:
+		var drawn := is_firearm_drawn()
+		firearm.visible = drawn
+		var wants_fire := controller.attack_held if firearm.data.automatic else controller.attack
+		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
-			weapon.try_fire(facing, get_parent())
+			firearm.try_fire(facing, get_parent())
 
 	move_and_slide()
