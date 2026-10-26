@@ -11,6 +11,13 @@ New maps, character designs and weapons will be added often, so adding content m
 - **Weapons**: one shared `Weapon` scene; a weapon is a `WeaponData` resource under `data/weapons/` plus its sprite. Weapons are separate sprites attached to the fighter's hand, never baked into character frames.
 - Prefer a new resource or scene over a new code branch when adding content.
 
+# Running Tests
+
+Godot is not on PATH; the binary is `C:\Users\mesut\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.7.2-stable_win64_console.exe`.
+
+- Reimport after adding scripts or assets: `<godot> --headless --path . --import`
+- Run each suite: `<godot> --headless --path . -s res://tests/<test_name>.gd` (exit code 0 = pass). Suites extend `tests/test_case.gd`.
+
 # Commit Conventions
 
 - Split work that would normally fit in a single commit into 4-5 small, logically separate commits.
