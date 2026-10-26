@@ -2,6 +2,20 @@
 
 Living list of agreed gameplay requirements. Add new items as they are decided; record open questions instead of guessing.
 
+## Vision
+
+- A desktop 2D action game inspired by the original Superfighters Flash game: its simple retro pixel-art look, with more polished combat mechanics and animation.
+- The game is meant to be detailed: every interaction (who can hit whom, when a weapon drops, what a kick does to a jumping fighter) is thought through and written down here, not left to chance.
+
+## Visual Direction
+
+- Simple, chunky, readable pixel art like the original Superfighters; strict side-view camera.
+- Small, stylized characters with clear silhouettes; limited palettes; simple industrial arenas.
+- No 3D models, photorealistic textures, heavy shading or high-detail character art. Animation readability beats visual complexity.
+- Pixels stay crisp: 640x360 internal resolution, integer scaling, nearest filtering. Characters are about 32 px tall, tiles are 16 px.
+- `images/` holds Superfighters screenshots (`main-image.png` shows nearly everything) as a reference for look and feel only. All characters, animations and art are drawn from scratch in Aseprite.
+- AI-generated art, if any, must match the style and be reviewed by the user before it goes in.
+
 ## Inventory Slots
 
 Every fighter has four slots:
