@@ -28,6 +28,13 @@ Current defaults (not yet confirmed by the user, easy to change):
 - The aim angle is kept when turning around (mirrored into the new facing half).
 - The firearm is also put away while airborne.
 
+## Movement: Walk, Run, Jump, Dive, Roll
+
+Decided, not built yet:
+- Fighters walk by default. They run (speed up) either by double-tapping a direction (A A / D D) or while holding Shift.
+- A walking jump goes straight up. A running jump is a forward dive, like diving head-first into a pool.
+- Pressing down (S) while running rolls forward. S is free while running because the firearm is put away.
+
 ## Controls
 
 Player 1: A/D move, W/S aim, K jump, J attack, 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
@@ -40,7 +47,15 @@ Player 1: A/D move, W/S aim, K jump, J attack, 1-4 select slot (empty slots cann
 - Characters belong to classes that change how they fight; a character's look and its class are separate data.
 - Each class has its own melee combo, a fixed chain of attacks. After the last attack of the chain there is a pause before the fighter can attack again, so melee is never unlimited.
 - Examples: fast classes chain 4 punches; big classes chain punch, punch, kick.
-- Planned interactions (not built yet): a kick knocks the target to the ground; more interactions of this kind will follow.
+- Classes also differ in stats: run speed, jump height, health.
+
+Decided, not built yet:
+- **Knockdown**: a knocked-down fighter lies on the ground for 1-1.5 s, then gets up.
+- **Air attacks**: no punching in the air; fighters can kick while jumping. A jump kick that lands knocks the target down.
+- **Combo finishers**: the last attack of every class combo (Fast's hook, Heavy's kick) knocks the target down. Single punches do not.
+- **Disarming**: a single punch never disarms. A knocked-down fighter drops its firearm (full combo or jump kick).
+- **Defence**: no blocking; rolling (see Movement).
+- **Combo breaker**: while being hit in a combo, pressing attack + jump together breaks free and pushes the attacker back slightly. It then has a long cooldown (around 10 s).
 
 Current melee rules (prototype, easy to change):
 - Attack in the melee slot starts the class combo; pressing attack again during an attack queues the next one.
@@ -51,12 +66,8 @@ Current melee rules (prototype, easy to change):
 - Getting hit cancels the current attack and the combo.
 - A melee hit stuns long enough for the next attack in the combo to connect.
 
-To discuss (details worth deciding before they are built):
-- Knockdown: how long the fighter lies down, whether it can be hit on the ground, invulnerability while getting up.
-- Air attacks: can fighters punch or kick while jumping, and does that differ per class?
-- Defence: blocking, dodging/rolling, or breaking out of a combo.
-- Disarming: melee hits knocking the firearm out of the target's hands, as in Superfighters.
-- Per-class stats beyond melee: run speed, jump height, health.
+To discuss:
+- Knockdown: can a fighter be hit while on the ground; invulnerability while getting up?
 
 ## Damage and Hit Reactions
 
