@@ -4,16 +4,19 @@ extends Camera2D
 ## The arena's camera. Keeps every living fighter in view with one uniform zoom, so
 ## the whole picture scales together: it sits at `art_zoom`, where one pixel of the 3x
 ## character art is one screen pixel, and pulls back while the fighters spread. It can
-## pull back until the whole map fits (never below `min_zoom`), so on any map that fits
-## at `min_zoom` every fighter is always on screen. It never shows past `camera_limits`.
+## pull back until the whole map fits (never below MIN_ZOOM); maps are never bigger than
+## MAX_MAP_SIZE, so every fighter is always on screen. It never shows past `camera_limits`.
+
+## Furthest pull-back on any map: a 96 px tall character is then 24 px tall on a 1080p
+## screen, the smallest it stays readable. A fixed rule, not a per-map setting.
+const MIN_ZOOM := 0.75
+## The 1920x1080 view at MIN_ZOOM: the largest `camera_limits` a map may have, so the
+## whole map, and with it every fighter, always fits on screen.
+const MAX_MAP_SIZE := Vector2(1920, 1080) / MIN_ZOOM
 
 ## Screen pixels per world pixel at which the character art is drawn pixel for pixel.
 ## Closer than this the art would be magnified, so the camera never goes past it.
 @export var art_zoom := 3.0
-## Furthest pull-back on any map. A 96 px tall character is then 24 px tall on a 1080p
-## screen, the smallest it stays readable; a 1920x1080 view then covers 2560x1440 world
-## pixels, the largest map that always shows every fighter.
-@export var min_zoom := 0.75
 ## Fraction of the screen kept free around the fighters on each side.
 @export_range(0.0, 0.45) var margin := 0.15
 ## How fast the camera catches up with the fighters; higher is snappier.
@@ -26,7 +29,7 @@ extends Camera2D
 ## reach art_zoom), so small back-and-forth moves leave the zoom alone.
 @export var zoom_in_threshold := 1.1
 
-## Furthest zoom on this map: the whole map fits, but never below min_zoom.
+## Furthest zoom on this map: just far enough for the whole map to fit.
 var furthest_zoom := 0.0
 var _placed := false
 ## True once the zoom has landed on its target; a move in, once started, runs to the end.
@@ -35,7 +38,7 @@ var _settled := true
 
 func _ready() -> void:
 	zoom = Vector2.ONE * art_zoom
-	furthest_zoom = min_zoom
+	furthest_zoom = MIN_ZOOM
 	var arena := get_parent() as Arena
 	if arena:
 		var area := Rect2(arena.to_global(arena.camera_limits.position), arena.camera_limits.size)
@@ -45,7 +48,7 @@ func _ready() -> void:
 		limit_bottom = int(area.end.y)
 		var view := get_viewport_rect().size
 		# Pulling back further than the map would only show what lies outside it.
-		furthest_zoom = clampf(maxf(view.x / area.size.x, view.y / area.size.y), min_zoom, art_zoom)
+		furthest_zoom = clampf(maxf(view.x / area.size.x, view.y / area.size.y), MIN_ZOOM, art_zoom)
 
 
 func _physics_process(delta: float) -> void:
