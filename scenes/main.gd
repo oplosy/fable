@@ -45,6 +45,7 @@ func _spawn_fighter(data: CharacterData, controller: FighterController, spawn_in
 
 
 func _on_player_died(dead: Fighter, index: int) -> void:
-	await get_tree().create_timer(respawn_time).timeout
+	# process_always = false: the countdown stops while the game is paused.
+	await get_tree().create_timer(respawn_time, false).timeout
 	dead.queue_free()
 	_spawn_player(index)

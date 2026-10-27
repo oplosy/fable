@@ -39,6 +39,10 @@ func run() -> void:
 
 	p2.take_hit(1000)
 	p1.take_hit(1000)
+	paused = true
+	await physics_frames(int(main.respawn_time * 60) + 10)
+	check(main.players[0] == p1 and main.players[1] == p2, "no respawn while the game is paused")
+	paused = false
 	await physics_frames(int(main.respawn_time * 60) + 10)
 	check(not is_instance_valid(p1) and not is_instance_valid(p2), "dead players are removed")
 	for i in 2:
