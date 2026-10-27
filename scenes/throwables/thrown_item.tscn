@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/throwables/thrown_item.gd" id="1_thrown"]
+
+[node name="ThrownItem" type="RigidBody2D" groups=["thrown_items"]]
+collision_layer = 0
+script = ExtResource("1_thrown")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
