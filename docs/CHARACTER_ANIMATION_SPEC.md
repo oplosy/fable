@@ -31,16 +31,17 @@ Drawn back to front (z 0 is furthest back):
 |---|---|---|---|---|
 | 0 | `arm_back_upper.png` | back upper arm, shoulder to elbow | torso | back shoulder |
 | 1 | `arm_back_lower.png` | back forearm and hand | arm_back_upper | back elbow |
-| 2 | `leg_back_upper.png` | back thigh, hip to knee | pelvis | back hip |
-| 3 | `leg_back_lower.png` | back shin and foot | leg_back_upper | back knee |
-| 4 | `pelvis.png` | hips and belt area | root | centre of the hips |
-| 5 | `leg_front_upper.png` | front thigh | pelvis | front hip |
-| 6 | `leg_front_lower.png` | front shin and foot | leg_front_upper | front knee |
-| 7 | `torso.png` | chest and belly, shoulders included | pelvis | waist (where torso meets pelvis) |
-| 8 | `coat_tail.png` | **optional**: long coat, skirt or apron that hangs over the thighs | pelvis | waist |
-| 9 | `head.png` | head, hair, hat, mask | torso | neck |
-| 10 | `arm_front_upper.png` | front upper arm | torso | front shoulder |
-| 11 | `arm_front_lower.png` | front forearm and hand | arm_front_upper | front elbow |
+| 2 | `coat_back.png` | **optional**: the inside and back of a long coat, skirt or cape, seen between and behind the legs (for example a coat's dark lining between the thighs) | pelvis | waist |
+| 3 | `leg_back_upper.png` | back thigh, hip to knee | pelvis | back hip |
+| 4 | `leg_back_lower.png` | back shin and foot | leg_back_upper | back knee |
+| 5 | `pelvis.png` | hips and belt area | root | centre of the hips |
+| 6 | `leg_front_upper.png` | front thigh | pelvis | front hip |
+| 7 | `leg_front_lower.png` | front shin and foot | leg_front_upper | front knee |
+| 8 | `torso.png` | chest and belly, shoulders included | pelvis | waist (where torso meets pelvis) |
+| 9 | `coat_tail.png` | **optional**: the outside front of a long coat, skirt or apron that hangs over the thighs | pelvis | waist |
+| 10 | `head.png` | head, hair, hat, mask | torso | neck |
+| 11 | `arm_front_upper.png` | front upper arm | torso | front shoulder |
+| 12 | `arm_front_lower.png` | front forearm and hand | arm_front_upper | front elbow |
 
 Rules for the parts:
 
@@ -48,9 +49,9 @@ Rules for the parts:
 2. **Joints overlap.** Each part extends 2-3 art px past its joint as a rounded cap that is hidden under the neighbouring part in the standing pose. Then rotations of up to ±100° (shoulders and hips: any angle) never open a gap or show a hard cut.
 3. Parts hidden behind other parts in the standing pose must still be drawn complete underneath (for example the top of the back thigh behind the pelvis, the shoulder under the head's chin), because animations will reveal them.
 4. Hands are part of the forearm. The front hand is drawn **closed in a grip** (it holds every weapon). The back hand is drawn as a loose fist.
-5. Feet are part of the shin. Shoes stay flat on the floor in the standing pose: the sole's lowest row is y = 93.
+5. Feet are part of the shin. Shoes stay flat on the floor in the standing pose: the sole's lowest pixel row is y = 92, whose bottom edge is the floor line y = 93 (the feet origin). This is how all 20 characters are already drawn; keep it.
 6. Keep the outline: every part has its own complete 1 px outline where it is visible on its own.
-7. Long hair, scarves, belts and coat tails that would look stiff when the body bends go into `coat_tail.png` if they hang from the waist, or stay on `head.png` / `torso.png` otherwise. Do not add more parts than the table.
+7. Long hair, scarves, belts and coat tails that would look stiff when the body bends go into `coat_tail.png` if they hang from the waist, or stay on `head.png` / `torso.png` otherwise. Anything of a coat or skirt that is seen between or behind the legs (its lining, its back hem) goes into `coat_back.png`, so the legs walk in front of it while `coat_tail.png` covers them from the front. Do not add more parts than the table.
 8. Use the character's own colours; never change the design. The user approves the designs, not the rig.
 
 ### 2.2 Joint file
@@ -74,7 +75,8 @@ One `rig.json` per character in `characters/<NN_Name>/rig/`:
     "leg_back_lower": [38, 73],
     "leg_front_upper": [27, 54],
     "leg_front_lower": [26, 73],
-    "coat_tail": [32, 50]
+    "coat_tail": [32, 50],
+    "coat_back": [32, 50]
   },
   "points": {
     "hand_front": [18, 56],
@@ -90,16 +92,16 @@ The numbers above only show the format; measure the real ones on each character.
 - `pivots`: the art pixel each part rotates around (its joint centre), in the standing pose.
 - `points.hand_front`: the pixel inside the closed front fist where a weapon's grip pixel goes. `hand_back`: the same for the back fist (it steadies two-handed weapons).
 - `points.head_top`: the highest pixel of the head or hat (for the health bar and name).
-- Leave `coat_tail` out of `pivots` if the character has no coat tail.
+- Leave `coat_tail` and `coat_back` out of `pivots` when the character has no such part.
 - `asymmetric_details`: see section 1.
 
 ### 2.3 Phase 1 check before handing over (go through twice)
 
 For every character:
-- [ ] All 11 (or 12 with `coat_tail`) files exist, each exactly 64x96, transparent background.
+- [ ] All 11 files exist, plus `coat_tail.png` and `coat_back.png` when the character has them,, each exactly 64x96, transparent background.
 - [ ] Stacking all parts in the z order gives back the original standing character pixel for pixel (no missing or doubled pixels).
 - [ ] Each part, rotated ±60° around its pivot (shoulders and hips: also 180°), shows no gap and no hard cut at the joint.
-- [ ] `rig.json` is valid JSON, every pivot lies inside its part, the feet origin is (32, 93), the lowest shoe pixel is on y = 93.
+- [ ] `rig.json` is valid JSON, every pivot lies inside its part, the feet origin is (32, 93), the lowest shoe pixel row is y = 92.
 - [ ] Nothing in the design changed.
 - [ ] A preview sheet `rig_preview.png` (4x scale) shows the parts pulled apart (exploded view) with the pivots marked.
 
@@ -272,7 +274,7 @@ For every animation:
 - [ ] Movement loops have `reference_speed` and `step` events, and the planted foot does not slide at that speed.
 - [ ] Looping animations join their last key to their first without a jump.
 - [ ] Blended sets (aim up, level and down; throwable hold) use matching limb arrangements, so blending never flips a limb through the body.
-- [ ] Nothing pokes through the floor (feet and lying bodies stay at or above y = 93), except the roll's tuck, which stays on the floor too.
+- [ ] Nothing pokes through the floor (no pixel row of feet or lying bodies goes below y = 92), except the roll's tuck, which stays on the floor too.
 - [ ] Played on characters 01 (tall), 08 (wide sumo) and 10 (short dwarf) using their own `rig.json`, the poses still read correctly. Report anything that breaks for one body type.
 - [ ] A preview PNG exists for every animation.
 - [ ] Nothing in `scenes/`, `data/`, `tests/` or `project.godot` was changed.
