@@ -16,6 +16,7 @@ func run() -> void:
 	await _test_ammo()
 	await _test_spread_and_bloom()
 	await _test_crouch()
+	await _test_crosshair_stops_at_fighters()
 
 
 ## Every shot uses ammo; the empty weapon drops by itself and cannot be picked up.
@@ -158,6 +159,20 @@ func _fire(shooter: Fighter) -> void:
 	await physics_frames(int(shooter.inventory.firearm.data.fire_interval * 60) + 2 if shooter.inventory.firearm else 2)
 
 
+## The crosshair stops on a fighter in the line of fire, not on the wall behind it.
+func _test_crosshair_stops_at_fighters() -> void:
+	var shooter := _spawn(Vector2(100, 328))
+	var target := _spawn(Vector2(200, 328))
+	await physics_frames(5)
+	shooter.inventory.equip_firearm(PISTOL)
+	await physics_frames(2)
+	var at: Vector2 = shooter._crosshair.global_position
+	check(at.x > target.global_position.x - 10.0 and at.x < target.global_position.x, "the crosshair sits on the fighter in the way (x %.1f)" % at.x)
+	shooter.queue_free()
+	target.queue_free()
+	await physics_frames(5)
+
+
 func _spawn(at: Vector2) -> Fighter:
 	var fighter: Fighter = FIGHTER_SCENE.instantiate()
 	fighter.character = FAST
@@ -168,6 +183,6 @@ func _spawn(at: Vector2) -> Fighter:
 
 func _crosshair_on_aim(shooter: Fighter) -> bool:
 	var crosshair: Crosshair = shooter._crosshair
-	var aimed := Crosshair.aimed_at(shooter.get_world_2d().direct_space_state, shooter._hand.global_position, shooter.aim_direction())
+	var aimed := Crosshair.aimed_at(shooter.get_world_2d().direct_space_state, shooter._hand.global_position, shooter.aim_direction(), shooter.get_rid())
 	# The test arena's walls stop the aim, so the cross sits on one.
 	return crosshair.visible and crosshair.global_position.is_equal_approx(aimed) and aimed.distance_to(shooter._hand.global_position) < FollowCamera.MAX_MAP_SIZE.length()

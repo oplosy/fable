@@ -456,7 +456,7 @@ func _physics_process(delta: float) -> void:
 			firearm.try_fire(aim_direction(), get_parent(), self, fighter_class.crouch_spread_scale if _crouching else 1.0)
 			if firearm.is_empty():
 				inventory.drop_firearm()
-	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction())
+	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction(), get_rid())
 
 	if acting and inventory.active_slot == Inventory.Slot.MELEE and controller.attack:
 		melee.request_attack(not is_on_floor())

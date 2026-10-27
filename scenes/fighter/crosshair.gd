@@ -1,8 +1,8 @@
 class_name Crosshair
 extends Node2D
 
-## A small hollow square on the first wall or floor a drawn firearm points at: along the
-## exact aim, never moved by spread or recoil. Visual only.
+## A small hollow square on the first fighter, wall or floor a drawn firearm points at:
+## along the exact aim, never moved by spread or recoil. Visual only.
 
 ## Side of the square, world px.
 const SIZE := 3.0
@@ -16,17 +16,19 @@ func _init() -> void:
 	visible = false
 
 
-## Shows the square where the aim from `hand` along `direction` meets the world, or hides it.
-func point(shown: bool, hand: Vector2, direction: Vector2) -> void:
+## Shows the square where the aim from `hand` along `direction` first meets what a bullet
+## would hit (but `shooter`), or hides it.
+func point(shown: bool, hand: Vector2, direction: Vector2, shooter: RID) -> void:
 	visible = shown
 	if shown:
-		global_position = aimed_at(get_world_2d().direct_space_state, hand, direction)
+		global_position = aimed_at(get_world_2d().direct_space_state, hand, direction, shooter)
 
 
-## The first world point on the aim, or the end of the longest map's diagonal.
-static func aimed_at(space: PhysicsDirectSpaceState2D, hand: Vector2, direction: Vector2) -> Vector2:
+## The first point a bullet could hit on the aim, or the end of the longest map's diagonal.
+static func aimed_at(space: PhysicsDirectSpaceState2D, hand: Vector2, direction: Vector2, shooter: RID) -> Vector2:
 	var end := hand + direction * FollowCamera.MAX_MAP_SIZE.length()
-	return HitQuery.world_hit(space, hand, end).get("position", end)
+	var query := PhysicsRayQueryParameters2D.create(hand, end, Projectile.HIT_MASK, [shooter])
+	return space.intersect_ray(query).get("position", end)
 
 
 func _draw() -> void:
