@@ -4,7 +4,7 @@ Where development stands and what comes next. Update this at the end of every wo
 
 ## Status (2026-10-27, session 2)
 
-Branch `main` (movement package, combo breaker, per-class stats and weapon pickups done this session), pushed to https://github.com/oplosy/fable. All 9 headless test suites pass. Placeholder art only (colored rectangles); no menus, maps, bots or networking yet.
+Branch `main` (movement package, combo breaker, per-class stats, weapon pickups and key rebinding done this session), pushed to https://github.com/oplosy/fable. All 10 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
 
 ## Built So Far
 
@@ -23,13 +23,14 @@ Branch `main` (movement package, combo breaker, per-class stats and weapon picku
 | Combo breaker | While melee-stunned, attack + jump together ends the stun and pushes the attacker back (no damage, 0.3 s stun). 10 s cooldown; settings in `FighterClass`. Melee passes the attacker to `take_hit`. | `fighter.gd`, `local_controller.gd`, `fighter_class.gd` |
 | Movement | Walk/run speeds; walking jump straight up, running jump is a forward dive; S while running rolls (invulnerable). No air steering. Speeds and health come from `FighterClass`; Fast and Heavy differ. | `fighter.gd`, `local_controller.gd` |
 | Weapon pickups | `WeaponSpawner` points spawn pickable weapons every 10 s while empty. Empty slot: walk over to take; full slot: S on the weapon swaps and drops the old one. Fighter-dropped weapons are never pickable and vanish after 5 s. | `scenes/weapons/weapon_spawner.gd`, `dropped_weapon.gd`, `fighter.gd` |
+| Controls | Default `p1_*` and `p2_*` actions (P2 on arrows, Right Shift, / and .). `KeyBindings` saves per-player rebinds to `user://keybindings.cfg` (swap on conflict); Esc opens `SettingsMenu`, which pauses the game. Main spawns no player 2 yet. | `scenes/ui/`, `project.godot` |
 | Art pipeline | Aseprite CLI with Lua scripts; first sprite: pistol (9x5). | `art/weapons/pistol.aseprite` → `assets/weapons/pistol.png` |
 
-Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, all on the `test_case.gd` base (30 s watchdog). How to run them: see `CLAUDE.md` → Running Tests.
+Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, all on the `test_case.gd` base (30 s watchdog). How to run them: see `CLAUDE.md` → Running Tests.
 
 ## Next Steps
 
-1. Next (order not agreed yet): sprites and animation states, player 2 key layout, key rebinding in settings (per player), bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+1. Next (order not agreed yet): sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
 Open questions for the user are listed in `GAME_DESIGN.md` (player 2 keys, aim kept on turn, firearm holstered in the air).
 
@@ -37,7 +38,7 @@ Open questions for the user are listed in `GAME_DESIGN.md` (player 2 keys, aim k
 
 - The user writes in Turkish; code, comments, docs and commits are in English.
 - Split each task into 4-5 atomic commits; push to `main` when done.
-- Record architectural decisions in the `system-design` MCP, design id `fable` (8 steps so far; the user reviews them there).
+- Record architectural decisions in the `system-design` MCP, design id `fable` (9 steps so far; the user reviews them there).
 - Verify gameplay changes visually: run the game non-headless with a capture script (`SceneTree` script that drives `Input.action_press` and saves `root.get_texture().get_image()`), then crop and zoom the PNG.
 - In tests, the fighter reads a press one physics frame later; wait 2 frames before checking. Nodes added in `_initialize` get `_ready` only after the first frame, so read `fighter.controller` after an await.
 - `test_case.gd` does not catch script errors: a crashing test can still print ALL PASSED. Grep the output for `SCRIPT ERROR`. Tests that load `main.tscn` also get the dummy at P2, which can absorb bullets.

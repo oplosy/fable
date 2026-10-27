@@ -58,11 +58,12 @@ Current movement rules (prototype, easy to change):
 
 ## Controls
 
-Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack (J + K together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
+Player 1 (defaults): A/D move, Left Shift run, W/S aim (S rolls while running), K jump, J attack (J + K together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
-- Jump stays on K in every state; W never jumps.
-- Open: player 2 key layout on a shared keyboard.
-- Decided, not built yet: every player can rebind their own keys in a settings menu. The defaults above are only starting bindings, so player 2 needs a default layout but no fixed one.
+Player 2 (defaults): Left/Right arrows move, Right Shift run, Up/Down arrows aim, / jump, . (Period) attack, 7-0 select slot.
+
+- Jump always uses the jump key, in every state; aim up never jumps.
+- Built: Esc opens a Controls menu (the game pauses) where every player rebinds their own keys: click a binding, press the new key (Esc cancels). Taking a key that another action uses swaps the two, so no action is left unbound. Bindings are saved to `user://keybindings.cfg`; "Reset to defaults" restores the list above. Escape cannot be bound.
 
 ## Weapon Pickups
 
