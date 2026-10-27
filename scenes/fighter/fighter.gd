@@ -9,7 +9,7 @@ const GROUP := &"fighters"
 ## What the fighter is doing, highest priority first in `state()`. Animations pick their
 ## clip from this alone; stance details (crouching, aim angle, held item, combo index)
 ## are read from the fighter and its components.
-enum State { IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD }
+enum State { IDLE, WALK, RUN, CROUCH, AIR, CLIMB, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD }
 
 signal state_changed(state: State)
 ## `killer` is the last fighter that hit it within KILL_CREDIT_TIME (itself for a
@@ -57,6 +57,10 @@ var _stand_hand_y: float
 var _throwable_sprite: Sprite2D
 var _crosshair := Crosshair.new()
 var _state := State.IDLE
+## The ladder being climbed, null when not climbing.
+var _ladder: Ladder
+## The world layers the body collides with; climbing turns them off.
+var _world_mask := 0
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -90,6 +94,7 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	add_to_group(Arena.BOUNDED)
 	add_to_group(GROUP)
+	_world_mask = collision_mask
 	# The scene's shape resource is shared by every fighter, so crouching swaps in its own copy.
 	# Each fighter gets its own shapes: the body size comes from the character, and
 	# crouching halves the height so level shots from a standing shooter pass over it.
@@ -124,7 +129,7 @@ func is_throwable_drawn() -> bool:
 
 
 func _can_hold_ready() -> bool:
-	return is_on_floor() and controller.move == 0.0 and can_act() and not is_rolling()
+	return is_on_floor() and controller.move == 0.0 and can_act() and not is_rolling() and not is_climbing()
 
 
 func is_stunned() -> bool:
@@ -149,6 +154,10 @@ func is_rolling() -> bool:
 
 func is_diving() -> bool:
 	return _diving
+
+
+func is_climbing() -> bool:
+	return _ladder != null
 
 
 ## Only a melee stun can be broken, and only once per cooldown.
@@ -334,6 +343,8 @@ func state() -> State:
 		return State.STUN
 	if thrower.is_cooking():
 		return State.COOK
+	if is_climbing():
+		return State.CLIMB
 	if not is_on_floor():
 		return State.AIR
 	if is_firearm_drawn() or is_throwable_drawn():
@@ -391,6 +402,19 @@ func _physics_process(delta: float) -> void:
 	# A melee attack or a pulled pin commits the fighter: no moving, turning, jumping or
 	# slot changes until the attack ends or the item is thrown.
 	var unlocked := acting and not melee.is_attacking() and not thrower.is_cooking()
+
+	if is_climbing() and (not unlocked or controller.jump or controller.move != 0.0):
+		var jumped := unlocked and controller.jump
+		_let_go()
+		if jumped:
+			velocity.y = fighter_class.jump_velocity
+			# The jump is used up; is_on_floor() is stale from before the climb.
+			unlocked = false
+	elif unlocked and not is_climbing():
+		_try_grab()
+	if is_climbing():
+		_climb(delta)
+		return
 
 	if unlocked and controller.select_slot >= 0:
 		inventory.select_slot(controller.select_slot)
@@ -465,6 +489,48 @@ func _physics_process(delta: float) -> void:
 	_update_pose()
 
 	move_and_slide()
+
+
+## Up takes hold of a ladder anywhere below its top; down only from its top.
+func _try_grab() -> void:
+	if controller.aim == 0.0 or is_running():
+		return
+	for ladder: Ladder in get_tree().get_nodes_in_group(Ladder.GROUP):
+		if not ladder.reaches(global_position):
+			continue
+		var up := controller.aim < 0.0 and global_position.y > ladder.top() + 1.0
+		var down := controller.aim > 0.0 and is_on_floor() and global_position.y < ladder.bottom() - 1.0
+		if up or down:
+			_grab(ladder)
+			return
+
+
+func _grab(ladder: Ladder) -> void:
+	_ladder = ladder
+	# Off the world layers, the body passes the platforms the ladder goes through.
+	collision_mask = 0
+	velocity = Vector2.ZERO
+	_set_crouching(false)
+	if inventory.firearm:
+		inventory.firearm.visible = false
+	_throwable_sprite.visible = false
+	_crosshair.point(false, Vector2.ZERO, Vector2.RIGHT, get_rid())
+	_update_pose()
+
+
+## Moves along the ladder with the up/down intent; either end steps off onto what is there.
+func _climb(delta: float) -> void:
+	global_position.x = _ladder.global_position.x
+	global_position.y = clampf(global_position.y + controller.aim * fighter_class.climb_speed * delta, _ladder.top(), _ladder.bottom())
+	if (controller.aim < 0.0 and global_position.y <= _ladder.top()) or (controller.aim > 0.0 and global_position.y >= _ladder.bottom()):
+		_let_go()
+	_update_pose()
+
+
+func _let_go() -> void:
+	_ladder = null
+	collision_mask = _world_mask
+	_update_pose()
 
 
 ## Shows the hit area while an attack can land. Replaced by attack animations later.

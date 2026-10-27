@@ -22,6 +22,8 @@ extends Resource
 @export var roll_speed := 220.0
 ## Seconds a roll lasts; the fighter cannot be hit while rolling.
 @export var roll_time := 0.4
+## Speed (px/s) up and down a ladder.
+@export var climb_speed := 80.0
 
 @export_group("Aim and Hits")
 @export var aim_speed_degrees := 90.0
