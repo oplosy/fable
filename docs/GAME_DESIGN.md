@@ -63,6 +63,19 @@ Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
 
+## Weapon Pickups
+
+Built:
+- Only weapons spawned by the game can be picked up. Weapons dropped by fighters (disarmed or swapped out) can never be picked up; they disappear after a few seconds (5 s).
+- Each arena defines fixed weapon spawn points. An empty spawn point spawns a weapon at an interval (about 10 s).
+- With an empty firearm slot, walking over a spawned firearm picks it up automatically.
+- With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
+
+Current pickup rules (prototype, easy to change):
+- Spawn points are `WeaponSpawner` nodes under the arena's `WeaponSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
+- The interval starts counting once the point is empty, so the first weapon appears 10 s into the match.
+- Pickup and swap need a fighter that can act (not stunned, downed, attacking, rolling or diving); the swap also needs the floor and not running (S while running rolls). Pickup range is the fighter's body overlapping the weapon.
+
 ## Character Classes and Melee
 
 - Characters belong to classes that change how they fight; a character's look and its class are separate data.
@@ -120,9 +133,8 @@ Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s kno
 
 ## Current Prototype Deviations
 
-- The pistol is equipped at spawn until weapon pickups exist.
+- The player still starts with the pistol (a testing aid); Superfighters-style unarmed starts would need the tests reworked.
 - Melee uses bare hands only; melee weapons, throwables and power-ups are not implemented yet.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
 - The main scene spawns an idle target dummy that respawns 1.5 s after dying; it is a testing aid, not a game mode.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
-- Dropped firearms cannot be picked up yet; pickups come later.

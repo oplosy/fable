@@ -8,7 +8,7 @@ What is built and what comes next is tracked in @docs/PROGRESS.md. Read it at th
 
 New maps, character designs and weapons will be added often, so adding content must not require changes to core scripts.
 
-- **Maps**: each arena is a self-contained scene under `scenes/arenas/` that owns its geometry, `SpawnPoints` and `Camera2D`. The main scene only loads an arena. Detailed map work is deferred; only the test arena exists for now.
+- **Maps**: each arena is a self-contained scene under `scenes/arenas/` that owns its geometry, `SpawnPoints`, `WeaponSpawns` (`WeaponSpawner` nodes) and `Camera2D`. The main scene only loads an arena. Detailed map work is deferred; only the test arena exists for now.
 - **Characters**: one shared `Fighter` scene; a character is a `CharacterData` resource under `data/characters/` (its look) that points to a `FighterClass` resource under `data/classes/` (how it fights: melee combo, later class stats).
 - **Weapons**: one shared `Weapon` scene; a weapon is a `WeaponData` resource under `data/weapons/` plus its sprite. Weapons are separate sprites attached to the fighter's hand, never baked into character frames.
 - Prefer a new resource or scene over a new code branch when adding content.
