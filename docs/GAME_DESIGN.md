@@ -242,3 +242,4 @@ Build order is open; shotgun, SMG, sniper rifle, knife, baseball bat, grenade an
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
 - The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol and 3 grenades) and respawns a dead player after 1.5 s of unpaused time; this is a testing aid until rounds and a match flow exist.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
+- Animations will be driven by `Fighter.state()` / `state_changed` (IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD, highest priority first); stance details such as crouching, aim angle, held item and combo index are read separately.

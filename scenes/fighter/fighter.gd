@@ -4,6 +4,13 @@ extends CharacterBody2D
 ## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
 const FIGHTERS_LAYER := 2
 
+## What the fighter is doing, highest priority first in `state()`. Animations pick their
+## clip from this alone; stance details (crouching, aim angle, held item, combo index)
+## are read from the fighter and its components.
+enum State { IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD }
+
+signal state_changed(state: State)
+
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
 @export var controller: FighterController
@@ -40,6 +47,7 @@ var _crouch_shape: RectangleShape2D
 var _stand_hand_y: float
 ## Shows the held throwable; hit detection never uses it.
 var _throwable_sprite: Sprite2D
+var _state := State.IDLE
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -235,10 +243,41 @@ func _update_hittable() -> void:
 ## Placeholder poses until animations exist: lying backwards when down or dead,
 ## head-first while diving, squashed while rolling.
 func _update_pose() -> void:
-	var lying := is_dead() or is_knocked_down()
-	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if _diving else 0.0)
-	_visuals.position.y = -6.0 if lying or _diving else 0.0
-	_visuals.scale.y = 0.5 if is_rolling() else 1.0
+	var now := state()
+	var lying := now == State.DEAD or now == State.DOWN
+	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if now == State.DIVE else 0.0)
+	_visuals.position.y = -6.0 if lying or now == State.DIVE else 0.0
+	_visuals.scale.y = 0.5 if now == State.ROLL else 1.0
+	if now != _state:
+		_state = now
+		state_changed.emit(now)
+
+
+## The single answer to "what is the fighter doing", for animations and debugging.
+func state() -> State:
+	if is_dead():
+		return State.DEAD
+	if is_knocked_down():
+		return State.DOWN
+	if is_rolling():
+		return State.ROLL
+	if _diving:
+		return State.DIVE
+	if melee.is_attacking():
+		return State.ATTACK
+	if is_stunned():
+		return State.STUN
+	if thrower.is_cooking():
+		return State.COOK
+	if not is_on_floor():
+		return State.AIR
+	if is_firearm_drawn() or is_throwable_drawn():
+		return State.AIM
+	if _crouching:
+		return State.CROUCH
+	if controller.move != 0.0 and can_act():
+		return State.RUN if is_running() else State.WALK
+	return State.IDLE
 
 
 ## Called by the arena once the fighter has left the map: it dies and stops falling.
