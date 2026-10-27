@@ -150,6 +150,8 @@ Current melee rules (prototype, easy to change):
 
 - Fighters have health (per class: Fast 90, Heavy 130); weapons define damage and knockback.
 - A hit flashes the fighter, pushes it along the hit direction and stuns it briefly (0.25 s): no moving, jumping, aiming or firing.
+- Stuns never shorten each other: a new hit only replaces the stun if it is at least as long, and a shorter bullet stun keeps a melee stun's combo breaker. Hits that neither stun nor knock down (fire) hurt and flash without interrupting the fighter's attack or dive.
+- Each firearm sets its own stun per hit (`WeaponData.hit_stun`, default 0.25 s). Automatic weapons keep it below their fire interval so the target can still act under fire (SMG 0.03 s at 0.08 s per shot).
 - Knockback sets the fighter's speed along the push instead of adding to it, so repeated hits never stack into huge speeds (there is no air friction).
 - At zero health the fighter dies: the body stays on the map lying down, ignores input, and projectiles pass through it.
 - A fighter's own projectiles never hit it.

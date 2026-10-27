@@ -221,8 +221,11 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 		velocity.x = knockback.x
 	if knockback.y != 0.0:
 		velocity.y = knockback.y
-	melee.cancel()
-	_diving = false
+	var new_stun := stun if stun >= 0.0 else hit_stun_time
+	# Hits that neither stun nor knock down (fire) hurt without interrupting the fighter.
+	if knocks_down or new_stun > 0.0:
+		melee.cancel()
+		_diving = false
 	if _flash_tween:
 		_flash_tween.kill()
 	_flash_tween = create_tween()
@@ -234,8 +237,9 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 		# Deferred so the other pellets of the same shotgun blast still land
 		# before the downed fighter turns invulnerable.
 		_knock_down.call_deferred()
-	elif not is_knocked_down():
-		_hit_stun = stun if stun >= 0.0 else hit_stun_time
+	elif not is_knocked_down() and new_stun >= _hit_stun:
+		# A shorter stun never cuts a longer one short, nor takes away its combo breaker.
+		_hit_stun = new_stun
 		_stunned_by = attacker
 
 

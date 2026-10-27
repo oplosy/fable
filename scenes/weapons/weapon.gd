@@ -47,6 +47,7 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D, spread_scale := 
 		projectile.rotation = shot.angle()
 		projectile.damage = data.damage
 		projectile.knockback = data.knockback
+		projectile.stun = data.hit_stun
 		projectile.max_range = data.projectile_range
 		projectile.pierce = data.pierce
 		projectile.knockdown_range = data.knockdown_range

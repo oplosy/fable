@@ -10,6 +10,8 @@ const HIT_MASK := 1 | Fighter.FIGHTERS_LAYER
 var velocity := Vector2.ZERO
 var damage := 0
 var knockback := 0.0
+## Seconds the hit stuns; negative uses the target's default.
+var stun := -1.0
 ## The fighter that fired it; never hit by its own projectile.
 var shooter: Node2D
 ## Distance in px before it disappears.
@@ -48,7 +50,7 @@ func _physics_process(delta: float) -> void:
 			return
 		var at_range := _traveled + global_position.distance_to(hit.position)
 		var knocks_down := knockdown_range > 0.0 and at_range <= knockdown_range
-		body.take_hit(damage, velocity.normalized() * knockback, -1.0, knocks_down)
+		body.take_hit(damage, velocity.normalized() * knockback, stun, knocks_down)
 		_hits += 1
 		if _hits > pierce:
 			queue_free()

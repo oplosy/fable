@@ -11,6 +11,9 @@ extends ItemData
 @export var damage := 10
 ## Speed (px/s) added to the hit fighter along the projectile's direction.
 @export var knockback := 100.0
+## Seconds each hit stuns the target. Keep it below fire_interval for automatic
+## weapons, or the target can never act while under fire.
+@export var hit_stun := 0.25
 @export var projectile_scene: PackedScene
 @export var projectile_speed := 600.0
 ## Shots before the weapon is empty; there are no ammo pickups.
