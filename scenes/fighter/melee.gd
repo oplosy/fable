@@ -137,14 +137,9 @@ func _start(index: int) -> void:
 func _apply_hits(attack: MeleeAttack) -> void:
 	var shape := RectangleShape2D.new()
 	shape.size = attack.hitbox_size
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, fighter.global_position + Vector2(attack.hitbox_offset.x * fighter.facing, attack.hitbox_offset.y))
-	query.collision_mask = Fighter.FIGHTERS_LAYER
-	query.exclude = [fighter.get_rid()]
-	for result in fighter.get_world_2d().direct_space_state.intersect_shape(query):
-		var body: Node = result.collider
-		if body in _already_hit or not body.has_method("take_hit"):
+	var at := Transform2D(0.0, fighter.global_position + Vector2(attack.hitbox_offset.x * fighter.facing, attack.hitbox_offset.y))
+	for body in HitQuery.fighters_in(fighter.get_world_2d(), shape, at, fighter.center(), [fighter.get_rid()]):
+		if body in _already_hit:
 			continue
 		_already_hit.append(body)
 		# Landed after every fighter's physics step, so two attacks connecting on the same

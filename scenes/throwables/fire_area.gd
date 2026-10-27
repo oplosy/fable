@@ -36,14 +36,10 @@ func _physics_process(delta: float) -> void:
 	_until_tick = tick
 	var shape := RectangleShape2D.new()
 	shape.size = Vector2(width, height)
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, global_position + Vector2(0, -height / 2.0))
-	query.collision_mask = Fighter.FIGHTERS_LAYER
-	for result in get_world_2d().direct_space_state.intersect_shape(query):
-		if result.collider.has_method("take_hit"):
-			# Zero stun: burning fighters can still run out of the fire.
-			result.collider.take_hit(damage_per_tick, Vector2.ZERO, 0.0)
+	var middle := global_position + Vector2(0, -height / 2.0)
+	for body in HitQuery.fighters_in(get_world_2d(), shape, Transform2D(0.0, middle), middle):
+		# Zero stun: burning fighters can still run out of the fire.
+		body.take_hit(damage_per_tick, Vector2.ZERO, 0.0)
 
 
 func _draw() -> void:

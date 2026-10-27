@@ -41,7 +41,7 @@ Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, fi
 
 None open. The five bugs found in the session 2 review are fixed and covered by tests: melee trades, single-jab stunlock, firearm kept on death, stacking knockback, respawn during pause.
 
-Risks for later content (from code): melee hits, blasts and fire go through walls; no out-of-bounds kill zone (a lost weapon also blocks its spawn point forever); wake-up combo loops after knockdown; no spawn protection; keyboard ghosting with two players; no input buffering; S on a spawned weapon swaps even when the player meant to aim down.
+Risks for later content (from code): no out-of-bounds kill zone (a lost weapon also blocks its spawn point forever); wake-up combo loops after knockdown; no spawn protection; keyboard ghosting with two players; no input buffering; S on a spawned weapon swaps even when the player meant to aim down.
 
 ## Working Notes
 

@@ -204,6 +204,11 @@ func _set_crouching(crouching: bool) -> void:
 	_placeholder.offset_top = -shape.size.y
 
 
+## Middle of the body's hit shape (standing or crouched).
+func center() -> Vector2:
+	return _body_shape.global_position
+
+
 func aim_direction() -> Vector2:
 	return Vector2(facing * cos(aim_angle), sin(aim_angle))
 

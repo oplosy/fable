@@ -40,6 +40,10 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D, spread_scale := 
 	var max_deviation := deg_to_rad(spread(spread_scale))
 	bloom = minf(bloom + data.spread_per_shot, data.max_bloom_degrees)
 	var muzzle := to_global(data.muzzle - data.grip)
+	# The muzzle sticks out past the body; a wall between hand and muzzle still stops the shot.
+	var wall := HitQuery.world_hit(get_world_2d().direct_space_state, global_position, muzzle)
+	if not wall.is_empty():
+		muzzle = wall.position
 	for i in data.pellets:
 		var shot := direction.rotated(randf_range(-max_deviation, max_deviation))
 		var projectile: Projectile = data.projectile_scene.instantiate()

@@ -22,14 +22,7 @@ func _ready() -> void:
 func _blast() -> void:
 	var shape := CircleShape2D.new()
 	shape.radius = radius
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = shape
-	query.transform = Transform2D(0.0, global_position)
-	query.collision_mask = Fighter.FIGHTERS_LAYER
-	for result in get_world_2d().direct_space_state.intersect_shape(query):
-		var body: Node2D = result.collider
-		if not body.has_method("take_hit"):
-			continue
+	for body in HitQuery.fighters_in(get_world_2d(), shape, Transform2D(0.0, global_position), global_position):
 		# Pushed away from the blast and a little upwards.
 		var away := (body.global_position - global_position).normalized()
 		var push := Vector2(signf(away.x) if away.x != 0.0 else 0.0, -0.5).normalized() * knockback

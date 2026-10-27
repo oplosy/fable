@@ -152,6 +152,7 @@ Current melee rules (prototype, easy to change):
 - A hit flashes the fighter, pushes it along the hit direction and stuns it briefly (0.25 s): no moving, jumping, aiming or firing.
 - Stuns never shorten each other: a new hit only replaces the stun if it is at least as long, and a shorter bullet stun keeps a melee stun's combo breaker. Hits that neither stun nor knock down (fire) hurt and flash without interrupting the fighter's attack or dive.
 - Each firearm sets its own stun per hit (`WeaponData.hit_stun`, default 0.25 s). Automatic weapons keep it below their fire interval so the target can still act under fire (SMG 0.03 s at 0.08 s per shot).
+- Walls and floors block every hit: melee, blasts and fire only reach fighters with a clear line from the hit's origin to the body centre (`HitQuery`), and a shot whose muzzle pokes past a thin wall stops at that wall.
 - Knockback sets the fighter's speed along the push instead of adding to it, so repeated hits never stack into huge speeds (there is no air friction).
 - At zero health the fighter dies: the body stays on the map lying down, ignores input, and projectiles pass through it.
 - A fighter's own projectiles never hit it.
@@ -230,7 +231,7 @@ Grenade and molotov (built; prototype values, easy to change):
 - Grenade: 3 s fuse counted from the pin, bounces off the world (passes through fighters). The blast hits every hittable fighter within 40 px once: 35 damage, pushed away and knocked down.
 - Molotov: no fuse; it breaks on its first contact with the world or a fighter and leaves a 48 px fire on the floor below for 4 s. Fire burns 4 damage every 0.5 s to everyone standing in it, without stunning.
 - The thrower is never hit by its own throw in flight, but the blast and fire hurt it like anyone else.
-- Current defaults (not yet confirmed by the user): a stunned fighter keeps holding a live grenade and throws when the stun ends; a knockdown or death drops a live item at the fighter's feet. A dead fighter's unused throwables drop as one item that cannot be picked up. Blasts and fire are not blocked by walls.
+- Current defaults (not yet confirmed by the user): a stunned fighter keeps holding a live grenade and throws when the stun ends; a knockdown or death drops a live item at the fighter's feet. A dead fighter's unused throwables drop as one item that cannot be picked up.
 
 Build order is open; shotgun, SMG, sniper rifle, knife, baseball bat, grenade and molotov are built.
 
