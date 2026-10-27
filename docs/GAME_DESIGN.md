@@ -58,7 +58,7 @@ Current movement rules (prototype, easy to change):
 
 ## Controls
 
-Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack, 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
+Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack (J + K together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
@@ -75,11 +75,14 @@ Built:
 - **Air attacks**: no punching in the air; attack while airborne is the class's jump kick, once per jump (landing restores it). A jump kick that lands knocks the target down. The kick hits forward at foot level and keeps the jump's momentum.
 - **Combo finishers**: the last attack of every class combo (Fast's hook, Heavy's kick) knocks the target down. Single punches do not.
 - **Disarming**: a single punch never disarms. A knocked-down fighter drops its firearm (full combo or jump kick) into the arena.
-
 - **Defence**: no blocking; rolling (see Movement) is the only defence.
-
-Decided, not built yet:
 - **Combo breaker**: while being hit in a combo, pressing attack + jump together breaks free and pushes the attacker back slightly. It then has a long cooldown (around 10 s).
+
+Current combo breaker rules (prototype, easy to change):
+- It works only while stunned by a melee hit; bullet stuns and knockdowns (combo finishers, jump kicks) cannot be broken.
+- "Together" means one key goes down while the other is held, in either order. The press is used up: the fighter neither jumps nor attacks on that frame.
+- The attacker takes no damage: its combo is cancelled, it is pushed back at 160 px/s (about 12 px) and stunned for 0.3 s.
+- Cooldown 10 s, push and stun are per-class settings in `FighterClass`.
 
 Current melee rules (prototype, easy to change):
 - Attack in the melee slot starts the class combo; pressing attack again during an attack queues the next one.
