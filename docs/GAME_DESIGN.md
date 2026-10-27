@@ -176,7 +176,7 @@ Game modes (the first five, decided in session 3, none built yet; more modes com
 3. **Zone control** (team): three zones, one in the middle and one near each team's base. Every zone a team holds adds +5 points to that team every 1-2 s; the first team to 1000 points wins.
 4. **Hostage rescue** (team): one team rescues hostages, the other guards them ("2D Counter-Strike" feel).
 5. **Bomb** (team): one team plants C4 at target zones, the other defends ("2D Counter-Strike" feel).
-- Every mode needs to know who scored a kill: each hit must carry its attacker, including projectiles, blasts, fire and falls out of the map (credit to the last hitter).
+- Kill credit (built, session 3): every hit carries its attacker (melee, bullets, blasts and fire credit whoever threw them). A death, including a fall out of the map, is credited to the last fighter that hit the victim within 5 s (prototype value, `Fighter.KILL_CREDIT_TIME`); a self-kill credits the fighter itself; otherwise nobody. Modes read it from `Fighter.died(killer)`. Open: whether a self-kill or a fall with no credit costs a point.
 - Lives mode (every player has 3 lives, out of the match when none are left) was agreed earlier but is not among the first five; it comes later with the other modes.
 - Open, capture the flag: what the object is, whether the enemy object must sit in their base or your own object must be home to score, what happens when the carrier dies (drop, return timer), and whether the carrier can use firearms.
 - Open, deathmatch: free-for-all or teams, and whether there is a time limit.

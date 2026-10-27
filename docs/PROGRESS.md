@@ -4,7 +4,7 @@ Where development stands and what comes next. Update this at the end of every wo
 
 ## Status (2026-10-27, session 3)
 
-Branch `main`, pushed to https://github.com/oplosy/fable. Session 3 was a code audit and cleanup: stuns no longer cut each other short, per-weapon hit stun (SMG no longer stunlocks), no hit lands through walls, falling out of the arena kills, `Inventory` split out of `Fighter`, items renamed from "weapon" to "item", one `Fighter.state()` for animations, per-character body size, a seedable match rng, and a 12x faster test runner that fails on script errors. Then a 1920x1080 render with a follow camera for large maps and 1/3-scale character art. All 18 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
+Branch `main`, pushed to https://github.com/oplosy/fable. Session 3 was a code audit and cleanup: stuns no longer cut each other short, per-weapon hit stun (SMG no longer stunlocks), no hit lands through walls, falling out of the arena kills, `Inventory` split out of `Fighter`, items renamed from "weapon" to "item", one `Fighter.state()` for animations, per-character body size, a seedable match rng, and a 12x faster test runner that fails on script errors. Then a 1920x1080 render with a follow camera for large maps and 1/3-scale character art. Then kill credit for game modes. All 19 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
 
 ## Built So Far
 
@@ -17,7 +17,7 @@ Branch `main`, pushed to https://github.com/oplosy/fable. Session 3 was a code a
 | Fighter | One shared `CharacterBody2D`: walk, run, jump (K), facing. Its `Inventory` component holds the 4 slots (melee, firearm, throwable, power-up; the first three can hold something), picks spawned items up and drops items. | `scenes/fighter/fighter.gd`, `scenes/fighter/inventory.gd` |
 | Controllers | Fighters never read `Input`; a `FighterController` provides intent (move, run, aim, down, jump, attack, slot). `LocalController` reads `p1_*` actions and turns Shift or a double tap into the run intent. The base controller is idle (used in tests). | `scenes/fighter/controllers/` |
 | Firearm | Drawn only when standing still on the floor in the firearm slot; A/D holster it. W/S rotate aim within the facing 180°. Attack fires along the aim, deviated within the weapon's spread (plus bloom on held fire, narrower when crouched). Limited ammo; the empty weapon drops itself. Pistol, shotgun (pellets, short range, point-blank knockdown), SMG (automatic, bloom), sniper (piercing). Projectiles are ray-traced each frame (no tunneling). | `scenes/weapons/`, `scenes/projectiles/projectile.gd`, `data/weapons/` |
-| Health and hits | `Health` component; `take_hit(damage, knockback, stun, knocks_down)`; hit flash, knockback, stun. Dead bodies lie down and leave the fighters layer. | `scenes/components/health.gd` |
+| Health and hits | `Health` component; `take_hit(damage, knockback, stun, knocks_down, attacker, by_melee)`; hit flash, knockback, stun. Kill credit: `Fighter.died(killer)` names the last attacker within 5 s (falls included), the fighter itself for a self-kill, or null. Dead bodies lie down and leave the fighters layer. | `scenes/components/health.gd` |
 | Classes and melee | `FighterClass` resources hold the melee combo (`MeleeAttack` resources), combo cooldown, jump kick and knockdown settings. Fast: jab x3 + hook. Heavy: punch x2 + kick. Hits use a physics shape query, once per target per attack. | `scenes/fighter/melee.gd`, `data/classes/` |
 | Melee items | Knife and baseball bat (`MeleeItemData`, sharing `ItemData` with `WeaponData`) fill the melee slot; their combo replaces the class punches. Each landed combo hit wears the item; when worn out it breaks after the current combo. Dead fighters drop it. | `melee.gd`, `fighter.gd`, `data/weapons/knife.tres`, `bat.tres` |
 | Knockdown | Combo finishers and the jump kick knock down for 1.25 s. Downed fighters cannot be hit (per-class `downed_invulnerable`), plus 0.4 s invulnerability after getting up. Knockdown drops the firearm into the arena. | `fighter.gd`, `scenes/weapons/item_pickup.gd` |
@@ -29,12 +29,12 @@ Branch `main`, pushed to https://github.com/oplosy/fable. Session 3 was a code a
 | Controls | Default `p1_*` and `p2_*` actions (P2 on arrows, Right Shift, / and .). `KeyBindings` saves per-player rebinds to `user://keybindings.cfg` (swap on conflict); Esc opens `SettingsMenu`, which pauses the game. | `scenes/ui/`, `project.godot` |
 | Art pipeline | Aseprite CLI with Lua scripts for the placeholder item sprites (firearms, knife, bat, grenade, molotov). The user's 64x96 character designs are in `characters/`. Setting `CharacterData.texture` (plus `feet`) draws a standing frame at 1/3 scale instead of the placeholder box; animations are not wired yet. Item sprites are still drawn at 1x. | `art/` → `assets/` |
 
-Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, `test_firearm`, `test_weapons`, `test_melee_items`, `test_throwables`, `test_walls`, `test_bounds`, `test_state`, `test_camera`, all on the `test_case.gd` base (30 s watchdog, fails on any script error). How to run them: see `CLAUDE.md` → Running Tests.
+Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, `test_firearm`, `test_weapons`, `test_melee_items`, `test_throwables`, `test_walls`, `test_bounds`, `test_state`, `test_camera`, `test_kill_credit`, all on the `test_case.gd` base (30 s watchdog, fails on any script error). How to run them: see `CLAUDE.md` → Running Tests.
 
 ## Next Steps
 
 1. Build the agreed content (GAME_DESIGN.md → Content List); ammo, spread, bloom, crouching, shotgun, SMG, sniper, knife, bat, grenade and molotov are done. Remaining content (revolver, machine gun, bazooka, flamethrower; pipe, machete, sledgehammer; mine, C4) has no agreed order yet.
-2. Later (order not agreed yet): game modes (first five agreed in GAME_DESIGN: capture the flag, deathmatch to 20, zone control to 1000, hostage rescue, bomb; kill credit comes first), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+2. Later (order not agreed yet): game modes (first five agreed in GAME_DESIGN: capture the flag, deathmatch to 20, zone control to 1000, hostage rescue, bomb; kill credit is built, a mode/score layer is next), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
 Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, mode rules).
 
@@ -48,7 +48,7 @@ Risks for later content (from code): wake-up combo loops after knockdown; no spa
 
 - The user writes in Turkish; code, comments, docs and commits are in English.
 - Split each task into 4-5 atomic commits; push to `main` when done.
-- Record architectural decisions in the `system-design` MCP, design id `fable` (17 steps so far; the user reviews them there).
+- Record architectural decisions in the `system-design` MCP, design id `fable` (18 steps so far; the user reviews them there).
 - Verify gameplay changes visually: run the game non-headless with a capture script (`SceneTree` script that drives `Input.action_press` and saves `root.get_texture().get_image()`), then crop and zoom the PNG.
 - In tests, the fighter reads a press one physics frame later; wait 2 frames before checking. Nodes added in `_initialize` get `_ready` only after the first frame, so read `fighter.controller` after an await.
 - `test_case.gd` registers a `Logger`, so any engine or script error fails the suite. Run everything with `tests/run_all.sh` (fixed 60 fps, ~11 s). Tests that load `main.tscn` also get player 2 at the second spawn point, which can absorb bullets.
