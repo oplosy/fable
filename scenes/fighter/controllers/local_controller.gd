@@ -29,6 +29,8 @@ func poll() -> void:
 	jump = Input.is_action_just_pressed(prefix + "jump")
 	attack = Input.is_action_just_pressed(prefix + "attack")
 	attack_held = Input.is_action_pressed(prefix + "attack")
+	# "Together" means one key goes down while the other is already held.
+	combo_break = (attack and Input.is_action_pressed(prefix + "jump")) or (jump and attack_held)
 	select_slot = -1
 	for i in 4:
 		if Input.is_action_just_pressed(prefix + "slot_%d" % (i + 1)):

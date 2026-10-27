@@ -11,6 +11,7 @@ var down := false ## Down pressed this physics frame (rolls while running).
 var jump := false ## Pressed this physics frame.
 var attack := false ## Pressed this physics frame.
 var attack_held := false
+var combo_break := false ## Attack and jump pressed together this physics frame.
 var select_slot := -1 ## Fighter.Slot chosen this physics frame, -1 for none.
 
 
