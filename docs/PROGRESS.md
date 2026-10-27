@@ -29,7 +29,7 @@ Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `te
 
 ## Next Steps
 
-1. Next (order not agreed yet): sprites and animation states, player 2 key layout, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+1. Next (order not agreed yet): sprites and animation states, player 2 key layout, key rebinding in settings (per player), bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
 Open questions for the user are listed in `GAME_DESIGN.md` (player 2 keys, aim kept on turn, firearm holstered in the air).
 

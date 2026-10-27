@@ -62,6 +62,7 @@ Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack
 
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
+- Decided, not built yet: every player can rebind their own keys in a settings menu. The defaults above are only starting bindings, so player 2 needs a default layout but no fixed one.
 
 ## Weapon Pickups
 
