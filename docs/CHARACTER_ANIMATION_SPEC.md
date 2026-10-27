@@ -288,6 +288,16 @@ While the art AI was out of quota, Claude generated these clips into `assets/ani
 - Lying face up, the near arm and leg sit lower than the body line in the 3/4 view; keep them across the body so they stay above the floor.
 - The game bends `coat_tail` and `coat_back` as cloth over the thighs and keeps them off the floor, so clips only turn coats to hang straight down; they need no coat poses.
 
+### 3.7 Designing a character that animates easily
+
+The clips are made on the Street Brawler's rig (`assets/characters/street_brawler/`). A new character animates cleanly when it follows the same rules:
+
+- Strict side view, facing right; front and back limbs at the same x.
+- Reuse the Street Brawler's pivots and `feet`, so the shared clips fit without changes.
+- Draw each limb as a capsule whose round ends sit on its joints, so turning a part never opens a gap.
+- Separate `foot_front` / `foot_back` parts (children of the lower legs), pivot on the ankle, flat sole on row 92.
+- No long stiff clothes below the waist; a coat needs the cloth mesh (`coat_back` / `coat_tail`).
+
 ## 4. Order of Work and Hand-over
 
 1. Phase 1 for **character 01 only**. Stop and hand over for review (Claude builds the rig in the game with it).

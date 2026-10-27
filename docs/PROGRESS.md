@@ -38,7 +38,7 @@ Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `te
 
 Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, mode rules, walk speed against the walk animation).
 
-Animation polish on character 01 (user reviews each clip): walk and crouch are waiting for review; then the punch, then the rest. Run, jump, attacks and reactions are still the first hand-made versions.
+Animation polish moved to the Street Brawler (`data/characters/street_brawler.tres`, player 1), a rig-friendly character drawn by `tools/draw_street_brawler.lua`: strict profile, short legs, capsule limbs with round joints, separate feet. It is the reference rig the clips are generated on; other characters should reuse its pivots. Walk, crouch and lying are fitted to it and waiting for the user's review (art too); then the punch. Run, jump, attacks and reactions are still the first hand-made versions (kicks and hit_air reach targets still fit the old rig). The trench coat agent no longer fits the clips exactly.
 
 ## Known Bugs
 
