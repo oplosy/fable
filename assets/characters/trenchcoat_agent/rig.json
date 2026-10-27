@@ -1,0 +1,25 @@
+﻿{
+  "character": "01_TrenchCoat_Agent",
+  "canvas": [64, 96],
+  "feet": [32, 93],
+  "pivots": {
+    "pelvis": [34, 50],
+    "torso": [33, 42],
+    "head": [33, 22],
+    "arm_back_upper": [41, 28],
+    "arm_back_lower": [43, 40],
+    "arm_front_upper": [21, 28],
+    "arm_front_lower": [19, 39],
+    "leg_back_upper": [38, 52],
+    "leg_back_lower": [39, 72],
+    "leg_front_upper": [30, 53],
+    "leg_front_lower": [25, 72],
+    "coat_tail": [33, 46]
+  },
+  "points": {
+    "hand_front": [24, 49],
+    "hand_back": [43, 49],
+    "head_top": [33, 7]
+  },
+  "asymmetric_details": ["none"]
+}

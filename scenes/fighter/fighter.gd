@@ -64,7 +64,9 @@ var _state := State.IDLE
 func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
-		if character.texture:
+		if character.rig_file:
+			_show_rig(character)
+		elif character.texture:
 			_show_art(character)
 	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
 	# Health's own _ready already ran with its default, so start it at the class's maximum.
@@ -183,6 +185,19 @@ func _show_art(data: CharacterData) -> void:
 	sprite.scale = Vector2.ONE / data.pixels_per_unit
 	_visuals.add_child(sprite)
 	_visuals.move_child(sprite, 0)
+	_placeholder.visible = false
+
+
+## Builds the character's cutout rig in place of the placeholder box; a broken rig
+## logs an error and leaves the placeholder.
+func _show_rig(data: CharacterData) -> void:
+	var rig := CharacterRig.new()
+	rig.name = "Rig"
+	if not rig.build(data.rig_file, data.pixels_per_unit):
+		rig.free()
+		return
+	_visuals.add_child(rig)
+	_visuals.move_child(rig, 0)
 	_placeholder.visible = false
 
 
