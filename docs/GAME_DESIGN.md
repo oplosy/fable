@@ -190,7 +190,7 @@ Game modes (the first five, decided in session 3, none built yet; more modes com
 
 - Maps are classified as small, medium or large. Example designs will be discussed later.
 - Maps are large: bigger than one screen, so the camera follows the fighters. Even small maps are not tiny rooms.
-- Map size rule: a map whose `camera_limits` fit in 2560x1440 world pixels (160x90 tiles of 16 px; 4x4 screens at the closest zoom) always shows every fighter. Bigger maps are possible, but fighters at opposite ends can then be off screen.
+- Map size limit (hard rule, session 3; user requirement: on huge maps every fighter must stay visible): a map's `camera_limits` are at most 2560x1440 world pixels (160x90 tiles of 16 px, about 4x4 screens at the closest zoom). That is the 1920x1080 view at the furthest zoom (0.75), so the whole map, and every fighter in it, always fits on screen. Everywhere a fighter can stand or jump must lie inside `camera_limits`. A bigger map logs an error when it loads and fails `test_arenas`; the size categories (small, medium, large) all live within this limit.
 - Every arena's root is an `Arena` with a `bounds` rectangle. A fighter that leaves it (falls into a pit) dies; items and thrown objects that leave it are removed, so a lost spawned item frees its spawn point.
 - Players will be able to import their own maps from outside the game. Format and tooling to be discussed later.
 - Implication: imported maps must not run arbitrary code; a data-only map format (no scripts) is required for user content.
