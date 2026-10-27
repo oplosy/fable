@@ -12,8 +12,14 @@ const CLIPS_DIR := "res://assets/animations"
 const REFERENCE_LEG_LENGTH := 40.0
 ## Seconds two clips cross-fade when the clip changes.
 const BLEND := 0.1
+## Seconds to cross-fade into an attack, a flinch or a fall, short so the hit pose lands on time.
+const SNAP := 0.03
 ## Below this horizontal speed (world px/s) a crouched fighter counts as still.
 const STILL_SPEED := 5.0
+## A stun at least this long (s) gets the heavy flinch.
+const HEAVY_STUN := 0.4
+## Cosmetic one-shots that finish while the fighter stands still; any action cuts them.
+const SETTLING := ["land", "getup_back", "getup_front"]
 
 var fighter: Fighter
 var _rig: CharacterRig
@@ -21,6 +27,9 @@ var _leg_scale := 1.0
 ## Clip name -> its reference_speed (world px/s); 0 for clips that do not follow speed.
 var _reference_speeds := {}
 var _was_airborne := false
+var _last_state := -1
+## Set by the fighter's hit_taken, so a new hit restarts the flinch.
+var _new_hit := false
 ## Coat part -> the two bottom corners of its hem relative to its pivot, in art px.
 var _hems := {}
 
@@ -28,6 +37,7 @@ var _hems := {}
 ## Loads every clip in CLIPS_DIR for this rig. Call once both are in the tree.
 func setup(target: Fighter, rig: CharacterRig) -> void:
 	fighter = target
+	fighter.hit_taken.connect(func() -> void: _new_hit = true)
 	_rig = rig
 	_leg_scale = rig.leg_length() / REFERENCE_LEG_LENGTH
 	root_node = get_path_to(rig)
@@ -54,22 +64,68 @@ func _physics_process(delta: float) -> void:
 
 
 func _choose_clip() -> void:
-	var clip := _pick()
-	var landed := _was_airborne and fighter.is_on_floor()
+	var state := fighter.state()
+	# A hit in front throws the body back; a hit from behind throws it on its face.
+	var fall := "front" if fighter.hit_from_behind else "back"
+	var restart := state != _last_state
+	var clip := ""
+	var blend := SNAP
+	match state:
+		Fighter.State.DEAD:
+			clip = "death_" + fall
+		Fighter.State.DOWN:
+			clip = "knockdown_" + fall
+			if assigned_animation == "lying_" + fall or (assigned_animation == clip and not is_playing()):
+				clip = "lying_" + fall
+		Fighter.State.STUN:
+			clip = _flinch()
+			restart = restart or _new_hit
+		Fighter.State.ATTACK:
+			clip = _attack_clip()
+		_:
+			restart = false
+			blend = BLEND
+			clip = _pick()
+			if clip == "idle":
+				if _last_state == Fighter.State.DOWN:
+					clip = "getup_" + fall
+				elif _was_airborne and fighter.is_on_floor():
+					clip = "land"
+				elif current_animation in SETTLING:
+					clip = current_animation
+	_new_hit = false
+	_last_state = state
 	_was_airborne = not fighter.is_on_floor()
-	if clip == "idle":
-		if landed and has_animation("land"):
-			clip = "land"
-		elif current_animation == "land":
-			return
 	if not has_animation(clip):
 		clip = "idle"
 		if not has_animation(clip):
 			return
 	var reference: float = _reference_speeds.get(clip, 0.0)
 	speed_scale = absf(fighter.velocity.x) / (reference * _leg_scale) if reference > 0.0 else 1.0
-	if clip != current_animation:
-		play(clip, BLEND)
+	# Finished one-shot clips stay assigned and hold their last pose.
+	if clip != assigned_animation:
+		play(clip, blend)
+	elif restart:
+		play(clip)
+		seek(0.0, true)
+
+
+## The flinch for the last hit: in the air, or light or heavy from in front or behind.
+func _flinch() -> String:
+	if not fighter.is_on_floor():
+		return "hit_air"
+	var weight := "heavy" if fighter.last_stun >= HEAVY_STUN else "light"
+	return "hit_%s_%s" % ["back" if fighter.hit_from_behind else "front", weight]
+
+
+## The running attack's clip: "<animation>_<place in the combo>" when there is one (three
+## jabs alternate fists), else "<animation>".
+func _attack_clip() -> String:
+	var attack := fighter.melee.current_attack()
+	if attack == null or attack.animation == &"":
+		return "idle"
+	var numbered := "%s_%d" % [attack.animation, fighter.melee.combo_index() + 1]
+	return numbered if has_animation(numbered) else String(attack.animation)
 
 
 ## A stiff coat part whose hem would go through the floor (crouching, landing) is

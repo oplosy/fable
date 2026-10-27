@@ -3,7 +3,8 @@ extends "res://tests/test_case.gd"
 
 ## A rigged fighter plays the clip that matches what it does: idle, walk and run (at the
 ## speed its legs match), crouching (feet flat, coat off the floor), jumping, falling
-## and landing.
+## and landing; attacks play their own clip, hits a flinch, and a knockdown falls, lies
+## and gets up on the side the hit came from.
 
 const CLIPS := ["idle", "walk", "run", "jump_rise", "fall", "land", "crouch_idle", "crouch_walk"]
 
@@ -65,3 +66,33 @@ func run() -> void:
 	check(animator.current_animation == "land", "touching down plays land")
 	await physics_frames(20)
 	check(animator.current_animation == "idle", "land goes back to idle")
+
+	input.attack = true
+	await physics_frames(2)
+	input.attack = false
+	check(animator.current_animation == "fast_jab_1", "the first jab of the combo plays fast_jab_1 (%s)" % animator.current_animation)
+	await physics_frames(30)
+
+	fighter.take_hit(1, Vector2(-40, 0), 0.2)
+	await physics_frames(2)
+	check(animator.current_animation == "hit_front_light", "a short stun from in front plays hit_front_light (%s)" % animator.current_animation)
+	await physics_frames(30)
+	fighter.take_hit(1, Vector2(40, 0), 0.5)
+	await physics_frames(2)
+	check(animator.current_animation == "hit_back_heavy", "a long stun from behind plays hit_back_heavy (%s)" % animator.current_animation)
+	await physics_frames(60)
+
+	fighter.take_hit(1, Vector2(-40, 0), -1.0, true)
+	await physics_frames(3)
+	check(animator.current_animation == "knockdown_back", "a knockdown from in front falls on the back")
+	await physics_frames(40)
+	check(animator.current_animation == "lying_back", "the fall ends lying on the back")
+	while fighter.is_knocked_down():
+		await physics_frames(1)
+	await physics_frames(2)
+	check(animator.current_animation == "getup_back", "getting up plays getup_back")
+
+	await physics_frames(60)
+	fighter.take_hit(9999, Vector2(40, 0))
+	await physics_frames(3)
+	check(animator.current_animation == "death_front", "a killing hit from behind plays death_front (%s)" % animator.current_animation)

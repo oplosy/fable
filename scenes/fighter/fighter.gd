@@ -15,6 +15,8 @@ signal state_changed(state: State)
 ## `killer` is the last fighter that hit it within KILL_CREDIT_TIME (itself for a
 ## self-kill), or null when nobody did. Game modes score from this.
 signal died(killer: Fighter)
+## A hit landed (not blocked by invulnerability); animations restart their flinch on it.
+signal hit_taken
 
 ## Seconds a hit keeps its attacker credited, so a fall soon after a push still counts.
 const KILL_CREDIT_TIME := 5.0
@@ -30,6 +32,11 @@ var facing := 1
 var aim_angle := 0.0
 ## From the character; a bare default class when there is none.
 var fighter_class: FighterClass
+## Whether the last hit pushed the fighter forwards (it came from behind). Animations
+## pick the flinch, fall and death direction from it.
+var hit_from_behind := false
+## Stun time of the last hit, so animations can tell light hits from heavy ones.
+var last_stun := 0.0
 
 var _hit_stun := 0.0
 var _down_time := 0.0
@@ -240,6 +247,10 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 	if knockback.y != 0.0:
 		velocity.y = knockback.y
 	var new_stun := stun if stun >= 0.0 else fighter_class.hit_stun_time
+	if knockback.x != 0.0:
+		hit_from_behind = knockback.x * facing > 0.0
+	last_stun = new_stun
+	hit_taken.emit()
 	# Hits that neither stun nor knock down (fire) hurt without interrupting the fighter.
 	if knocks_down or new_stun > 0.0:
 		melee.cancel()
@@ -292,11 +303,11 @@ func _update_hittable() -> void:
 	collision_layer = 0 if is_dead() or is_invulnerable() else FIGHTERS_LAYER
 
 
-## Placeholder poses until animations exist: lying backwards when down or dead,
-## head-first while diving, squashed while rolling.
+## Placeholder poses where no clip exists yet: lying backwards when down or dead (only
+## without a rig, whose animator lays it down), head-first while diving, squashed while rolling.
 func _update_pose() -> void:
 	var now := state()
-	var lying := now == State.DEAD or now == State.DOWN
+	var lying := (now == State.DEAD or now == State.DOWN) and not has_node("Animator")
 	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if now == State.DIVE else 0.0)
 	_visuals.position.y = -6.0 if lying or now == State.DIVE else 0.0
 	_visuals.scale.y = 0.5 if now == State.ROLL else 1.0
