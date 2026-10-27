@@ -34,7 +34,7 @@ Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `te
 ## Next Steps
 
 1. Build the agreed content (GAME_DESIGN.md → Content List); ammo, spread, bloom, crouching, shotgun, SMG, sniper, knife, bat, grenade and molotov are done. Remaining content (revolver, machine gun, bazooka, flamethrower; pipe, machete, sledgehammer; mine, C4) has no agreed order yet.
-2. Later (order not agreed yet): game modes (capture the flag, deathmatch; score, time or 3-life endings), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+2. Later (order not agreed yet): game modes (first five agreed in GAME_DESIGN: capture the flag, deathmatch to 20, zone control to 1000, hostage rescue, bomb; kill credit comes first), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
 Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, mode rules).
 

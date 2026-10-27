@@ -170,11 +170,19 @@ Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s kno
 - Multiplayer is both local (several players on one machine) and online.
 - Implication: fighters must not read `Input` directly; a controller (local player, bot, remote player) drives each fighter, and local players need separate key bindings.
 
-Game modes (decided, not built yet):
-- Several modes, for example capture the flag and a straight versus fight (deathmatch).
-- Modes end in different ways: some by score, some by time, some by lives.
-- Lives mode: every player has 3 lives. Each death costs one life and the player respawns until no lives are left; a player out of lives is out of the match.
-- Open: the full mode list, each mode's rules (team or free-for-all, score limits, time limits), and whether a HUD shows health, lives, score and time.
+Game modes (the first five, decided in session 3, none built yet; more modes come later):
+1. **Capture the flag** (3v3): each team has a base. An object is taken from the enemy side and carried to your own base; the first team to do this 3 times wins.
+2. **Deathmatch**: the first to 20 kills wins. A dead player respawns right away.
+3. **Zone control** (team): three zones, one in the middle and one near each team's base. Every zone a team holds adds +5 points to that team every 1-2 s; the first team to 1000 points wins.
+4. **Hostage rescue** (team): one team rescues hostages, the other guards them ("2D Counter-Strike" feel).
+5. **Bomb** (team): one team plants C4 at target zones, the other defends ("2D Counter-Strike" feel).
+- Every mode needs to know who scored a kill: each hit must carry its attacker, including projectiles, blasts, fire and falls out of the map (credit to the last hitter).
+- Lives mode (every player has 3 lives, out of the match when none are left) was agreed earlier but is not among the first five; it comes later with the other modes.
+- Open, capture the flag: what the object is, whether the enemy object must sit in their base or your own object must be home to score, what happens when the carrier dies (drop, return timer), and whether the carrier can use firearms.
+- Open, deathmatch: free-for-all or teams, and whether there is a time limit.
+- Open, zone control: how a zone is taken (standing in it for some seconds, contested when both teams are inside), the exact tick (1 s or 2 s), respawns.
+- Open, hostage rescue and bomb: rounds or one continuous match, respawns, the win and round-end rules (time, all rescued, bomb defused or exploded, team wiped).
+- Open: maximum players per match outside 3v3, and whether a HUD shows health, score and time.
 
 ## Maps
 
