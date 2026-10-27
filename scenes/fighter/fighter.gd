@@ -383,15 +383,21 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	# No steering in the air: jumps, dives and jump kicks keep their takeoff momentum.
-	var direction := controller.move if unlocked and is_on_floor() else 0.0
-	if direction:
+	var direction := controller.move if unlocked else 0.0
+	if direction and is_on_floor():
 		var speed := fighter_class.walk_speed
 		if _crouching:
 			speed = fighter_class.crouch_speed
 		elif controller.run:
 			speed = fighter_class.run_speed
 		velocity.x = move_toward(velocity.x, direction * speed, fighter_class.acceleration * delta)
+		facing = 1 if direction > 0 else -1
+		_visuals.scale.x = facing
+	elif direction:
+		# Steering in the air bends the jump up to walk speed; it never slows down
+		# faster momentum in the held direction (a running takeoff, a knockback).
+		if direction * velocity.x < fighter_class.walk_speed:
+			velocity.x = move_toward(velocity.x, direction * fighter_class.walk_speed, fighter_class.air_acceleration * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
 	elif is_on_floor() and not is_rolling():
@@ -402,8 +408,8 @@ func _physics_process(delta: float) -> void:
 			_diving = true
 			velocity = Vector2(facing * fighter_class.dive_velocity.x, fighter_class.dive_velocity.y)
 		else:
-			# A walking jump goes straight up.
-			velocity = Vector2(0.0, fighter_class.jump_velocity)
+			# A jump keeps the speed it was walking with, so it arcs forward.
+			velocity.y = fighter_class.jump_velocity
 	elif unlocked and controller.down and is_running():
 		_roll_time = fighter_class.roll_time
 		velocity.x = facing * fighter_class.roll_speed

@@ -14,6 +14,9 @@ extends Resource
 @export var run_speed := 200.0
 @export var crouch_speed := 50.0
 @export var jump_velocity := -300.0
+## Speed change per second from A/D in the air, up to walk speed. Jumps keep their
+## takeoff speed, so this only bends the arc; dives and jump kicks cannot be steered.
+@export var air_acceleration := 500.0
 ## A running jump is a low, long forward dive.
 @export var dive_velocity := Vector2(260.0, -220.0)
 @export var roll_speed := 220.0
