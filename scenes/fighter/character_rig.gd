@@ -31,6 +31,9 @@ var points := {}
 ## rig.json "pivots" and "feet", in art pixels on the canvas.
 var pivots := {}
 var feet := Vector2.ZERO
+## On the front fist, turned along the forearm and at world scale, so a held item's art
+## follows the hand. Visual only: hits and projectiles never use it.
+var hand_anchor: Node2D
 
 
 ## Reads `rig_path` and builds the parts, drawn at 1/`pixels_per_unit` scale with the
@@ -83,6 +86,13 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 		points[key] = _vec(rig.points[key])
 	for part: String in textures:
 		pivots[part] = _vec(rig_pivots[part])
+	if points.has("hand_front"):
+		hand_anchor = Node2D.new()
+		hand_anchor.name = "HandFront"
+		hand_anchor.position = points.hand_front - pivots.arm_front_lower
+		hand_anchor.rotation = hand_anchor.position.angle()
+		hand_anchor.scale = Vector2.ONE * pixels_per_unit
+		joints.arm_front_lower.add_child(hand_anchor)
 	return true
 
 

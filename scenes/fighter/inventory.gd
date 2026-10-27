@@ -30,6 +30,12 @@ func setup(owner_fighter: Fighter, hand_node: Node2D) -> void:
 	fighter.melee.item_broke.connect(_show_melee_item)
 
 
+## Draws the held melee item on `node` (an animated hand) instead of the hand marker.
+## Only the art moves; items are still dropped from `hand`.
+func show_melee_item_on(node: Node2D) -> void:
+	_melee_sprite.reparent(node, false)
+
+
 func equip_firearm(data: WeaponData) -> void:
 	if firearm:
 		firearm.queue_free()

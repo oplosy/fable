@@ -96,6 +96,9 @@ func _ready() -> void:
 	_crouching = true
 	_set_crouching(false)
 	inventory.setup(self, _hand)
+	var rig := _visuals.get_node_or_null("Rig") as CharacterRig
+	if rig and rig.hand_anchor:
+		inventory.show_melee_item_on(rig.hand_anchor)
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
 	_hand.add_child(_throwable_sprite)
