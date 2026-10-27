@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scenes/items/item_spawner.gd" id="1_spawner"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="2_pistol"]
@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/throwables/grenade.tres" id="9_grenade"]
 [ext_resource type="Resource" path="res://data/throwables/molotov.tres" id="10_molotov"]
 [ext_resource type="Script" path="res://scenes/arenas/arena.gd" id="11_arena"]
+[ext_resource type="Script" path="res://scenes/arenas/follow_camera.gd" id="12_camera"]
 
 [sub_resource type="RectangleShape2D" id="floor_shape"]
 size = Vector2(640, 32)
@@ -80,3 +81,4 @@ items = Array[ExtResource("3_data")]([ExtResource("2_pistol"), ExtResource("4_sh
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(320, 180)
+script = ExtResource("12_camera")

@@ -8,6 +8,8 @@ const BOUNDED := &"bounded"
 
 ## Playable area in the arena's own coordinates; leave room above for jumps.
 @export var bounds := Rect2(-64, -360, 768, 784)
+## The part of the map the camera may show, in the arena's own coordinates.
+@export var camera_limits := Rect2(0, 0, 640, 360)
 
 ## The match's single source of randomness (spawn picks, bullet spread), so seeding it
 ## replays a match exactly, e.g. for tests, replays or keeping online peers in sync.
