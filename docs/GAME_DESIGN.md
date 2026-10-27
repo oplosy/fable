@@ -41,7 +41,14 @@ Example: the fighter walks, stops, the firearm appears in hand and attack fires 
 - With the firearm slot active, attack in the air does nothing: no shot and no jump kick (user decision). The jump kick needs the melee slot.
 
 Ammo (decided, not built yet):
-- Every firearm has limited ammo. Open: ammo per weapon, what an empty weapon does (dropped automatically or kept as a club), whether ammo pickups exist.
+- Every firearm has limited ammo, the starting pistol included (amounts in Content List).
+- An empty firearm is dropped automatically (it cannot be picked up) and the fighter falls back to bare hands.
+- Open: whether ammo pickups exist.
+
+Spread and bullet speed (decided, not built yet):
+- Bullets do not all fly in a perfect line. Each weapon has a spread angle (each shot deviates randomly within it) and its own bullet speed.
+- The sniper rifle fires dead straight with the fastest bullets; the SMG has the slowest bullets and the widest spread; the machine gun sits between them. Other weapons follow the same idea (the shotgun's pellets spread by design).
+- Open: whether spread also grows while holding the trigger on automatic weapons.
 
 Current defaults (not yet confirmed by the user, easy to change):
 - The aim angle is kept when turning around (mirrored into the new facing half).
@@ -77,7 +84,8 @@ Built:
 - Each arena defines fixed weapon spawn points. An empty spawn point spawns a weapon at an interval (about 10 s).
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
-- Fighters start the match with a pistol (user decision).
+- Fighters start the match with a pistol (user decision) and 3 grenades (decided, not built yet).
+- Decided, not built yet: melee items and throwables also come only from spawn points (and the starting loadout). Spawn points pick weighted at random: strong weapons (bazooka, sniper) are rare, common ones (pistol, SMG) frequent.
 - A fighter that dies drops its firearm too, like a knocked-down one. Like every fighter-dropped weapon, it cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
@@ -150,9 +158,48 @@ Game modes (decided, not built yet):
 - Players will be able to import their own maps from outside the game. Format and tooling to be discussed later.
 - Implication: imported maps must not run arbitrary code; a data-only map format (no scripts) is required for user content.
 
-## Content List (to be decided)
+## Content List
 
-To decide together before building more content: the firearms, the handheld melee items (knives, swords, bats...), and the bomb and throwable types (grenades, molotovs...) the game will have, with each one's role.
+Agreed with the user (session 2). Numbers are starting values to tune in play.
+
+Firearms (slot 2):
+
+| Weapon | Ammo | Fire | Role |
+|--------|------|------|------|
+| Pistol | 12 | Semi-auto | Starting weapon; weak but reliable. |
+| Revolver | 6 | Semi-auto, slow | High damage and knockback. |
+| Shotgun | 6 | 5 pellets in a cone | Deadly up close, weak far away; knocks down at point blank. |
+| SMG | 30 | Automatic | Fast fire, low damage per bullet, slow bullets, widest spread. |
+| Machine gun | 40 | Automatic | Medium damage, long range; spread and bullet speed between SMG and sniper. |
+| Sniper rifle | 3 | Semi-auto, very slow | Nearly one-shot kill; fastest bullet, no spread; pierces through several fighters. |
+| Bazooka | 2 | Rocket | Explosion hurts and knocks down everyone in range. |
+| Flamethrower | 50 (fuel) | Hold | Short range; sets the target on fire (burn damage over time). |
+
+Melee items (slot 1, replace the punch; each has its own combo and breaks after 10-15 hits):
+
+| Item | Speed | Reach | Role |
+|------|-------|-------|------|
+| Knife | Very fast | Short | Fast, low-damage combo. |
+| Baseball bat | Medium | Medium | Strong knockback; the combo finisher knocks down. |
+| Pipe / crowbar | Slow | Medium | Heavy hit; stuns in one blow. |
+| Machete | Medium | Long | High damage. |
+| Sledgehammer | Very slow | Long | Knocks down in one hit; a miss leaves a big opening. |
+
+Bombs and throwables (slot 3, counted):
+
+| Type | Count | Behaviour |
+|------|-------|-----------|
+| Grenade | 3 | Thrown, bounces, explodes 3 s after the pin is pulled; area damage and knockdown. Every fighter starts with 3. |
+| Molotov | 2 | Breaks on impact and leaves a burning area for a few seconds. |
+| Mine | 2 | Placed on the ground; explodes when someone steps on it. |
+| Remote explosive (C4) | 1 | Stuck to a surface; detonated with the attack key. |
+
+Rules for throwables and explosions:
+- Throwing aims like a firearm (the facing half-circle, W/S), with a fixed throw strength.
+- Explosions and fire hurt the thrower too; position and timing matter. A molotov thrown at your own feet burns you. A grenade's fuse starts when the pin is pulled, so holding it too long makes it explode in your hand.
+- Open: how the grenade is "held" (hold the attack key to cook, release to throw?) and what decides the fuse start.
+
+Build order is open; the suggested first batch covers every core mechanic: shotgun, SMG, sniper rifle; knife, baseball bat; grenade, molotov.
 
 ## Current Prototype Deviations
 

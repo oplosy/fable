@@ -30,10 +30,10 @@ Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `te
 
 ## Next Steps
 
-1. Decide the content list together: firearms, handheld melee items, bombs and throwables (GAME_DESIGN.md → Content List).
-2. Later (order not agreed yet): ammo, game modes (capture the flag, deathmatch; score, time or 3-life endings), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+1. Build the agreed content (GAME_DESIGN.md → Content List), starting with ammo, spread and bullet speed; suggested first batch: shotgun, SMG, sniper; knife, bat; grenade, molotov. Build order not agreed yet.
+2. Later (order not agreed yet): game modes (capture the flag, deathmatch; score, time or 3-life endings), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
-Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, ammo details, mode rules, content list).
+Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, ammo pickups, spread growth on auto fire, grenade cooking controls, mode rules).
 
 ## Known Bugs
 
