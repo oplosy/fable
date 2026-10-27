@@ -12,6 +12,12 @@ const GROUP := &"fighters"
 enum State { IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD }
 
 signal state_changed(state: State)
+## `killer` is the last fighter that hit it within KILL_CREDIT_TIME (itself for a
+## self-kill), or null when nobody did. Game modes score from this.
+signal died(killer: Fighter)
+
+## Seconds a hit keeps its attacker credited, so a fall soon after a push still counts.
+const KILL_CREDIT_TIME := 5.0
 
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
@@ -33,6 +39,8 @@ var _diving := false
 ## The fighter whose melee hit caused the current stun; the combo breaker pushes it back.
 var _stunned_by: Fighter
 var _breaker_cooldown := 0.0
+var _last_attacker: Fighter
+var _credit_left := 0.0
 var _crouching := false
 var _flash_tween: Tween
 var _stand_shape: RectangleShape2D
@@ -194,10 +202,14 @@ func aim_direction() -> Vector2:
 
 ## A negative `stun` uses the class's hit_stun_time.
 ## `knocks_down` puts the fighter on the ground instead of stunning it.
-## `attacker` is the fighter behind a melee hit; its stun can be broken with the combo breaker.
-func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down := false, attacker: Fighter = null) -> void:
+## `attacker` is the fighter credited with the hit (and a kill it leads to).
+## `by_melee` lets the combo breaker push the attacker back out of the stun.
+func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down := false, attacker: Fighter = null, by_melee := false) -> void:
 	if is_dead() or is_invulnerable():
 		return
+	if attacker:
+		_last_attacker = attacker
+		_credit_left = KILL_CREDIT_TIME
 	health.take_damage(damage)
 	# Knockback replaces the speed on each axis it pushes along, so repeated hits
 	# (e.g. bullets on an airborne fighter, which has no air friction) never stack.
@@ -224,14 +236,14 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 	elif not is_knocked_down() and new_stun >= _hit_stun:
 		# A shorter stun never cuts a longer one short, nor takes away its combo breaker.
 		_hit_stun = new_stun
-		_stunned_by = attacker
+		_stunned_by = attacker if by_melee else null
 
 
 ## Ends the stun and pushes the attacker back; its combo is cancelled by the hit.
 func _break_combo() -> void:
 	_hit_stun = 0.0
 	_breaker_cooldown = fighter_class.combo_breaker_cooldown
-	_stunned_by.take_hit(0, Vector2(-_stunned_by.facing * fighter_class.combo_breaker_push, 0.0), fighter_class.combo_breaker_stun)
+	_stunned_by.take_hit(0, Vector2(-_stunned_by.facing * fighter_class.combo_breaker_push, 0.0), fighter_class.combo_breaker_stun, false, self)
 	_stunned_by = null
 
 
@@ -313,11 +325,14 @@ func _on_died() -> void:
 	_update_pose()
 	_update_hittable()
 	melee.cancel()
+	var credited := _credit_left > 0.0 and is_instance_valid(_last_attacker)
+	died.emit(_last_attacker if credited else null)
 
 
 func _physics_process(delta: float) -> void:
 	controller.poll()
 	_hit_stun = maxf(_hit_stun - delta, 0.0)
+	_credit_left = maxf(_credit_left - delta, 0.0)
 	if is_knocked_down() and not is_dead():
 		_down_time -= delta
 		if _down_time <= 0.0:

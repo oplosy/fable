@@ -94,7 +94,7 @@ func _test_stun_rules() -> void:
 	var attacker := _spawn(Vector2(200, 328), FAST)
 	var target := _spawn(Vector2(220, 328))
 	await physics_frames(10)
-	target.take_hit(0, Vector2.ZERO, 0.4, false, attacker)
+	target.take_hit(0, Vector2.ZERO, 0.4, false, attacker, true)
 	target.take_hit(4, Vector2.ZERO, 0.0)
 	check(target.is_stunned() and target.can_break_combo(), "a zero-stun hit (fire) keeps a melee stun and its breaker")
 	target.take_hit(5, Vector2.ZERO, 0.25)

@@ -150,6 +150,6 @@ func _apply_hits(attack: MeleeAttack) -> void:
 ## `with_item`: the hit comes from the held item's combo (not the jump kick) and wears it.
 func _land_hit(body: Node, attack: MeleeAttack, knockback: Vector2, with_item: bool) -> void:
 	if is_instance_valid(body) and is_instance_valid(fighter):
-		body.take_hit(attack.damage, knockback, attack.stun_time, attack.knocks_down, fighter)
+		body.take_hit(attack.damage, knockback, attack.stun_time, attack.knocks_down, fighter, true)
 		if with_item:
 			item_hits_left -= 1
