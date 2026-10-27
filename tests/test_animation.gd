@@ -2,7 +2,7 @@
 extends "res://tests/test_case.gd"
 
 ## A rigged fighter plays the clip that matches what it does: idle, walk and run (at the
-## speed its legs match), crouching (feet flat, coat off the floor), jumping, falling
+## speed its legs match), crouching (a deep squat, coat off the floor), jumping, falling
 ## and landing; attacks play their own clip, hits a flinch, and a knockdown falls, lies
 ## and gets up on the side the hit came from.
 
@@ -24,10 +24,11 @@ func run() -> void:
 	check(CLIPS.all(func(clip: String) -> bool: return animator.has_animation(clip)), "every clip loads")
 	await physics_frames(30)
 	check(animator.current_animation == "idle", "standing still plays idle (%s)" % animator.current_animation)
+	var standing := _head_top(rig)
 
 	input.move = 1.0
 	await physics_frames(30)
-	var walk_scale := fighter.velocity.x / (120.0 * rig.leg_length() / RigAnimator.REFERENCE_LEG_LENGTH)
+	var walk_scale: float = fighter.velocity.x / (animator._reference_speeds.walk * rig.leg_length() / RigAnimator.REFERENCE_LEG_LENGTH)
 	check(animator.current_animation == "walk" and is_equal_approx(animator.speed_scale, walk_scale), "walking plays walk at the speed its feet match (%.2f)" % animator.speed_scale)
 	input.run = true
 	await physics_frames(30)
@@ -38,8 +39,7 @@ func run() -> void:
 	input.crouch = true
 	await physics_frames(30)
 	check(animator.current_animation == "crouch_idle", "crouching plays crouch_idle")
-	for side in ["front", "back"]:
-		check(absf(rig.joints["leg_%s_lower" % side].global_rotation) < 0.01, "a crouched %s shin stands upright, so its foot is flat" % side)
+	check(_head_top(rig) < standing * 0.75, "crouching brings the head down to under 75%% of standing (%.0f%%)" % (100.0 * _head_top(rig) / standing))
 	for part: String in animator._hems:
 		var joint: Node2D = rig.joints[part]
 		for corner: Vector2 in animator._hems[part]:
@@ -96,3 +96,8 @@ func run() -> void:
 	fighter.take_hit(9999, Vector2(40, 0))
 	await physics_frames(3)
 	check(animator.current_animation == "death_front", "a killing hit from behind plays death_front (%s)" % animator.current_animation)
+
+
+## Height of the top of the head over the floor, in art px.
+func _head_top(rig: CharacterRig) -> float:
+	return -rig.to_local(rig.joints.head.to_global(rig.points.head_top - rig.pivots.head)).y

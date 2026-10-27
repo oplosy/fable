@@ -31,7 +31,7 @@
 				"leg_front_lower": 43.3,
 				"leg_back_upper": -9.6,
 				"leg_back_lower": 103.6,
-				"coat_tail": -18.1,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -52,7 +52,7 @@
 				"leg_front_lower": 72.0,
 				"leg_back_upper": -28.6,
 				"leg_back_lower": 129.4,
-				"coat_tail": -17.4,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -73,7 +73,7 @@
 				"leg_front_lower": 79.6,
 				"leg_back_upper": -53.9,
 				"leg_back_lower": 143.8,
-				"coat_tail": -16.2,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -94,7 +94,7 @@
 				"leg_front_lower": 62.1,
 				"leg_back_upper": -73.4,
 				"leg_back_lower": 134.3,
-				"coat_tail": -22.0,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -115,8 +115,8 @@
 				"leg_front_lower": -0.5,
 				"leg_back_upper": -68.9,
 				"leg_back_lower": 102.9,
-				"coat_tail": -20.7,
-				"coat_back": 9.6
+				"coat_tail": 0.0,
+				"coat_back": 0.0
 			}
 		},
 		{
@@ -136,8 +136,8 @@
 				"leg_front_lower": 28.2,
 				"leg_back_upper": -43.5,
 				"leg_back_lower": 46.0,
-				"coat_tail": -13.1,
-				"coat_back": 4.9
+				"coat_tail": 0.0,
+				"coat_back": 0.0
 			}
 		},
 		{
@@ -157,7 +157,7 @@
 				"leg_front_lower": 70.5,
 				"leg_back_upper": -30.4,
 				"leg_back_lower": 17.0,
-				"coat_tail": -9.1,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -175,10 +175,10 @@
 				"arm_back_upper": 39.0,
 				"arm_back_lower": -85.0,
 				"leg_front_upper": -27.0,
-				"leg_front_lower": -257.8,
+				"leg_front_lower": 102.2,
 				"leg_back_upper": -45.8,
 				"leg_back_lower": 76.2,
-				"coat_tail": -13.7,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -199,7 +199,7 @@
 				"leg_front_lower": 122.5,
 				"leg_back_upper": -39.5,
 				"leg_back_lower": 98.5,
-				"coat_tail": -14.8,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -220,7 +220,7 @@
 				"leg_front_lower": 122.3,
 				"leg_back_upper": -19.1,
 				"leg_back_lower": 91.4,
-				"coat_tail": -22.0,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -241,8 +241,8 @@
 				"leg_front_lower": 100.3,
 				"leg_back_upper": 7.1,
 				"leg_back_lower": 62.8,
-				"coat_tail": -24.1,
-				"coat_back": 3.6
+				"coat_tail": 0.0,
+				"coat_back": 0.0
 			}
 		},
 		{
@@ -262,8 +262,8 @@
 				"leg_front_lower": 68.0,
 				"leg_back_upper": 5.0,
 				"leg_back_lower": 74.8,
-				"coat_tail": -21.3,
-				"coat_back": 2.5
+				"coat_tail": 0.0,
+				"coat_back": 0.0
 			}
 		}
 	]

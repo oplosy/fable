@@ -26,7 +26,7 @@
 				"leg_front_lower": 106.2,
 				"leg_back_upper": -51.0,
 				"leg_back_lower": 109.9,
-				"coat_tail": -16.3,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -47,7 +47,7 @@
 				"leg_front_lower": 106.2,
 				"leg_back_upper": -51.0,
 				"leg_back_lower": 109.9,
-				"coat_tail": -16.3,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -68,7 +68,7 @@
 				"leg_front_lower": 122.4,
 				"leg_back_upper": -41.8,
 				"leg_back_lower": 30.9,
-				"coat_tail": -19.4,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -89,7 +89,7 @@
 				"leg_front_lower": 122.4,
 				"leg_back_upper": -41.8,
 				"leg_back_lower": 30.9,
-				"coat_tail": -19.4,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -110,7 +110,7 @@
 				"leg_front_lower": 106.2,
 				"leg_back_upper": -51.0,
 				"leg_back_lower": 109.9,
-				"coat_tail": -16.3,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		}

@@ -12,12 +12,22 @@ const OUT_DIR := "res://assets/animations"
 const FLOOR := 93.0
 ## Keys per movement cycle; the game blends cubically between them.
 const CYCLE_KEYS := 12
-## Crouched body offset: hips back over the heels and down until the thighs are level.
-const CROUCH_ROOT := Vector2(-8, 23)
 ## Lying down, the hips drop until the turned body rests on the floor; the pelvis pivot
 ## is off the body's middle, so face up and face down differ.
 const LYING_DROP := {"back": 28.0, "front": 34.0}
 const PLANTED := {"front": "planted", "back": "planted"}
+## Degrees a coat may turn against the hips to keep hanging straight down.
+const COAT_HANG_LIMIT := 30.0
+## The deep squat the crouch copies: CMU subject 69 squatting to pick something up.
+const SQUAT_CAPTURE := "res://art/mocap/69_70.bvh"
+const SQUAT_FRAME := 360
+## Furthest a knee bends (degrees from straight); deeper squats lift the hips.
+const KNEE_LIMIT := 150.0
+## Extra art px a swinging foot is lifted at twice the body's speed (and faster).
+const SWING_LIFT := 3.0
+const Mocap = preload("res://tools/mocap.gd")
+## Mocap side -> rig side. Facing right in the 3/4 view, the body's right side is the near one.
+const MOCAP_SIDES := {"front": "Right", "back": "Left"}
 
 var _pivots := {}
 var _points := {}
@@ -37,7 +47,7 @@ func _initialize() -> void:
 		_legs[side] = _measure_leg(side)
 	DirAccess.make_dir_recursive_absolute(OUT_DIR)
 	_write("idle", _idle())
-	_write("walk", _walk_cycle(120.0, 32.0, 0.5, 7.0, 3.0, 1.5, 6.0, 25.0, -35.0))
+	_write("walk", _mocap_cycle("res://art/mocap/02_01.bvh", "walk"))
 	_write("run", _run())
 	_write("jump_rise", _jump_rise())
 	_write("fall", _fall())
@@ -70,27 +80,141 @@ func _stance(breath: float) -> Dictionary:
 	}
 
 
-## A walking leg cycle: each foot is planted for `stance` of the cycle and slides back
-## `stride` art px at exactly `speed` (world px/s), then swings forward `lift` px high.
-func _walk_cycle(speed: float, stride: float, stance: float, lift: float, drop: float, bob: float, lean: float, arm_swing: float, elbow: float, name := "walk") -> Dictionary:
-	var length := stride / (speed * 3.0 * stance)
-	var keys := []
+## One step cycle copied from a motion capture: from the front foot's heel strike to the
+## next, the body's height and lean, the arms and where each ankle is relative to its hip.
+## The feet are grounded on the floor and planted feet move back at the capture's own
+## speed, which becomes the clip's reference_speed.
+## With a `body` pose, the hips, lean and arms are that pose's, plus the capture's bob.
+func _mocap_cycle(path: String, name: String, body := {}) -> Dictionary:
+	var bvh := Mocap.read(path)
+	var count: int = bvh.frames.size()
+	var walked: Vector3 = Mocap.positions(bvh, count - 1).Hips - Mocap.positions(bvh, 0).Hips
+	var forward := Vector3(walked.x, 0.0, walked.z).normalized()
+	var frames := []
+	for f in count:
+		frames.append(Mocap.side_view(Mocap.positions(bvh, f), forward))
+	# Heel strikes: the front ankle furthest ahead of its hip. The cycle nearest the middle.
+	var reach := func(f: int) -> float: return frames[f].RightFoot.x - frames[f].RightUpLeg.x
+	var strikes := []
+	for f in range(10, count - 10):
+		if range(f - 10, f + 11).all(func(g: int) -> bool: return reach.call(g) <= reach.call(f)):
+			strikes.append(f)
+	var start: int = strikes[strikes.size() / 2 - 1]
+	var end: int = strikes[strikes.size() / 2]
+	# The capture floor tilts slightly; the drift over the cycle is spread back out so it loops.
+	var drift: float = frames[end].Hips.y - frames[start].Hips.y
+	var floors := {}
+	for side: String in MOCAP_SIDES.values():
+		for joint in [side + "Foot", side + "ToeBase"]:
+			floors[joint] = INF
+			for f in range(start, end):
+				floors[joint] = minf(floors[joint], -frames[f][joint].y + drift * float(f - start) / (end - start))
+	var scale: float = (_legs.front.l1 + _legs.front.l2) / _mocap_leg(bvh)
+	var length: float = (end - start) * bvh.frame_time
+	var speed: float = (frames[end].Hips.x - frames[start].Hips.x) * scale / 3.0 / length
+	var poses := []
 	for i in CYCLE_KEYS:
 		var p := float(i) / CYCLE_KEYS
-		keys.append(_key(p * length, {
-			# Lowest when both feet are down (p 0 and 0.5), highest mid-stride.
-			"root": Vector2(0, drop + bob * 0.5 * (1.0 + cos(4.0 * PI * p))),
-			"torso": lean, "head": -lean * 0.6,
-			# Arms swing against the legs: the front leg leads at p 0, so the front arm trails.
-			"arm_front_upper": arm_swing * cos(TAU * p), "arm_front_lower": elbow,
-			"arm_back_upper": -arm_swing * cos(TAU * p), "arm_back_lower": elbow,
-			"feet": {
-				"front": _cycle_foot("front", p, stride, stance, lift),
-				"back": _cycle_foot("back", p + 0.5, stride, stance, lift),
-			},
-		}))
-	return {"name": name, "loop": true, "length": snappedf(length, 0.001), "reference_speed": speed,
+		var at: Dictionary = frames[start + roundi(p * (end - start))]
+		var height := func(joint: String) -> float: return -at[joint].y + drift * p
+		var pose := {"arms": {}, "feet": {}}
+		for side: String in MOCAP_SIDES:
+			var m: String = MOCAP_SIDES[side]
+			var leg: Dictionary = _legs[side]
+			var lift := minf(height.call(m + "Foot") - floors[m + "Foot"], height.call(m + "ToeBase") - floors[m + "ToeBase"])
+			# A real toe clears the floor by a pixel, which reads as shuffling at this size:
+			# a swinging foot lifts more the faster it goes.
+			var f := start + roundi(p * (end - start))
+			var foot_speed: float = (frames[mini(f + 1, count - 1)][m + "Foot"].x - frames[maxi(f - 1, 0)][m + "Foot"].x) / (2.0 * bvh.frame_time)
+			lift += SWING_LIFT / scale * clampf(foot_speed / (2.0 * speed * 3.0 / scale), 0.0, 1.0)
+			# Seen from the side, the ankles swing about points right under the hips.
+			pose.feet[side] = Vector2((at[m + "Foot"].x - at[m + "UpLeg"].x) * scale, -maxf(0.0, lift) * scale)
+			pose.arms[side] = _mocap_arm(side, at[m + "Arm"], at[m + "ForeArm"], at[m + "Hand"])
+		# Hip joints' height over the floor, against the rig's standing hip height.
+		var hip_height: float = (height.call("RightUpLeg") + height.call("LeftUpLeg")) / 2.0 - floors.RightFoot
+		_mocap_body(pose, at, hip_height * scale)
+		poses.append(pose)
+	if body:
+		var mean_root: float = poses.reduce(func(sum: float, pose: Dictionary) -> float: return sum + pose.root.y, 0.0) / poses.size()
+		for pose: Dictionary in poses:
+			pose.root.y += body.root.y - mean_root
+			pose.torso = body.torso
+			pose.head = body.head
+			pose.erase("arms")
+			for part: String in body:
+				if part.begins_with("arm_"):
+					pose[part] = body[part]
+	var keys := []
+	for i in poses.size():
+		keys.append(_key(length * i / poses.size(), poses[i]))
+	return {"name": name, "loop": true, "length": snappedf(length, 0.001), "reference_speed": snappedf(speed, 0.1),
 		"events": [{"t": 0.0, "name": "step"}, {"t": snappedf(length / 2.0, 0.001), "name": "step"}], "keys": keys}
+
+
+## A held pose copied from one frame of a capture, seen from the side the body faces:
+## the hips' height and lean and where the feet stand, both on the floor.
+func _mocap_still(path: String, frame: int) -> Dictionary:
+	var bvh := Mocap.read(path)
+	var body := Mocap.positions(bvh, frame)
+	var right: Vector3 = body.RightUpLeg - body.LeftUpLeg
+	var at := Mocap.side_view(body, Vector3.UP.cross(Vector3(right.x, 0.0, right.z)).normalized())
+	var scale: float = (_legs.front.l1 + _legs.front.l2) / _mocap_leg(bvh)
+	# Standing (the first frame), the ankle is this high over the toes on the floor.
+	var standing := Mocap.positions(bvh, 0)
+	var ankle_height: float = standing.RightFoot.y - standing.RightToeBase.y
+	var floor_y := -INF
+	for side: String in MOCAP_SIDES.values():
+		floor_y = maxf(floor_y, maxf(at[side + "Foot"].y, at[side + "ToeBase"].y))
+	var pose := {"arms": {}, "feet": {}}
+	for side: String in MOCAP_SIDES:
+		var m: String = MOCAP_SIDES[side]
+		pose.feet[side] = Vector2((at[m + "Foot"].x - at[m + "UpLeg"].x) * scale, 0.0)
+		pose.arms[side] = _mocap_arm(side, at[m + "Arm"], at[m + "ForeArm"], at[m + "Hand"])
+	_mocap_body(pose, at, (floor_y - (at.RightUpLeg.y + at.LeftUpLeg.y) / 2.0 - ankle_height) * scale)
+	return pose
+
+
+## Sets a captured pose's hips (from their height over the ankles, in art px), lean and head.
+func _mocap_body(pose: Dictionary, at: Dictionary, hip_height: float) -> void:
+	var root_y: float = _legs.front.ankle.y - _legs.front.hip.y - hip_height
+	# The rig's legs are not the capture's: where a leg cannot reach its ankle, the
+	# hips come down until it does, straight-kneed like a real stance leg.
+	for side: String in MOCAP_SIDES:
+		var leg: Dictionary = _legs[side]
+		var to: Vector2 = Vector2(pose.feet[side].x, leg.ankle.y + pose.feet[side].y - leg.hip.y)
+		var longest: float = leg.l1 + leg.l2 - 0.5
+		if absf(to.x) < longest:
+			root_y = maxf(root_y, to.y - sqrt(longest * longest - to.x * to.x))
+	# Nor can they fold as far: the hips stop where a knee would bend past KNEE_LIMIT.
+	for side: String in MOCAP_SIDES:
+		var leg: Dictionary = _legs[side]
+		var to: Vector2 = Vector2(pose.feet[side].x, leg.ankle.y + pose.feet[side].y - leg.hip.y)
+		var shortest: float = sqrt(leg.l1 * leg.l1 + leg.l2 * leg.l2 + 2.0 * leg.l1 * leg.l2 * cos(deg_to_rad(KNEE_LIMIT)))
+		if absf(to.x) < shortest:
+			root_y = minf(root_y, to.y - sqrt(shortest * shortest - to.x * to.x))
+	pose.root = Vector2(0.0, root_y)
+	var spine: Vector2 = at.Neck - at.Hips
+	pose.torso = rad_to_deg(atan2(spine.x, -spine.y))
+	# The head stays level, looking ahead.
+	pose.head = -pose.torso
+
+
+## Hip-to-ankle length of the capture's leg, in BVH units.
+func _mocap_leg(bvh: Dictionary) -> float:
+	var length := 0.0
+	for joint: Dictionary in bvh.joints:
+		if joint.name in ["RightLeg", "RightFoot"]:
+			length += joint.offset.length()
+	return length
+
+
+## World turns (degrees) that point the rig's arm along the captured upper arm and forearm.
+func _mocap_arm(side: String, shoulder: Vector2, elbow: Vector2, hand: Vector2) -> Vector2:
+	var elbow_rest: Vector2 = _pivots["arm_%s_lower" % side]
+	var upper_rest: Vector2 = elbow_rest - _pivots["arm_%s_upper" % side]
+	var lower_rest: Vector2 = _points["hand_" + side] - elbow_rest
+	return Vector2(rad_to_deg(angle_difference(upper_rest.angle(), (elbow - shoulder).angle())),
+		rad_to_deg(angle_difference(lower_rest.angle(), (hand - elbow).angle())))
 
 
 ## Leaning forward, longer strides with both feet off the floor between steps, arms pumping.
@@ -155,40 +279,30 @@ func _land() -> Dictionary:
 		_key(0.0, touch), _key(0.04, deep), _key(0.12, _stance(0.0))]}
 
 
-## Ducked: deep squat on both feet, body hunched forward over the knees with the guard
-## up. The top of the head comes down to about 45 art px, the crouched hit shape's height.
+## Ducked: a captured deep squat, up on the balls of the feet (the rig's foot turns with
+## its shin), guard up; breathing sinks the hips a pixel.
 func _crouch_idle() -> Dictionary:
 	var keys := []
 	for i in 2:
-		keys.append(_key(i * 0.6, _crouch(float(i), "flat", "flat")))
+		var pose := _squat()
+		pose.root.y += i
+		keys.append(_key(i * 0.6, pose))
 	return {"name": "crouch_idle", "loop": true, "length": 1.2, "keys": keys}
 
 
-func _crouch(breath: float, front: Variant, back: Variant) -> Dictionary:
-	return {
-		"root": Vector2(CROUCH_ROOT.x, CROUCH_ROOT.y + breath),
-		"torso": 45 + breath, "head": -35 - breath,
-		"arm_front_upper": -45, "arm_front_lower": -65,
-		"arm_back_upper": -40, "arm_back_lower": -75,
-		"feet": {"front": front, "back": back},
-	}
+func _squat() -> Dictionary:
+	var pose := _mocap_still(SQUAT_CAPTURE, SQUAT_FRAME)
+	pose.erase("arms")
+	pose.arm_front_upper = -45
+	pose.arm_front_lower = -70
+	pose.arm_back_upper = -40
+	pose.arm_back_lower = -75
+	return pose
 
 
-## Short, quick shuffling steps without rising out of the squat.
+## Steps on the balls of the feet from a captured crouched walk, at the squat's height.
 func _crouch_walk() -> Dictionary:
-	var speed := 50.0
-	var stride := 16.0
-	var stance := 0.5
-	var length := stride / (speed * 3.0 * stance)
-	var keys := []
-	for i in CYCLE_KEYS:
-		var p := float(i) / CYCLE_KEYS
-		var front := _cycle_foot("front", p, stride, stance, 4.0, _flat_ankle_dx("front"))
-		var back := _cycle_foot("back", p + 0.5, stride, stance, 4.0, _flat_ankle_dx("back"))
-		var pose := _crouch(0.5 + 0.5 * cos(4.0 * PI * p), front, back)
-		keys.append(_key(p * length, pose))
-	return {"name": "crouch_walk", "loop": true, "length": snappedf(length, 0.001), "reference_speed": speed,
-		"events": [{"t": 0.0, "name": "step"}, {"t": snappedf(length / 2.0, 0.001), "name": "step"}], "keys": keys}
+	return _mocap_cycle("res://art/mocap/136_13.bvh", "crouch_walk", _squat())
 
 
 # --- Attacks -----------------------------------------------------------------------
@@ -328,7 +442,7 @@ func _write_knockdowns() -> void:
 			"arms": {"front": Vector2(sign * 60, sign * 60), "back": Vector2(sign * 70, sign * 70)},
 			"feet": {"front": "rest", "back": "rest"}}
 		_write("getup_" + side, {"name": "getup_" + side, "loop": false, "length": 0.4,
-			"keys": [_key(0.0, lying), _key(0.1, push), _key(0.22, _crouch(0.0, "flat", "flat")), _key(0.4, _stance(0.0))]})
+			"keys": [_key(0.0, lying), _key(0.1, push), _key(0.22, _squat()), _key(0.4, _stance(0.0))]})
 		var slump := {"root": Vector2(sign * 4, 14), "pelvis": sign * 30, "torso": sign * 15, "head": sign * 30,
 			"arms": {"front": Vector2(sign * 40, sign * 20), "back": Vector2(sign * 50, sign * 30)},
 			"feet": {"front": "planted", "back": "planted"}}
@@ -384,15 +498,6 @@ func _cycle_foot(side: String, p: float, stride: float, stance: float, lift: flo
 	return Vector2(centre - stride / 2.0 + stride * (0.5 - 0.5 * cos(PI * s)), -lift * sin(PI * s))
 
 
-## Where the flat-footed crouch puts this ankle, relative to its hip.
-func _flat_ankle_dx(side: String) -> float:
-	var leg: Dictionary = _legs[side]
-	var hip: Vector2 = leg.hip + CROUCH_ROOT
-	var turns := _flat_leg(leg, hip, 0.0)
-	var thigh: float = deg_to_rad(turns.x) + leg.a1
-	return (Vector2.from_angle(thigh) * leg.l1 + Vector2.from_angle(leg.a2) * leg.l2).x
-
-
 # --- Solving -----------------------------------------------------------------------
 
 ## Turns a pose (root, part angles in degrees, foot targets) into a key with leg angles.
@@ -411,7 +516,6 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 			arm = _arm_turns(side, _shoulder(side, root, pelvis, deg_to_rad(torso_turn)), arm)
 		angles["arm_%s_upper" % side] = snappedf(arm.x - torso_turn, 0.1)
 		angles["arm_%s_lower" % side] = snappedf(arm.y - arm.x, 0.1)
-	var thighs := []
 	for side: String in ["front", "back"]:
 		var leg: Dictionary = _legs[side]
 		var hip: Vector2 = _pivots.pelvis + root + (leg.hip - _pivots.pelvis).rotated(pelvis)
@@ -432,11 +536,11 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 			solved = _flat_leg(leg, hip, pelvis)
 		angles["leg_%s_upper" % side] = snappedf(solved.x, 0.1)
 		angles["leg_%s_lower" % side] = snappedf(solved.y, 0.1)
-		thighs.append(solved.x)
-	# The coat's front follows the leading thigh, its lining the trailing one. The game
-	# squashes either one whose hem would go through the floor.
-	angles["coat_tail"] = snappedf(0.3 * minf(0.0, thighs.min()), 0.1)
-	angles["coat_back"] = snappedf(0.5 * maxf(0.0, thighs.max()), 0.1)
+	# Coats hang straight down whatever the hips do, as far as the body lets them. The game
+	# bends them over the legs, sways them after the body and keeps them off the floor.
+	var hang := snappedf(clampf(-rad_to_deg(pelvis), -COAT_HANG_LIMIT, COAT_HANG_LIMIT), 0.1)
+	angles["coat_tail"] = hang
+	angles["coat_back"] = hang
 	_report_head(t, pose, root, pelvis)
 	return {"t": snappedf(t, 0.001), "root": [snappedf(root.x, 0.1), snappedf(root.y, 0.1)], "angles": angles}
 
@@ -457,9 +561,8 @@ func _solve_leg(leg: Dictionary, hip: Vector2, dx: float, height: float, pelvis:
 		for point: Vector2 in leg.sole:
 			low = maxf(low, (point - leg.ankle).rotated(turns.y).y)
 		ankle.y = FLOOR - low + height
-	var upper := turns.x - pelvis
-	var lower := turns.y - turns.x
-	return Vector2(rad_to_deg(upper), rad_to_deg(lower))
+	# Turns between -180 and 180, so keys never spin the long way round.
+	return Vector2(rad_to_deg(wrapf(turns.x - pelvis, -PI, PI)), rad_to_deg(wrapf(turns.y - turns.x, -PI, PI)))
 
 
 ## A grounded leg whose shin keeps its standing angle, so the foot stays flat on the

@@ -21,8 +21,8 @@
 				"leg_front_lower": 0.0,
 				"leg_back_upper": 0.0,
 				"leg_back_lower": 0.0,
-				"coat_tail": 0.0,
-				"coat_back": 0.0
+				"coat_tail": -30.0,
+				"coat_back": -30.0
 			}
 		},
 		{
@@ -43,8 +43,8 @@
 				"leg_front_lower": 0.0,
 				"leg_back_upper": 0.0,
 				"leg_back_lower": 0.0,
-				"coat_tail": 0.0,
-				"coat_back": 0.0
+				"coat_tail": -30.0,
+				"coat_back": -30.0
 			}
 		}
 	]

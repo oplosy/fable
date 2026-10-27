@@ -20,7 +20,7 @@
 				"leg_front_lower": 48.5,
 				"leg_back_upper": -49.5,
 				"leg_back_lower": 75.3,
-				"coat_tail": -14.8,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		},
@@ -41,7 +41,7 @@
 				"leg_front_lower": 48.5,
 				"leg_back_upper": -49.5,
 				"leg_back_lower": 75.3,
-				"coat_tail": -14.8,
+				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
 		}
