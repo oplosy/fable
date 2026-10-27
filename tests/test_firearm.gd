@@ -134,7 +134,7 @@ func _test_crouch() -> void:
 	shooter.controller.crouch = true
 	fighter.controller.crouch = true
 	await physics_frames(2)
-	check(is_equal_approx(shooter.inventory.firearm.spread(shooter.crouch_spread_scale), straight.spread_degrees * shooter.crouch_spread_scale), "crouching narrows the spread")
+	check(is_equal_approx(shooter.inventory.firearm.spread(shooter.fighter_class.crouch_spread_scale), straight.spread_degrees * shooter.fighter_class.crouch_spread_scale), "crouching narrows the spread")
 	await physics_frames(20)
 	health_before = fighter.health.current
 	await _fire(shooter)

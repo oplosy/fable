@@ -14,15 +14,6 @@ signal state_changed(state: State)
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
 @export var controller: FighterController
-@export var acceleration := 900.0
-@export var friction := 1100.0
-@export var aim_speed_degrees := 90.0
-## Seconds a hit fighter ignores its controller.
-@export var hit_stun_time := 0.25
-## Spread multiplier while firing crouched.
-@export var crouch_spread_scale := 0.4
-## Body height while crouched; level shots from a standing shooter pass over it.
-@export var crouch_height := 14.0
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var facing := 1
@@ -77,10 +68,18 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	add_to_group(Arena.BOUNDED)
 	# The scene's shape resource is shared by every fighter, so crouching swaps in its own copy.
-	_stand_shape = _body_shape.shape
-	_crouch_shape = _stand_shape.duplicate()
-	_crouch_shape.size.y = crouch_height
-	_stand_hand_y = _hand.position.y
+	# Each fighter gets its own shapes: the body size comes from the character, and
+	# crouching halves the height so level shots from a standing shooter pass over it.
+	_stand_shape = RectangleShape2D.new()
+	_stand_shape.size = character.body_size if character else CharacterData.DEFAULT_BODY_SIZE
+	_crouch_shape = RectangleShape2D.new()
+	_crouch_shape.size = Vector2(_stand_shape.size.x, _stand_shape.size.y / 2.0)
+	_placeholder.offset_left = -_stand_shape.size.x / 2.0
+	_placeholder.offset_right = _stand_shape.size.x / 2.0
+	_stand_hand_y = -_stand_shape.size.y / 2.0
+	# Starts "crouched" so the call below applies the standing shape, hand and look.
+	_crouching = true
+	_set_crouching(false)
 	inventory.setup(self, _hand)
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
@@ -174,7 +173,7 @@ func aim_direction() -> Vector2:
 	return Vector2(facing * cos(aim_angle), sin(aim_angle))
 
 
-## A negative `stun` uses the fighter's default hit_stun_time.
+## A negative `stun` uses the class's hit_stun_time.
 ## `knocks_down` puts the fighter on the ground instead of stunning it.
 ## `attacker` is the fighter behind a melee hit; its stun can be broken with the combo breaker.
 func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down := false, attacker: Fighter = null) -> void:
@@ -187,7 +186,7 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 		velocity.x = knockback.x
 	if knockback.y != 0.0:
 		velocity.y = knockback.y
-	var new_stun := stun if stun >= 0.0 else hit_stun_time
+	var new_stun := stun if stun >= 0.0 else fighter_class.hit_stun_time
 	# Hits that neither stun nor knock down (fire) hurt without interrupting the fighter.
 	if knocks_down or new_stun > 0.0:
 		melee.cancel()
@@ -343,11 +342,11 @@ func _physics_process(delta: float) -> void:
 			speed = fighter_class.crouch_speed
 		elif controller.run:
 			speed = fighter_class.run_speed
-		velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
+		velocity.x = move_toward(velocity.x, direction * speed, fighter_class.acceleration * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
 	elif is_on_floor() and not is_rolling():
-		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+		velocity.x = move_toward(velocity.x, 0.0, fighter_class.friction * delta)
 
 	if unlocked and controller.jump and is_on_floor():
 		if is_running():
@@ -365,7 +364,7 @@ func _physics_process(delta: float) -> void:
 	# A cooking item stays in hand even if a hit knocks the fighter out of the ready stance.
 	var throwable_ready := is_throwable_drawn() or thrower.is_cooking()
 	if is_firearm_drawn() or throwable_ready:
-		aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
+		aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
 	_throwable_sprite.texture = thrower.item.texture if thrower.item else null
@@ -380,7 +379,7 @@ func _physics_process(delta: float) -> void:
 		var wants_fire := controller.attack_held if firearm.data.automatic else controller.attack
 		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
-			firearm.try_fire(aim_direction(), get_parent(), self, crouch_spread_scale if _crouching else 1.0)
+			firearm.try_fire(aim_direction(), get_parent(), self, fighter_class.crouch_spread_scale if _crouching else 1.0)
 			if firearm.is_empty():
 				inventory.drop_firearm()
 

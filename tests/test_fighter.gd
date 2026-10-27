@@ -140,6 +140,20 @@ func run() -> void:
 	await _press("p1_slot_2")
 	check(fighter.inventory.active_slot == Inventory.Slot.FIREARM and fighter.inventory.firearm.visible, "key 2 selects and draws the firearm")
 
+	var big_data := CharacterData.new()
+	big_data.body_size = Vector2(20, 40)
+	var big: Fighter = load("res://scenes/fighter/fighter.tscn").instantiate()
+	big.character = big_data
+	main.arena.add_child(big)
+	big.global_position = Vector2(200, 300)
+	await physics_frames(30)
+	var shape: RectangleShape2D = big.body_shape().shape
+	check(shape.size == Vector2(20, 40) and big.is_on_floor(), "the character sets the body size and it stands on the floor")
+	check(fighter.body_shape().shape.size == CharacterData.DEFAULT_BODY_SIZE, "other fighters keep their own body size")
+	big.controller.crouch = true
+	await physics_frames(2)
+	check(big.body_shape().shape.size == Vector2(20, 20), "crouching halves the character's height")
+
 
 func _press(action: String) -> void:
 	Input.action_press(action)

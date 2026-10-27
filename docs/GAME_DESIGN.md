@@ -117,6 +117,7 @@ Current pickup rules (prototype, easy to change):
 - Each class has its own melee combo, a fixed chain of attacks. After the last attack of the chain there is a pause before the fighter can attack again, so melee is never unlimited.
 - Examples: fast classes chain 4 punches; big classes chain punch, punch, kick.
 - Classes also differ in stats: walk and run speed, jump height, dive and roll, health (built; all in `FighterClass`).
+- Every movement, aim and hit-stun setting lives in `FighterClass` (acceleration, friction, aim speed, crouch spread, default hit stun); the body size lives in `CharacterData.body_size` (default 12x28, crouching halves the height) so each character's hit box matches its art.
   Prototype values (not yet tuned): Fast 90 health, walk 130, run 215 px/s, normal jump; Heavy 130 health, walk 100, run 170 px/s, lower jump and shorter dive and roll.
 
 Built:

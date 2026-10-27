@@ -7,6 +7,9 @@ extends Resource
 @export var max_health := 100
 
 @export_group("Movement")
+## Speed change per second while starting to move, and while stopping on the floor.
+@export var acceleration := 900.0
+@export var friction := 1100.0
 @export var walk_speed := 120.0
 @export var run_speed := 200.0
 @export var crouch_speed := 50.0
@@ -16,6 +19,13 @@ extends Resource
 @export var roll_speed := 220.0
 ## Seconds a roll lasts; the fighter cannot be hit while rolling.
 @export var roll_time := 0.4
+
+@export_group("Aim and Hits")
+@export var aim_speed_degrees := 90.0
+## Spread multiplier while firing crouched.
+@export var crouch_spread_scale := 0.4
+## Seconds a hit stuns when the hit does not set its own stun.
+@export var hit_stun_time := 0.25
 
 @export_group("Melee")
 ## Attacks chained by pressing attack again during the current one.
