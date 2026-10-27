@@ -1,11 +1,9 @@
 class_name Crosshair
 extends Node2D
 
-## A small hollow square where a drawn firearm points: along the exact aim, never moved by
-## spread or recoil. Visual only.
+## A small hollow square on the first wall or floor a drawn firearm points at: along the
+## exact aim, never moved by spread or recoil. Visual only.
 
-## World px from the hand.
-const DISTANCE := 120.0
 ## Side of the square, world px.
 const SIZE := 3.0
 const COLOR := Color(1, 1, 1, 0.85)
@@ -18,11 +16,17 @@ func _init() -> void:
 	visible = false
 
 
-## Shows the square DISTANCE along `direction` from `hand`, or hides it.
+## Shows the square where the aim from `hand` along `direction` meets the world, or hides it.
 func point(shown: bool, hand: Vector2, direction: Vector2) -> void:
 	visible = shown
 	if shown:
-		global_position = hand + direction * DISTANCE
+		global_position = aimed_at(get_world_2d().direct_space_state, hand, direction)
+
+
+## The first world point on the aim, or the end of the longest map's diagonal.
+static func aimed_at(space: PhysicsDirectSpaceState2D, hand: Vector2, direction: Vector2) -> Vector2:
+	var end := hand + direction * FollowCamera.MAX_MAP_SIZE.length()
+	return HitQuery.world_hit(space, hand, end).get("position", end)
 
 
 func _draw() -> void:

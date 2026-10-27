@@ -168,5 +168,6 @@ func _spawn(at: Vector2) -> Fighter:
 
 func _crosshair_on_aim(shooter: Fighter) -> bool:
 	var crosshair: Crosshair = shooter._crosshair
-	var aimed: Vector2 = shooter._hand.global_position + shooter.aim_direction() * Crosshair.DISTANCE
-	return crosshair.visible and crosshair.global_position.is_equal_approx(aimed)
+	var aimed := Crosshair.aimed_at(shooter.get_world_2d().direct_space_state, shooter._hand.global_position, shooter.aim_direction())
+	# The test arena's walls stop the aim, so the cross sits on one.
+	return crosshair.visible and crosshair.global_position.is_equal_approx(aimed) and aimed.distance_to(shooter._hand.global_position) < FollowCamera.MAX_MAP_SIZE.length()
