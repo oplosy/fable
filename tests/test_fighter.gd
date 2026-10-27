@@ -154,6 +154,16 @@ func run() -> void:
 	await physics_frames(2)
 	check(big.body_shape().shape.size == Vector2(20, 20), "crouching halves the character's height")
 
+	var art_data := CharacterData.new()
+	art_data.texture = ImageTexture.create_from_image(Image.create(64, 96, false, Image.FORMAT_RGBA8))
+	var drawn: Fighter = load("res://scenes/fighter/fighter.tscn").instantiate()
+	drawn.character = art_data
+	main.arena.add_child(drawn)
+	var art: Sprite2D = drawn.get_node("Visuals/Art")
+	var feet_at := art.get_global_transform() * (art.offset + art_data.feet)
+	check(art.scale == Vector2.ONE / 3.0 and not drawn.get_node("Visuals/Placeholder").visible, "character art is drawn at 1/3 scale in place of the placeholder")
+	check(feet_at.is_equal_approx(drawn.global_position), "the art's feet pixel stands on the fighter's origin")
+
 
 func _press(action: String) -> void:
 	Input.action_press(action)

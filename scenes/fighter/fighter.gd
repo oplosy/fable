@@ -3,6 +3,8 @@ extends CharacterBody2D
 
 ## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
 const FIGHTERS_LAYER := 2
+## Every fighter joins this group (cameras, bots and modes find fighters through it).
+const GROUP := &"fighters"
 
 ## What the fighter is doing, highest priority first in `state()`. Animations pick their
 ## clip from this alone; stance details (crouching, aim angle, held item, combo index)
@@ -54,6 +56,8 @@ var _state := State.IDLE
 func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
+		if character.texture:
+			_show_art(character)
 	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
 	# Health's own _ready already ran with its default, so start it at the class's maximum.
 	health.max_health = fighter_class.max_health
@@ -67,6 +71,7 @@ func _ready() -> void:
 		add_child(controller)
 	health.died.connect(_on_died)
 	add_to_group(Arena.BOUNDED)
+	add_to_group(GROUP)
 	# The scene's shape resource is shared by every fighter, so crouching swaps in its own copy.
 	# Each fighter gets its own shapes: the body size comes from the character, and
 	# crouching halves the height so level shots from a standing shooter pass over it.
@@ -157,6 +162,20 @@ func _set_crouching(crouching: bool) -> void:
 	_hand.position.y = _stand_hand_y * shape.size.y / _stand_shape.size.y
 	# Placeholder look; the hand is resized above rather than squashing the weapon sprite.
 	_placeholder.offset_top = -shape.size.y
+
+
+## Draws the character's art at 1/pixels_per_unit scale with its feet on the fighter's
+## origin, in place of the placeholder box. Hit detection never uses it.
+func _show_art(data: CharacterData) -> void:
+	var sprite := Sprite2D.new()
+	sprite.name = "Art"
+	sprite.texture = data.texture
+	sprite.centered = false
+	sprite.offset = -data.feet
+	sprite.scale = Vector2.ONE / data.pixels_per_unit
+	_visuals.add_child(sprite)
+	_visuals.move_child(sprite, 0)
+	_placeholder.visible = false
 
 
 ## Middle of the body's hit shape (standing or crouched).
