@@ -2,8 +2,8 @@
 extends "res://tests/test_case.gd"
 
 ## The follow camera keeps living fighters in view with one zoom: art zoom for a lone
-## fighter, pulled back to fit spread fighters, never further than the whole map (or
-## min_zoom), calm about small moves, and never past the camera limits.
+## fighter, pulled back to fit spread fighters, never further than the whole map,
+## calm about small moves, and never past the camera limits.
 
 const FIGHTER_SCENE := preload("res://scenes/fighter/fighter.tscn")
 const FAST := preload("res://data/characters/placeholder.tres")
@@ -12,12 +12,13 @@ var arena: Arena
 
 
 func run() -> void:
-	var camera := await _open(Rect2(-2000, -2000, 4000, 4000))
-	check(camera.furthest_zoom == camera.min_zoom, "a map too big to fit pulls back no further than min_zoom")
+	var camera := await _open(Rect2(Vector2(-1000, -1080), FollowCamera.MAX_MAP_SIZE))
+	check(camera.furthest_zoom == FollowCamera.MIN_ZOOM, "the biggest allowed map pulls back to MIN_ZOOM")
 	var left := _spawn(Vector2(40, 328))
 	await physics_frames(5)
 	check(camera.zoom.x == camera.art_zoom, "a lone fighter is shown at the art zoom")
-	check(camera.get_screen_center_position().distance_to(left.center()) < 1.0, "the first frame snaps onto the fighter")
+	# Only x: the map's bottom edge keeps the view from centring on the floor level.
+	check(absf(camera.get_screen_center_position().x - left.center().x) < 1.0, "the first frame snaps onto the fighter")
 
 	var right := _spawn(Vector2(600, 328))
 	await physics_frames(120)
@@ -29,11 +30,15 @@ func run() -> void:
 	await physics_frames(60)
 	check(absf(camera.zoom.x - fit) < 0.01, "a small step closer leaves the zoom alone (%.2f)" % camera.zoom.x)
 
-	var far := _spawn(Vector2(2000, 0))
+	var far := _spawn(Vector2(-950, 0))
+	var other_far := _spawn(Vector2(1500, 0))
 	far.set_physics_process(false)
+	other_far.set_physics_process(false)
 	await physics_frames(120)
-	check(camera.zoom.x == camera.furthest_zoom, "a fighter far away pulls back to the furthest zoom, quickly")
+	check(camera.zoom.x == camera.furthest_zoom, "fighters at the map's ends pull back to the furthest zoom, quickly")
+	check(_view(camera).has_point(far.center()) and _view(camera).has_point(other_far.center()), "fighters at the map's ends are both on screen")
 	far.take_hit(1000)
+	other_far.take_hit(1000)
 	await physics_frames(300)
 	fit = _fit(camera, right.center().x - left.center().x)
 	check(absf(camera.zoom.x - fit) < 0.01, "dead fighters are left out of the view (%.2f, want %.2f)" % [camera.zoom.x, fit])
