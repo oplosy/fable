@@ -99,9 +99,9 @@ Built:
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
 - Melee items work the same way with the melee slot (bare hands count as empty). Picking up an item selects its slot.
-- Fighters start the match with a pistol (user decision) and 3 grenades (decided, not built yet).
-- Spawn points pick weighted at random by each weapon's `spawn_weight` (built): pistol, SMG and knife 3; shotgun and baseball bat 2; sniper rifle 1.
-- Melee items come only from spawn points (built). Decided, not built yet: throwables too (plus the starting loadout).
+- Fighters start the match with a pistol (user decision) and 3 grenades (both built).
+- Spawn points pick weighted at random by each weapon's `spawn_weight` (built): pistol, SMG and knife 3; shotgun, baseball bat, grenade and molotov 2; sniper rifle 1.
+- Melee items and throwables come only from spawn points and the starting loadout (built). Throwables follow the same pickup rules with the throwable slot (empty = none left); a swap gives the full count of the new type and drops the old ones.
 - A fighter that dies drops its firearm and its melee item. Like every fighter-dropped weapon, they cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
@@ -220,11 +220,18 @@ Rules for throwables and explosions:
 - Explosions and fire hurt the thrower too; position and timing matter. A molotov thrown at your own feet burns you. A grenade's fuse starts when the pin is pulled, so holding it too long makes it explode in your hand.
 - Grenade controls: holding the attack key pulls the pin and starts the fuse; releasing it throws. Held past the fuse time, it explodes in the hand.
 
-Build order is open; shotgun, SMG, sniper rifle, knife and baseball bat are built. Suggested next: grenade, molotov.
+Grenade and molotov (built; prototype values, easy to change):
+- Like the firearm, the throwable is in hand and aimed (W/S) only while standing still on the floor in slot 3. Pressing attack pulls the pin; the fighter then cannot move, jump or change slots until it throws. Releasing attack throws along the aim lifted 30° upwards at 300 px/s, so a level aim still lobs.
+- Grenade: 3 s fuse counted from the pin, bounces off the world (passes through fighters). The blast hits every hittable fighter within 40 px once: 35 damage, pushed away and knocked down.
+- Molotov: no fuse; it breaks on its first contact with the world or a fighter and leaves a 48 px fire on the floor below for 4 s. Fire burns 4 damage every 0.5 s to everyone standing in it, without stunning.
+- The thrower is never hit by its own throw in flight, but the blast and fire hurt it like anyone else.
+- Current defaults (not yet confirmed by the user): a stunned fighter keeps holding a live grenade and throws when the stun ends; a knockdown or death drops a live item at the fighter's feet. A dead fighter's unused throwables drop as one item that cannot be picked up. Blasts and fire are not blocked by walls.
+
+Build order is open; shotgun, SMG, sniper rifle, knife, baseball bat, grenade and molotov are built.
 
 ## Current Prototype Deviations
 
-- Only the knife and baseball bat exist as melee items; throwables and power-ups are not implemented yet. Melee items are held level in the hand like a firearm until swing animations exist.
+- Only the knife and baseball bat exist as melee items, and only the grenade and molotov as throwables; power-ups are not implemented yet. Blasts and fire are placeholder shapes. Melee items are held level in the hand like a firearm until swing animations exist.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
-- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol) and respawns a dead player after 1.5 s of unpaused time; this is a testing aid until rounds and a match flow exist.
+- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol and 3 grenades) and respawns a dead player after 1.5 s of unpaused time; this is a testing aid until rounds and a match flow exist.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
