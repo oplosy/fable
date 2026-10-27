@@ -3,6 +3,7 @@ extends "res://tests/test_case.gd"
 
 const FIGHTER_SCENE := preload("res://scenes/fighter/fighter.tscn")
 const FAST := preload("res://data/characters/placeholder.tres")
+const HEAVY := preload("res://data/characters/dummy.tres")
 
 var arena: Node2D
 
@@ -82,8 +83,40 @@ func run() -> void:
 	check(not fighter.is_rolling() and fighter.collision_layer == Fighter.FIGHTERS_LAYER, "roll ends and the fighter is hittable again")
 	fighter.take_hit(10)
 	check(fighter.health.current == health_before - 10, "hits land after the roll")
+	fighter.queue_free()
 
+	await _test_class_stats()
 	await _test_local_controller()
+
+
+## Speed, jump height and health come from the class.
+func _test_class_stats() -> void:
+	var fast := _spawn(Vector2(60, 328))
+	var heavy := _spawn(Vector2(60, 328), null, HEAVY)
+	await physics_frames(10)
+	check(fast.health.max_health == FAST.fighter_class.max_health and fast.health.current == fast.health.max_health, "health starts at the class maximum")
+	check(heavy.health.current > fast.health.current, "Heavy has more health than Fast")
+
+	fast.controller.move = 1.0
+	heavy.controller.move = 1.0
+	await physics_frames(40)
+	check(is_equal_approx(heavy.velocity.x, HEAVY.fighter_class.walk_speed) and heavy.velocity.x < fast.velocity.x, "Heavy walks slower than Fast")
+	fast.controller.move = 0.0
+	heavy.controller.move = 0.0
+	await physics_frames(20)
+
+	var floor_y := fast.position.y
+	var peaks := [floor_y, floor_y]
+	await _tap(fast, "jump")
+	await _tap(heavy, "jump")
+	for i in 40:
+		peaks[0] = minf(peaks[0], fast.position.y)
+		peaks[1] = minf(peaks[1], heavy.position.y)
+		await physics_frames(1)
+	check(floor_y - peaks[1] < floor_y - peaks[0] - 10.0, "Heavy jumps lower than Fast")
+	fast.queue_free()
+	heavy.queue_free()
+	await physics_frames(60)
 
 
 ## Shift or a double tap of a direction runs.
@@ -130,9 +163,9 @@ func _tap(fighter: Fighter, intent: String) -> void:
 	fighter.controller.set(intent, false)
 
 
-func _spawn(at: Vector2, controller: FighterController = null) -> Fighter:
+func _spawn(at: Vector2, controller: FighterController = null, data: CharacterData = FAST) -> Fighter:
 	var fighter: Fighter = FIGHTER_SCENE.instantiate()
-	fighter.character = FAST
+	fighter.character = data
 	fighter.controller = controller
 	arena.add_child(fighter)
 	fighter.global_position = at
