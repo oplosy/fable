@@ -11,10 +11,16 @@ enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
 @export var controller: FighterController
-@export var run_speed := 120.0
+@export var walk_speed := 120.0
+@export var run_speed := 200.0
 @export var acceleration := 900.0
 @export var friction := 1100.0
 @export var jump_velocity := -300.0
+## A running jump is a low, long forward dive.
+@export var dive_velocity := Vector2(260.0, -220.0)
+@export var roll_speed := 220.0
+## Seconds a roll lasts; the fighter cannot be hit while rolling.
+@export var roll_time := 0.4
 @export var aim_speed_degrees := 90.0
 ## Seconds a hit fighter ignores its controller.
 @export var hit_stun_time := 0.25
@@ -32,6 +38,8 @@ var fighter_class: FighterClass
 var _hit_stun := 0.0
 var _down_time := 0.0
 var _getup_invulnerable := 0.0
+var _roll_time := 0.0
+var _diving := false
 var _flash_tween: Tween
 
 @onready var _visuals: Node2D = $Visuals
@@ -81,7 +89,7 @@ func select_slot(slot: Slot) -> bool:
 
 ## The firearm is in hand only while standing on the floor; moving puts it away.
 func is_firearm_drawn() -> bool:
-	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0 and can_act()
+	return active_slot == Slot.FIREARM and firearm != null and is_on_floor() and controller.move == 0.0 and can_act() and not is_rolling()
 
 
 func is_stunned() -> bool:
@@ -97,11 +105,24 @@ func is_knocked_down() -> bool:
 
 
 func is_invulnerable() -> bool:
-	return (is_knocked_down() and fighter_class.downed_invulnerable) or _getup_invulnerable > 0.0
+	return (is_knocked_down() and fighter_class.downed_invulnerable) or _getup_invulnerable > 0.0 or is_rolling()
+
+
+func is_rolling() -> bool:
+	return _roll_time > 0.0
+
+
+func is_diving() -> bool:
+	return _diving
 
 
 func can_act() -> bool:
 	return not is_stunned() and not is_dead() and not is_knocked_down()
+
+
+## Running is moving on the floor with the controller's run intent.
+func is_running() -> bool:
+	return is_on_floor() and controller.run and controller.move != 0.0
 
 
 func aim_direction() -> Vector2:
@@ -116,6 +137,7 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 	health.take_damage(damage)
 	velocity += knockback
 	melee.cancel()
+	_diving = false
 	if _flash_tween:
 		_flash_tween.kill()
 	_flash_tween = create_tween()
@@ -133,7 +155,7 @@ func _knock_down() -> void:
 	_down_time = fighter_class.knockdown_time
 	_hit_stun = 0.0
 	_drop_firearm()
-	_lie_down(true)
+	_update_pose()
 	_update_hittable()
 
 
@@ -156,7 +178,7 @@ func _drop_firearm() -> void:
 func _get_up() -> void:
 	_down_time = 0.0
 	_getup_invulnerable = fighter_class.getup_invulnerability
-	_lie_down(false)
+	_update_pose()
 	_update_hittable()
 
 
@@ -165,14 +187,17 @@ func _update_hittable() -> void:
 	collision_layer = 0 if is_dead() or is_invulnerable() else FIGHTERS_LAYER
 
 
-## Placeholder pose: lie down backwards. Replaced by knockdown and death animations later.
-func _lie_down(down: bool) -> void:
-	_visuals.rotation = -facing * PI / 2.0 if down else 0.0
-	_visuals.position.y = -6.0 if down else 0.0
+## Placeholder poses until animations exist: lying backwards when down or dead,
+## head-first while diving, squashed while rolling.
+func _update_pose() -> void:
+	var lying := is_dead() or is_knocked_down()
+	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if _diving else 0.0)
+	_visuals.position.y = -6.0 if lying or _diving else 0.0
+	_visuals.scale.y = 0.5 if is_rolling() else 1.0
 
 
 func _on_died() -> void:
-	_lie_down(true)
+	_update_pose()
 	_update_hittable()
 	melee.cancel()
 
@@ -187,7 +212,14 @@ func _physics_process(delta: float) -> void:
 	elif _getup_invulnerable > 0.0:
 		_getup_invulnerable = maxf(_getup_invulnerable - delta, 0.0)
 		_update_hittable()
-	var acting := can_act()
+	if is_rolling():
+		_roll_time = maxf(_roll_time - delta, 0.0)
+		if not is_rolling():
+			_update_hittable()
+	if _diving and is_on_floor():
+		_diving = false
+	# Dives and rolls commit the fighter until they end.
+	var acting := can_act() and not is_rolling() and not _diving
 	# A melee attack commits the fighter: no moving, turning, jumping or slot changes until it ends.
 	var unlocked := acting and not melee.is_attacking()
 
@@ -197,17 +229,27 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if unlocked and controller.jump and is_on_floor():
-		velocity.y = jump_velocity
-
-	var direction := controller.move if unlocked else 0.0
+	# No steering in the air: jumps, dives and jump kicks keep their takeoff momentum.
+	var direction := controller.move if unlocked and is_on_floor() else 0.0
 	if direction:
-		velocity.x = move_toward(velocity.x, direction * run_speed, acceleration * delta)
+		var speed := run_speed if controller.run else walk_speed
+		velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
-	elif not melee.is_air_attacking() or is_on_floor():
-		# A jump kick keeps the jump's momentum.
+	elif is_on_floor() and not is_rolling():
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+
+	if unlocked and controller.jump and is_on_floor():
+		if is_running():
+			_diving = true
+			velocity = Vector2(facing * dive_velocity.x, dive_velocity.y)
+		else:
+			# A walking jump goes straight up.
+			velocity = Vector2(0.0, jump_velocity)
+	elif unlocked and controller.down and is_running():
+		_roll_time = roll_time
+		velocity.x = facing * roll_speed
+		_update_hittable()
 
 	if firearm:
 		var drawn := is_firearm_drawn()
@@ -225,6 +267,7 @@ func _physics_process(delta: float) -> void:
 		melee.request_attack(not is_on_floor())
 	melee.physics_update(delta)
 	_update_attack_placeholder()
+	_update_pose()
 
 	move_and_slide()
 
