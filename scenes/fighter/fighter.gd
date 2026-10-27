@@ -45,6 +45,8 @@ var _flash_tween: Tween
 var _stand_shape: RectangleShape2D
 var _crouch_shape: RectangleShape2D
 var _stand_hand_y: float
+## Shows the held melee item; hit detection never uses it.
+var _melee_sprite: Sprite2D
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -74,6 +76,10 @@ func _ready() -> void:
 	_crouch_shape = _stand_shape.duplicate()
 	_crouch_shape.size.y = crouch_height
 	_stand_hand_y = _hand.position.y
+	_melee_sprite = Sprite2D.new()
+	_melee_sprite.visible = false
+	_hand.add_child(_melee_sprite)
+	melee.item_broke.connect(_show_melee_item)
 
 
 func equip_firearm(data: WeaponData) -> void:
@@ -83,6 +89,17 @@ func equip_firearm(data: WeaponData) -> void:
 	firearm.data = data
 	_hand.add_child(firearm)
 	active_slot = Slot.FIREARM
+
+
+func equip_melee_item(data: MeleeItemData) -> void:
+	melee.equip(data)
+	_show_melee_item()
+	active_slot = Slot.MELEE
+
+
+func _show_melee_item() -> void:
+	_melee_sprite.texture = melee.item.texture if melee.item else null
+	_melee_sprite.offset = -melee.item.grip if melee.item else Vector2.ZERO
 
 
 ## Empty slots cannot be selected; melee (bare hands) is always available.
@@ -221,29 +238,49 @@ func _knock_down() -> void:
 func _drop_firearm() -> void:
 	if firearm == null:
 		return
-	var dropped: DroppedWeapon = DROPPED_WEAPON_SCENE.instantiate()
-	dropped.data = firearm.data
-	dropped.position = get_parent().to_local(_hand.global_position)
-	dropped.linear_velocity = Vector2(-facing * 40.0, -120.0)
-	# Hits arrive from physics callbacks, where bodies cannot be added directly.
-	get_parent().add_child.call_deferred(dropped)
+	_drop_item(firearm.data)
 	firearm.queue_free()
 	firearm = null
 	if active_slot == Slot.FIREARM:
 		active_slot = Slot.MELEE
 
 
-## Only spawned weapons can be taken: with an empty firearm slot by walking over one,
-## with a full slot by standing on one and pressing down (the old firearm drops).
-func _update_pickup() -> void:
-	var swapping := firearm != null and controller.down and is_on_floor() and not is_running()
-	if firearm != null and not swapping:
+## The melee item falls into the arena and the fighter punches again.
+func _drop_melee_item() -> void:
+	if melee.item == null:
 		return
+	_drop_item(melee.item)
+	melee.item = null
+	_show_melee_item()
+
+
+## Dropped items can never be picked up again and disappear after a while.
+func _drop_item(data: ItemData) -> void:
+	var dropped: DroppedWeapon = DROPPED_WEAPON_SCENE.instantiate()
+	dropped.data = data
+	dropped.position = get_parent().to_local(_hand.global_position)
+	dropped.linear_velocity = Vector2(-facing * 40.0, -120.0)
+	# Hits arrive from physics callbacks, where bodies cannot be added directly.
+	get_parent().add_child.call_deferred(dropped)
+
+
+## Only spawned items can be taken: into an empty slot by walking over one, into a
+## full slot by standing on one and pressing down (the old item drops).
+func _update_pickup() -> void:
 	var item := _pickup_under()
 	if item == null:
 		return
-	_drop_firearm()
-	equip_firearm(item.data)
+	var is_firearm := item.data is WeaponData
+	var slot_full := firearm != null if is_firearm else melee.item != null
+	var swapping := controller.down and is_on_floor() and not is_running()
+	if slot_full and not swapping:
+		return
+	if is_firearm:
+		_drop_firearm()
+		equip_firearm(item.data)
+	else:
+		_drop_melee_item()
+		equip_melee_item(item.data)
 	item.take()
 
 
@@ -282,6 +319,7 @@ func _update_pose() -> void:
 
 func _on_died() -> void:
 	_drop_firearm()
+	_drop_melee_item()
 	_update_pose()
 	_update_hittable()
 	melee.cancel()
@@ -350,6 +388,8 @@ func _physics_process(delta: float) -> void:
 		velocity.x = facing * fighter_class.roll_speed
 		_update_hittable()
 
+	_melee_sprite.visible = active_slot == Slot.MELEE and melee.item != null
+	_hand.rotation = 0.0
 	if firearm:
 		var drawn := is_firearm_drawn()
 		firearm.visible = drawn
