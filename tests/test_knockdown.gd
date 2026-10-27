@@ -69,21 +69,21 @@ func run() -> void:
 	await physics_frames(int(heavy_class.knockdown_time * 60) + int(heavy_class.getup_invulnerability * 60) + 5)
 	heavy.fighter_class = heavy_class
 	_reset(heavy, 214)
-	heavy.equip_firearm(PISTOL)
+	heavy.inventory.equip_firearm(PISTOL)
 	await physics_frames(30)
 	await _press_attack(fast)
 	await physics_frames(20)
-	check(heavy.firearm != null and heavy.active_slot == Fighter.Slot.FIREARM, "a single punch does not disarm")
+	check(heavy.inventory.firearm != null and heavy.inventory.active_slot == Inventory.Slot.FIREARM, "a single punch does not disarm")
 	heavy.take_hit(0, Vector2.ZERO, -1.0, true)
 	await physics_frames(2)
-	check(heavy.firearm == null and heavy.active_slot == Fighter.Slot.MELEE, "knockdown drops the firearm and leaves bare hands")
+	check(heavy.inventory.firearm == null and heavy.inventory.active_slot == Inventory.Slot.MELEE, "knockdown drops the firearm and leaves bare hands")
 	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and dropped[0].data == PISTOL, "the firearm lands in the arena")
 	await physics_frames(90)
 	if dropped.size() == 1:
 		var item: ItemPickup = dropped[0]
 		check(item.global_position.y < 328.0 and item.global_position.y > 300.0, "dropped firearm rests on the floor")
-	check(not heavy.select_slot(Fighter.Slot.FIREARM), "disarmed fighter cannot select the firearm slot")
+	check(not heavy.inventory.select_slot(Inventory.Slot.FIREARM), "disarmed fighter cannot select the firearm slot")
 
 	# Invulnerability covers even lethal hits; once vulnerable they kill.
 	check(heavy.is_invulnerable(), "fighter is still getting up")

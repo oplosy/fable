@@ -83,13 +83,13 @@ func run() -> void:
 	# Firearm slot fires instead of punching.
 	await physics_frames(60)
 	_reset(fast, 200)
-	fast.equip_firearm(PISTOL)
+	fast.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
 	await _press_attack(fast)
 	check(not fast.melee.is_attacking(), "attack in the firearm slot does not punch")
 
 	# Dead fighters are not hit.
-	fast.select_slot(Fighter.Slot.MELEE)
+	fast.inventory.select_slot(Inventory.Slot.MELEE)
 	heavy.take_hit(1000)
 	hits_on_heavy.clear()
 	await physics_frames(60)

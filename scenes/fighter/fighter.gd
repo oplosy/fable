@@ -1,13 +1,8 @@
 class_name Fighter
 extends CharacterBody2D
 
-const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
-const PICKUP_SCENE := preload("res://scenes/items/item_pickup.tscn")
 ## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
 const FIGHTERS_LAYER := 2
-const PICKUPS_LAYER := 8
-
-enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
@@ -24,8 +19,6 @@ enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var facing := 1
-var active_slot := Slot.MELEE
-var firearm: Weapon
 ## Radians within the half-circle the fighter faces: 0 level, -PI/2 straight up, PI/2 straight down.
 ## Kept when turning around.
 var aim_angle := 0.0
@@ -45,8 +38,7 @@ var _flash_tween: Tween
 var _stand_shape: RectangleShape2D
 var _crouch_shape: RectangleShape2D
 var _stand_hand_y: float
-## Show the held melee item and throwable; hit detection never uses them.
-var _melee_sprite: Sprite2D
+## Shows the held throwable; hit detection never uses it.
 var _throwable_sprite: Sprite2D
 
 @onready var _visuals: Node2D = $Visuals
@@ -56,6 +48,7 @@ var _throwable_sprite: Sprite2D
 @onready var health: Health = $Health
 @onready var melee: Melee = $Melee
 @onready var thrower: Thrower = $Thrower
+@onready var inventory: Inventory = $Inventory
 @onready var _body_shape: CollisionShape2D = $CollisionShape2D
 
 
@@ -80,66 +73,20 @@ func _ready() -> void:
 	_crouch_shape = _stand_shape.duplicate()
 	_crouch_shape.size.y = crouch_height
 	_stand_hand_y = _hand.position.y
-	_melee_sprite = Sprite2D.new()
-	_melee_sprite.visible = false
-	_hand.add_child(_melee_sprite)
-	melee.item_broke.connect(_show_melee_item)
+	inventory.setup(self, _hand)
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
 	_hand.add_child(_throwable_sprite)
 
 
-func equip_firearm(data: WeaponData) -> void:
-	if firearm:
-		firearm.queue_free()
-	firearm = WEAPON_SCENE.instantiate()
-	firearm.data = data
-	_hand.add_child(firearm)
-	active_slot = Slot.FIREARM
-
-
-func equip_melee_item(data: MeleeItemData) -> void:
-	melee.equip(data)
-	_show_melee_item()
-	active_slot = Slot.MELEE
-
-
-func _show_melee_item() -> void:
-	_melee_sprite.texture = melee.item.texture if melee.item else null
-	_melee_sprite.offset = -melee.item.grip if melee.item else Vector2.ZERO
-
-
-## Fills the throwable slot without selecting it (e.g. the starting grenades).
-func equip_throwable(data: ThrowableData, amount: int) -> void:
-	thrower.equip(data, amount)
-
-
-## Empty slots cannot be selected; melee (bare hands) is always available.
-func select_slot(slot: Slot) -> bool:
-	match slot:
-		Slot.MELEE:
-			pass
-		Slot.FIREARM:
-			if firearm == null:
-				return false
-		Slot.THROWABLE:
-			if thrower.is_empty():
-				return false
-		_:
-			# Power-ups do not exist yet, so this slot is always empty.
-			return false
-	active_slot = slot
-	return true
-
-
 ## The firearm is in hand only while standing on the floor; moving puts it away.
 func is_firearm_drawn() -> bool:
-	return active_slot == Slot.FIREARM and firearm != null and _can_hold_ready()
+	return inventory.active_slot == Inventory.Slot.FIREARM and inventory.firearm != null and _can_hold_ready()
 
 
 ## Like the firearm, a throwable is aimed and thrown only while standing still.
 func is_throwable_drawn() -> bool:
-	return active_slot == Slot.THROWABLE and not thrower.is_empty() and _can_hold_ready()
+	return inventory.active_slot == Inventory.Slot.THROWABLE and not thrower.is_empty() and _can_hold_ready()
 
 
 func _can_hold_ready() -> bool:
@@ -210,6 +157,11 @@ func center() -> Vector2:
 	return _body_shape.global_position
 
 
+## The body's current (standing or crouched) collision shape node.
+func body_shape() -> CollisionShape2D:
+	return _body_shape
+
+
 func aim_direction() -> Vector2:
 	return Vector2(facing * cos(aim_angle), sin(aim_angle))
 
@@ -263,88 +215,9 @@ func _knock_down() -> void:
 	_down_time = fighter_class.knockdown_time
 	_hit_stun = 0.0
 	thrower.drop_live(_hand.global_position)
-	_drop_firearm()
+	inventory.drop_firearm()
 	_update_pose()
 	_update_hittable()
-
-
-## The firearm falls into the arena and the fighter is left with bare hands.
-func _drop_firearm() -> void:
-	if firearm == null:
-		return
-	_drop_item(firearm.data)
-	firearm.queue_free()
-	firearm = null
-	if active_slot == Slot.FIREARM:
-		active_slot = Slot.MELEE
-
-
-## The melee item falls into the arena and the fighter punches again.
-func _drop_melee_item() -> void:
-	if melee.item == null:
-		return
-	_drop_item(melee.item)
-	melee.item = null
-	_show_melee_item()
-
-
-## The unused throwables fall into the arena as one item; the slot is left empty.
-func _drop_throwables() -> void:
-	if thrower.is_empty():
-		return
-	_drop_item(thrower.item)
-	thrower.equip(null, 0)
-
-
-## Dropped items can never be picked up again and disappear after a while.
-func _drop_item(data: ItemData) -> void:
-	var dropped: ItemPickup = PICKUP_SCENE.instantiate()
-	dropped.data = data
-	dropped.position = get_parent().to_local(_hand.global_position)
-	dropped.linear_velocity = Vector2(-facing * 40.0, -120.0)
-	# Hits arrive from physics callbacks, where bodies cannot be added directly.
-	get_parent().add_child.call_deferred(dropped)
-
-
-## Only spawned items can be taken: into an empty slot by walking over one, into a
-## full slot by standing on one and pressing down (the old item drops).
-func _update_pickup() -> void:
-	var item := _pickup_under()
-	if item == null:
-		return
-	var slot_full: bool
-	if item.data is WeaponData:
-		slot_full = firearm != null
-	elif item.data is ThrowableData:
-		slot_full = not thrower.is_empty()
-	else:
-		slot_full = melee.item != null
-	var swapping := controller.down and is_on_floor() and not is_running()
-	if slot_full and not swapping:
-		return
-	if item.data is WeaponData:
-		_drop_firearm()
-		equip_firearm(item.data)
-	elif item.data is ThrowableData:
-		_drop_throwables()
-		equip_throwable(item.data, item.data.count)
-		active_slot = Slot.THROWABLE
-	else:
-		_drop_melee_item()
-		equip_melee_item(item.data)
-	item.take()
-
-
-func _pickup_under() -> ItemPickup:
-	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = _body_shape.shape
-	query.transform = _body_shape.global_transform
-	query.collision_mask = PICKUPS_LAYER
-	for result in get_world_2d().direct_space_state.intersect_shape(query):
-		var item := result.collider as ItemPickup
-		if item and item.pickable and not item.is_queued_for_deletion():
-			return item
-	return null
 
 
 func _get_up() -> void:
@@ -379,9 +252,7 @@ func fall_out() -> void:
 
 func _on_died() -> void:
 	thrower.drop_live(_hand.global_position)
-	_drop_firearm()
-	_drop_melee_item()
-	_drop_throwables()
+	inventory.drop_all()
 	_update_pose()
 	_update_hittable()
 	melee.cancel()
@@ -415,9 +286,9 @@ func _physics_process(delta: float) -> void:
 	var unlocked := acting and not melee.is_attacking() and not thrower.is_cooking()
 
 	if unlocked and controller.select_slot >= 0:
-		select_slot(controller.select_slot)
+		inventory.select_slot(controller.select_slot)
 	if unlocked:
-		_update_pickup()
+		inventory.update_pickup()
 
 	# Jumping stands the fighter up; so does anything that takes away control.
 	_set_crouching(acting and is_on_floor() and controller.crouch and not controller.jump)
@@ -451,7 +322,6 @@ func _physics_process(delta: float) -> void:
 		velocity.x = facing * fighter_class.roll_speed
 		_update_hittable()
 
-	_melee_sprite.visible = active_slot == Slot.MELEE and melee.item != null
 	_hand.rotation = 0.0
 	# A cooking item stays in hand even if a hit knocks the fighter out of the ready stance.
 	var throwable_ready := is_throwable_drawn() or thrower.is_cooking()
@@ -463,8 +333,8 @@ func _physics_process(delta: float) -> void:
 	_throwable_sprite.offset = -thrower.item.grip if thrower.item else Vector2.ZERO
 	_throwable_sprite.visible = throwable_ready
 	thrower.physics_update(delta, is_throwable_drawn(), controller.attack, controller.attack_held, _hand.global_position, aim_direction())
-	if active_slot == Slot.THROWABLE and thrower.is_empty():
-		active_slot = Slot.MELEE
+	inventory.physics_update()
+	var firearm := inventory.firearm
 	if firearm:
 		var drawn := is_firearm_drawn()
 		firearm.visible = drawn
@@ -473,9 +343,9 @@ func _physics_process(delta: float) -> void:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
 			firearm.try_fire(aim_direction(), get_parent(), self, crouch_spread_scale if _crouching else 1.0)
 			if firearm.is_empty():
-				_drop_firearm()
+				inventory.drop_firearm()
 
-	if acting and active_slot == Slot.MELEE and controller.attack:
+	if acting and inventory.active_slot == Inventory.Slot.MELEE and controller.attack:
 		melee.request_attack(not is_on_floor())
 	melee.physics_update(delta)
 	_update_attack_placeholder()

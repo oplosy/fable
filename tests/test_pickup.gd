@@ -30,28 +30,28 @@ func run() -> void:
 	# Empty slot: walking over the weapon takes it.
 	var fighter := _spawn(Vector2(100, 328))
 	await physics_frames(5)
-	check(fighter.firearm == null, "fighter starts unarmed")
+	check(fighter.inventory.firearm == null, "fighter starts unarmed")
 	fighter.controller.move = -1.0
 	await physics_frames(40)
 	fighter.controller.move = 0.0
-	check(fighter.firearm != null and fighter.firearm.data == PISTOL, "walking over a spawned weapon picks it up")
-	check(fighter.active_slot == Fighter.Slot.FIREARM, "the picked-up firearm is selected")
+	check(fighter.inventory.firearm != null and fighter.inventory.firearm.data == PISTOL, "walking over a spawned weapon picks it up")
+	check(fighter.inventory.active_slot == Inventory.Slot.FIREARM, "the picked-up firearm is selected")
 	await physics_frames(1)
 	check(get_nodes_in_group("item_pickups").is_empty() and not spawner.has_item(), "the picked-up weapon leaves the arena")
 
 	# Full slot: standing on a weapon does not take it; down swaps.
 	var old_data: WeaponData = PISTOL.duplicate()
-	fighter.equip_firearm(old_data)
+	fighter.inventory.equip_firearm(old_data)
 	fighter.global_position = Vector2(40, 328)
 	fighter.velocity = Vector2.ZERO
 	await physics_frames(40)
-	check(spawner.has_item() and fighter.firearm.data == old_data, "a full slot does not pick up by walking over")
+	check(spawner.has_item() and fighter.inventory.firearm.data == old_data, "a full slot does not pick up by walking over")
 	fighter.controller.move = 1.0
 	fighter.controller.run = true
 	await physics_frames(2)
 	fighter.global_position.x = 40
 	await _tap(fighter, "down")
-	check(fighter.is_rolling() and fighter.firearm.data == old_data, "down while running rolls instead of swapping")
+	check(fighter.is_rolling() and fighter.inventory.firearm.data == old_data, "down while running rolls instead of swapping")
 	fighter.controller.move = 0.0
 	fighter.controller.run = false
 	await physics_frames(40)
@@ -59,7 +59,7 @@ func run() -> void:
 	fighter.velocity = Vector2.ZERO
 	await physics_frames(5)
 	await _tap(fighter, "down")
-	check(fighter.firearm != null and fighter.firearm.data == PISTOL, "down on a spawned weapon swaps it in")
+	check(fighter.inventory.firearm != null and fighter.inventory.firearm.data == PISTOL, "down on a spawned weapon swaps it in")
 	await physics_frames(2)
 	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and dropped[0].data == old_data and not dropped[0].pickable, "the old firearm drops and cannot be picked up")
@@ -72,7 +72,7 @@ func run() -> void:
 	if dropped.size() == 1:
 		unarmed.global_position = dropped[0].global_position + Vector2(0, 2)
 	await physics_frames(10)
-	check(unarmed.firearm == null, "walking over a dropped weapon does not pick it up")
+	check(unarmed.inventory.firearm == null, "walking over a dropped weapon does not pick it up")
 	await physics_frames(5 * 60)
 	check(get_nodes_in_group("dropped_items").is_empty(), "dropped weapons disappear after a few seconds")
 

@@ -28,7 +28,7 @@ func run() -> void:
 	await physics_frames(20)
 	check(behind.health.current == behind.health.max_health, "a punch does not reach through a thin wall")
 
-	near.equip_firearm(PISTOL)
+	near.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
 	near.controller.attack = true
 	await physics_frames(2)

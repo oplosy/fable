@@ -31,9 +31,9 @@ func _spawn_player(index: int) -> void:
 	controller.prefix = "p%d_" % (index + 1)
 	var spawned := _spawn_fighter(characters[index], controller, index)
 	if starting_weapon:
-		spawned.equip_firearm(starting_weapon)
+		spawned.inventory.equip_firearm(starting_weapon)
 	if starting_throwable:
-		spawned.equip_throwable(starting_throwable, starting_throwable.count)
+		spawned.inventory.equip_throwable(starting_throwable, starting_throwable.count)
 	spawned.health.died.connect(_on_player_died.bind(spawned, index))
 	players[index] = spawned
 

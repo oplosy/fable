@@ -72,9 +72,9 @@ func _test_fire() -> void:
 func _test_grenade_throw() -> void:
 	var thrower := _spawn(Vector2(100, 328))
 	await physics_frames(10)
-	thrower.equip_throwable(GRENADE, GRENADE.count)
-	check(thrower.active_slot == Fighter.Slot.MELEE, "starting grenades do not select their slot")
-	check(thrower.select_slot(Fighter.Slot.THROWABLE), "the grenade slot can be selected")
+	thrower.inventory.equip_throwable(GRENADE, GRENADE.count)
+	check(thrower.inventory.active_slot == Inventory.Slot.MELEE, "starting grenades do not select their slot")
+	check(thrower.inventory.select_slot(Inventory.Slot.THROWABLE), "the grenade slot can be selected")
 	await physics_frames(2)
 	thrower.controller.attack = true
 	thrower.controller.attack_held = true
@@ -105,8 +105,8 @@ func _test_grenade_throw() -> void:
 func _test_cooking() -> void:
 	var fighter := _spawn(Vector2(200, 328))
 	await physics_frames(10)
-	fighter.equip_throwable(GRENADE, 1)
-	fighter.select_slot(Fighter.Slot.THROWABLE)
+	fighter.inventory.equip_throwable(GRENADE, 1)
+	fighter.inventory.select_slot(Inventory.Slot.THROWABLE)
 	await physics_frames(2)
 	fighter.controller.attack = true
 	fighter.controller.attack_held = true
@@ -114,15 +114,15 @@ func _test_cooking() -> void:
 	fighter.controller.attack = false
 	await physics_frames(int(GRENADE.fuse_time * 60) + 3)
 	check(fighter.health.current < fighter.health.max_health and fighter.is_knocked_down(), "a grenade held past its fuse goes off in hand")
-	check(fighter.thrower.is_empty() and fighter.active_slot == Fighter.Slot.MELEE, "the last grenade used empties the slot")
-	check(not fighter.select_slot(Fighter.Slot.THROWABLE), "an empty grenade slot cannot be selected")
+	check(fighter.thrower.is_empty() and fighter.inventory.active_slot == Inventory.Slot.MELEE, "the last grenade used empties the slot")
+	check(not fighter.inventory.select_slot(Inventory.Slot.THROWABLE), "an empty grenade slot cannot be selected")
 	fighter.controller.attack_held = false
 	fighter.queue_free()
 
 	var holder := _spawn(Vector2(200, 328))
 	await physics_frames(10)
-	holder.equip_throwable(GRENADE, 2)
-	holder.select_slot(Fighter.Slot.THROWABLE)
+	holder.inventory.equip_throwable(GRENADE, 2)
+	holder.inventory.select_slot(Inventory.Slot.THROWABLE)
 	await physics_frames(2)
 	holder.controller.attack = true
 	holder.controller.attack_held = true
@@ -145,8 +145,8 @@ func _test_molotov() -> void:
 	var thrower := _spawn(Vector2(100, 328))
 	var target := _spawn(Vector2(150, 328))
 	await physics_frames(10)
-	thrower.equip_throwable(MOLOTOV, MOLOTOV.count)
-	thrower.select_slot(Fighter.Slot.THROWABLE)
+	thrower.inventory.equip_throwable(MOLOTOV, MOLOTOV.count)
+	thrower.inventory.select_slot(Inventory.Slot.THROWABLE)
 	thrower.thrower.lift_degrees = 0.0
 	await physics_frames(2)
 	thrower.controller.attack = true
@@ -174,7 +174,7 @@ func _test_pickup() -> void:
 	await physics_frames(20)
 	spawner.interval = 9999.0
 	var fighter := _spawn(Vector2(40, 328))
-	fighter.equip_throwable(GRENADE, 1)
+	fighter.inventory.equip_throwable(GRENADE, 1)
 	await physics_frames(20)
 	check(fighter.thrower.item == GRENADE and spawner.has_item(), "a full throwable slot does not take an item by walking over")
 	fighter.controller.down = true
@@ -182,7 +182,7 @@ func _test_pickup() -> void:
 	fighter.controller.down = false
 	await physics_frames(2)
 	check(fighter.thrower.item == MOLOTOV and fighter.thrower.count == MOLOTOV.count, "down swaps in the full count of the new throwable")
-	check(fighter.active_slot == Fighter.Slot.THROWABLE, "the picked-up throwable is selected")
+	check(fighter.inventory.active_slot == Inventory.Slot.THROWABLE, "the picked-up throwable is selected")
 	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and dropped[0].data == GRENADE and not dropped[0].pickable, "the old throwables drop and cannot be picked up")
 

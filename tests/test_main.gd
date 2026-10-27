@@ -14,7 +14,7 @@ func run() -> void:
 		var spawn: Marker2D = main.arena.get_node("SpawnPoints").get_child(i)
 		check(player.global_position.x == spawn.global_position.x, "player %d stands at spawn point %d" % [i + 1, i + 1])
 		check(player.controller is LocalController and player.controller.prefix == "p%d_" % (i + 1), "player %d reads the p%d_ actions" % [i + 1, i + 1])
-		check(player.firearm != null and player.firearm.data == main.starting_weapon, "player %d starts with the pistol" % (i + 1))
+		check(player.inventory.firearm != null and player.inventory.firearm.data == main.starting_weapon, "player %d starts with the pistol" % (i + 1))
 		check(player.thrower.item == main.starting_throwable and player.thrower.count == 3, "player %d starts with 3 grenades" % (i + 1))
 
 	var p1_x := p1.position.x
@@ -48,4 +48,4 @@ func run() -> void:
 	check(not is_instance_valid(p1) and not is_instance_valid(p2), "dead players are removed")
 	for i in 2:
 		var fresh: Fighter = main.players[i]
-		check(fresh != null and not fresh.is_dead() and fresh.firearm != null, "player %d respawns armed" % (i + 1))
+		check(fresh != null and not fresh.is_dead() and fresh.inventory.firearm != null, "player %d respawns armed" % (i + 1))

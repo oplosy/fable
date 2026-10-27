@@ -29,9 +29,9 @@ func _test_combos() -> void:
 	var hits: Array[int] = []
 	target.health.damaged.connect(func(amount: int) -> void: hits.append(amount))
 
-	attacker.equip_melee_item(KNIFE)
+	attacker.inventory.equip_melee_item(KNIFE)
 	await physics_frames(2)
-	check(attacker.active_slot == Fighter.Slot.MELEE and attacker.melee.item == KNIFE, "equipping a knife puts it in the melee slot")
+	check(attacker.inventory.active_slot == Inventory.Slot.MELEE and attacker.melee.item == KNIFE, "equipping a knife puts it in the melee slot")
 	await _full_combo(attacker)
 	check(hits == [5, 5, 8], "the knife combo replaces the punches")
 	check(attacker.melee.item_hits_left == KNIFE.durability - 3, "each landed knife hit wears the knife")
@@ -39,7 +39,7 @@ func _test_combos() -> void:
 	hits.clear()
 	await physics_frames(60)
 	_reset(target)
-	attacker.equip_melee_item(BAT)
+	attacker.inventory.equip_melee_item(BAT)
 	await physics_frames(2)
 	check(attacker.melee.item == BAT and attacker.melee.item_hits_left == BAT.durability, "equipping a new item starts at full durability")
 	await _full_combo(attacker)
@@ -70,7 +70,7 @@ func _test_durability() -> void:
 	await physics_frames(10)
 	var worn: MeleeItemData = KNIFE.duplicate()
 	worn.durability = 2
-	attacker.equip_melee_item(worn)
+	attacker.inventory.equip_melee_item(worn)
 	var broke := [false]
 	attacker.melee.item_broke.connect(func() -> void: broke[0] = true)
 	var hits: Array[int] = []
@@ -96,12 +96,12 @@ func _test_pickup_and_drop() -> void:
 	spawner.interval = 9999.0
 	var fighter := _spawn(FAST, Vector2(100, 328))
 	await physics_frames(5)
-	fighter.equip_firearm(PISTOL)
+	fighter.inventory.equip_firearm(PISTOL)
 	fighter.controller.move = -1.0
 	await physics_frames(40)
 	fighter.controller.move = 0.0
 	check(fighter.melee.item == KNIFE, "walking over a melee item with bare hands takes it")
-	check(fighter.firearm != null and fighter.active_slot == Fighter.Slot.MELEE, "the firearm is kept and the melee slot is selected")
+	check(fighter.inventory.firearm != null and fighter.inventory.active_slot == Inventory.Slot.MELEE, "the firearm is kept and the melee slot is selected")
 
 	# Full melee slot: walking over does nothing, down swaps.
 	spawner.items = [BAT]
@@ -122,7 +122,7 @@ func _test_pickup_and_drop() -> void:
 
 	fighter.take_hit(0, Vector2.ZERO, -1.0, true)
 	await physics_frames(2)
-	check(fighter.is_knocked_down() and fighter.firearm == null and fighter.melee.item == BAT, "a knockdown drops the firearm but keeps the melee item")
+	check(fighter.is_knocked_down() and fighter.inventory.firearm == null and fighter.melee.item == BAT, "a knockdown drops the firearm but keeps the melee item")
 	# Wait out the downed and get-up invulnerability.
 	await physics_frames(110)
 

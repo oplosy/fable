@@ -30,7 +30,7 @@ func run() -> void:
 	await physics_frames(10)
 	Input.action_release("p1_jump")
 	check(fighter.position.y < floor_y - 20.0, "jump lifts the fighter")
-	check(not fighter.firearm.visible, "firearm is put away in the air")
+	check(not fighter.inventory.firearm.visible, "firearm is put away in the air")
 
 	await physics_frames(90)
 	# Collision safe margin leaves a sub-pixel gap, so compare within half a pixel.
@@ -41,14 +41,14 @@ func run() -> void:
 	Input.action_release("p1_right")
 	check(fighter.position.x < 632.0, "right wall stops the fighter")
 
-	check(fighter.firearm != null and fighter.firearm.data.display_name == "Pistol", "fighter spawns with the pistol")
-	check(fighter.active_slot == Fighter.Slot.FIREARM, "firearm slot is active")
+	check(fighter.inventory.firearm != null and fighter.inventory.firearm.data.display_name == "Pistol", "fighter spawns with the pistol")
+	check(fighter.inventory.active_slot == Inventory.Slot.FIREARM, "firearm slot is active")
 	await physics_frames(2)
-	check(fighter.firearm.visible, "standing fighter holds the firearm")
+	check(fighter.inventory.firearm.visible, "standing fighter holds the firearm")
 
 	Input.action_press("p1_left")
 	await physics_frames(10)
-	check(not fighter.firearm.visible, "moving puts the firearm away")
+	check(not fighter.inventory.firearm.visible, "moving puts the firearm away")
 	Input.action_press("p1_attack")
 	await physics_frames(2)
 	Input.action_release("p1_attack")
@@ -56,7 +56,7 @@ func run() -> void:
 	await physics_frames(10)
 	Input.action_release("p1_left")
 	await physics_frames(2)
-	check(fighter.firearm.visible, "stopping draws the firearm again")
+	check(fighter.inventory.firearm.visible, "stopping draws the firearm again")
 	await physics_frames(20)
 
 	# Fighter reads the press on the next physics frame, so wait two.
@@ -125,20 +125,20 @@ func run() -> void:
 	check(bullets.size() == 1, "aimed shot spawns one bullet")
 	if bullets.size() == 1:
 		var bullet: Projectile = bullets[0]
-		var spread := deg_to_rad(fighter.firearm.spread()) + 0.001
+		var spread := deg_to_rad(fighter.inventory.firearm.spread()) + 0.001
 		check(absf(bullet.velocity.angle_to(aim)) <= spread, "bullet travels along the aim within the spread")
 		check(is_equal_approx(bullet.rotation, bullet.velocity.angle()), "bullet is rotated to its flight direction")
-		var muzzle := fighter.firearm.to_global(fighter.firearm.data.muzzle - fighter.firearm.data.grip)
+		var muzzle := fighter.inventory.firearm.to_global(fighter.inventory.firearm.data.muzzle - fighter.inventory.firearm.data.grip)
 		check(bullet.global_position.distance_to(muzzle) < bullet.velocity.length() / 30.0, "bullet starts at the rotated muzzle")
 
 	await _press("p1_slot_1")
-	check(fighter.active_slot == Fighter.Slot.MELEE and not fighter.firearm.visible, "key 1 selects melee and puts the firearm away")
+	check(fighter.inventory.active_slot == Inventory.Slot.MELEE and not fighter.inventory.firearm.visible, "key 1 selects melee and puts the firearm away")
 	await _press("p1_slot_4")
-	check(fighter.active_slot == Fighter.Slot.MELEE, "empty power-up slot cannot be selected")
+	check(fighter.inventory.active_slot == Inventory.Slot.MELEE, "empty power-up slot cannot be selected")
 	await _press("p1_slot_3")
-	check(fighter.active_slot == Fighter.Slot.THROWABLE, "key 3 selects the starting grenades")
+	check(fighter.inventory.active_slot == Inventory.Slot.THROWABLE, "key 3 selects the starting grenades")
 	await _press("p1_slot_2")
-	check(fighter.active_slot == Fighter.Slot.FIREARM and fighter.firearm.visible, "key 2 selects and draws the firearm")
+	check(fighter.inventory.active_slot == Inventory.Slot.FIREARM and fighter.inventory.firearm.visible, "key 2 selects and draws the firearm")
 
 
 func _press(action: String) -> void:

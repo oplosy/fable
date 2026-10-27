@@ -17,7 +17,7 @@ func run() -> void:
 	var shooter := _spawn(Vector2(200, 328))
 	var target := _spawn(Vector2(300, 328))
 	await physics_frames(10)
-	shooter.equip_firearm(PISTOL)
+	shooter.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
 
 	var target_x := target.global_position.x
@@ -62,11 +62,11 @@ func run() -> void:
 	target.controller.move = -1.0
 	await physics_frames(20)
 
-	target.equip_firearm(PISTOL)
+	target.inventory.equip_firearm(PISTOL)
 	target.take_hit(1000)
 	await physics_frames(20)
 	check(target.is_dead() and target.health.current == 0, "lethal hit kills the target")
-	check(target.firearm == null, "a dying fighter drops its firearm")
+	check(target.inventory.firearm == null, "a dying fighter drops its firearm")
 	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and not dropped[0].pickable, "the dead fighter's firearm lies in the arena and cannot be picked up")
 	check(target.collision_layer == 0, "dead body leaves the fighters layer")
@@ -122,7 +122,7 @@ func _test_smg_stun() -> void:
 	var shooter := _spawn(Vector2(200, 328))
 	var target := _spawn(Vector2(260, 328))
 	await physics_frames(10)
-	shooter.equip_firearm(SMG)
+	shooter.inventory.equip_firearm(SMG)
 	await physics_frames(2)
 	shooter.controller.attack_held = true
 	await physics_frames(30)

@@ -34,12 +34,12 @@ func _test_shotgun() -> void:
 	var shooter := _spawn(Vector2(100, 328))
 	var target := _spawn(Vector2(115, 328))
 	await physics_frames(5)
-	shooter.equip_firearm(SHOTGUN)
+	shooter.inventory.equip_firearm(SHOTGUN)
 	await physics_frames(2)
 	var before := target.health.current
 	var shots := get_nodes_in_group("projectiles").size()
 	await _fire(shooter)
-	check(shooter.firearm.ammo_left == SHOTGUN.ammo - 1, "one blast uses one shell")
+	check(shooter.inventory.firearm.ammo_left == SHOTGUN.ammo - 1, "one blast uses one shell")
 	check(target.health.current == before - SHOTGUN.damage * SHOTGUN.pellets, "every pellet of a point-blank blast lands")
 	check(target.is_knocked_down(), "a point-blank blast knocks down")
 	check(get_nodes_in_group("projectiles").size() == shots, "pellets are used up by the hit")
@@ -69,7 +69,7 @@ func _test_sniper() -> void:
 	for i in SNIPER.pierce + 2:
 		targets.append(_spawn(Vector2(200 + i * 60, 328)))
 	await physics_frames(5)
-	shooter.equip_firearm(SNIPER)
+	shooter.inventory.equip_firearm(SNIPER)
 	await physics_frames(2)
 	await _fire(shooter)
 	await physics_frames(20)

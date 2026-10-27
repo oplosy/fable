@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/fighter/fighter.gd" id="1_fighter"]
 [ext_resource type="Script" path="res://scenes/components/health.gd" id="2_health"]
 [ext_resource type="Script" path="res://scenes/fighter/melee.gd" id="3_melee"]
 [ext_resource type="Script" path="res://scenes/fighter/thrower.gd" id="4_thrower"]
+[ext_resource type="Script" path="res://scenes/fighter/inventory.gd" id="5_inventory"]
 
 [sub_resource type="RectangleShape2D" id="body_shape"]
 size = Vector2(12, 28)
@@ -24,6 +25,9 @@ script = ExtResource("3_melee")
 
 [node name="Thrower" type="Node" parent="."]
 script = ExtResource("4_thrower")
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("5_inventory")
 
 [node name="Visuals" type="Node2D" parent="."]
 
