@@ -13,7 +13,7 @@ var arena: Node2D
 
 func run() -> void:
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
-	arena.get_node("WeaponSpawns/W1").interval = 9999.0
+	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 
 	_test_data()
@@ -83,10 +83,10 @@ func _test_sniper() -> void:
 
 
 func _test_weighted_spawn() -> void:
-	var spawner := WeaponSpawner.new()
+	var spawner := ItemSpawner.new()
 	var never: WeaponData = PISTOL.duplicate()
 	never.spawn_weight = 0.0
-	spawner.weapons = [never, SMG]
+	spawner.items = [never, SMG]
 	var picks := {}
 	for i in 50:
 		picks[spawner._pick_weighted()] = true

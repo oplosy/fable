@@ -77,11 +77,11 @@ func run() -> void:
 	heavy.take_hit(0, Vector2.ZERO, -1.0, true)
 	await physics_frames(2)
 	check(heavy.firearm == null and heavy.active_slot == Fighter.Slot.MELEE, "knockdown drops the firearm and leaves bare hands")
-	var dropped := get_nodes_in_group("dropped_weapons")
+	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and dropped[0].data == PISTOL, "the firearm lands in the arena")
 	await physics_frames(90)
 	if dropped.size() == 1:
-		var item: DroppedWeapon = dropped[0]
+		var item: ItemPickup = dropped[0]
 		check(item.global_position.y < 328.0 and item.global_position.y > 300.0, "dropped firearm rests on the floor")
 	check(not heavy.select_slot(Fighter.Slot.FIREARM), "disarmed fighter cannot select the firearm slot")
 

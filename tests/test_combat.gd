@@ -67,7 +67,7 @@ func run() -> void:
 	await physics_frames(20)
 	check(target.is_dead() and target.health.current == 0, "lethal hit kills the target")
 	check(target.firearm == null, "a dying fighter drops its firearm")
-	var dropped := get_nodes_in_group("dropped_weapons")
+	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and not dropped[0].pickable, "the dead fighter's firearm lies in the arena and cannot be picked up")
 	check(target.collision_layer == 0, "dead body leaves the fighters layer")
 	check(is_equal_approx(absf(target.get_node("Visuals").rotation), PI / 2.0), "dead body lies down")

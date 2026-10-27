@@ -13,7 +13,7 @@ var arena: Node2D
 
 func run() -> void:
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
-	arena.get_node("WeaponSpawns/W1").interval = 9999.0
+	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 
 	await _test_combos()
@@ -78,7 +78,7 @@ func _test_durability() -> void:
 	await _full_combo(attacker)
 	check(hits.size() == 3, "a worn-out item still finishes its combo")
 	check(broke[0] and attacker.melee.item == null, "the item breaks when its durability is used up")
-	check(get_nodes_in_group("dropped_weapons").is_empty(), "a broken item leaves nothing behind")
+	check(get_nodes_in_group("dropped_items").is_empty(), "a broken item leaves nothing behind")
 	await physics_frames(60)
 	await _press_attack(attacker)
 	check(attacker.melee.current_attack() == FAST.fighter_class.melee_combo[0], "after breaking, the fighter punches again")
@@ -89,8 +89,8 @@ func _test_durability() -> void:
 
 ## Spawned melee items fill the melee slot like firearms fill theirs; dead fighters drop them.
 func _test_pickup_and_drop() -> void:
-	var spawner: WeaponSpawner = arena.get_node("WeaponSpawns/W1")
-	spawner.weapons = [KNIFE]
+	var spawner: ItemSpawner = arena.get_node("ItemSpawns/W1")
+	spawner.items = [KNIFE]
 	spawner.interval = 0.1
 	await physics_frames(20)
 	spawner.interval = 9999.0
@@ -104,20 +104,20 @@ func _test_pickup_and_drop() -> void:
 	check(fighter.firearm != null and fighter.active_slot == Fighter.Slot.MELEE, "the firearm is kept and the melee slot is selected")
 
 	# Full melee slot: walking over does nothing, down swaps.
-	spawner.weapons = [BAT]
+	spawner.items = [BAT]
 	spawner.interval = 0.1
 	await physics_frames(20)
 	spawner.interval = 9999.0
 	fighter.global_position = Vector2(40, 328)
 	fighter.velocity = Vector2.ZERO
 	await physics_frames(20)
-	check(fighter.melee.item == KNIFE and spawner.has_weapon(), "a full melee slot does not take an item by walking over")
+	check(fighter.melee.item == KNIFE and spawner.has_item(), "a full melee slot does not take an item by walking over")
 	fighter.controller.down = true
 	await physics_frames(1)
 	fighter.controller.down = false
 	await physics_frames(2)
 	check(fighter.melee.item == BAT, "down on a melee item swaps it in")
-	var dropped := get_nodes_in_group("dropped_weapons")
+	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and dropped[0].data == KNIFE and not dropped[0].pickable, "the old melee item drops and cannot be picked up")
 
 	fighter.take_hit(0, Vector2.ZERO, -1.0, true)
@@ -128,8 +128,8 @@ func _test_pickup_and_drop() -> void:
 
 	fighter.take_hit(1000)
 	await physics_frames(2)
-	dropped = get_nodes_in_group("dropped_weapons")
-	check(fighter.melee.item == null and dropped.any(func(d: DroppedWeapon) -> bool: return d.data == BAT), "a dead fighter drops its melee item")
+	dropped = get_nodes_in_group("dropped_items")
+	check(fighter.melee.item == null and dropped.any(func(d: ItemPickup) -> bool: return d.data == BAT), "a dead fighter drops its melee item")
 
 
 ## Presses attack until the last attack of the combo runs, so exactly one combo plays.

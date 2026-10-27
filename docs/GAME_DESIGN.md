@@ -107,7 +107,7 @@ Built:
 - A fighter that dies drops its firearm and its melee item. Like every fighter-dropped weapon, they cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
-- Spawn points are `WeaponSpawner` nodes under the arena's `WeaponSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
+- Spawn points are `ItemSpawner` nodes under the arena's `ItemSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
 - The interval starts counting once the point is empty, so the first weapon appears 10 s into the match.
 - Pickup and swap need a fighter that can act (not stunned, downed, attacking, rolling or diving); the swap also needs the floor and not running (S while running rolls). Pickup range is the fighter's body overlapping the weapon.
 

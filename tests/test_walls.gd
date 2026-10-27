@@ -14,7 +14,7 @@ var arena: Node2D
 
 func run() -> void:
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
-	arena.get_node("WeaponSpawns/W1").interval = 9999.0
+	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 	_add_wall(Vector2(106, 278), Vector2(4, 100))
 

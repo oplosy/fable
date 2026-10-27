@@ -13,8 +13,8 @@ const THROWN := preload("res://scenes/throwables/thrown_item.tscn")
 
 func run() -> void:
 	var arena: Arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
-	var spawner: WeaponSpawner = arena.get_node("WeaponSpawns/W1")
-	spawner.weapons = [PISTOL]
+	var spawner: ItemSpawner = arena.get_node("ItemSpawns/W1")
+	spawner.items = [PISTOL]
 	spawner.interval = 0.1
 	root.add_child(arena)
 
@@ -28,7 +28,7 @@ func run() -> void:
 	arena.add_child(thrown)
 	thrown.global_position = Vector2(200, 200)
 	await physics_frames(20)
-	check(not fighter.is_dead() and is_instance_valid(thrown) and spawner.has_weapon(), "everything inside the bounds stays")
+	check(not fighter.is_dead() and is_instance_valid(thrown) and spawner.has_item(), "everything inside the bounds stays")
 
 	spawner.interval = 9999.0
 	var first_item := spawner.get_child(0)
@@ -38,5 +38,5 @@ func run() -> void:
 	await physics_frames(3)
 	check(fighter.is_dead() and not fighter.visible, "a fighter below the map dies and disappears")
 	check(not is_instance_valid(thrown), "a thrown item below the map is removed without going off")
-	check(not is_instance_valid(first_item) and not spawner.has_weapon(), "a lost spawned item frees its spawn point")
+	check(not is_instance_valid(first_item) and not spawner.has_item(), "a lost spawned item frees its spawn point")
 	check(arena.get_children().all(func(node: Node) -> bool: return not node is Explosion), "nothing went off")

@@ -13,7 +13,7 @@ var arena: Node2D
 
 func run() -> void:
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
-	arena.get_node("WeaponSpawns/W1").interval = 9999.0
+	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 
 	await _test_explosion()
@@ -168,22 +168,22 @@ func _test_molotov() -> void:
 
 ## Spawned throwables fill an empty slot by walking over them; a full slot needs down.
 func _test_pickup() -> void:
-	var spawner: WeaponSpawner = arena.get_node("WeaponSpawns/W1")
-	spawner.weapons = [MOLOTOV]
+	var spawner: ItemSpawner = arena.get_node("ItemSpawns/W1")
+	spawner.items = [MOLOTOV]
 	spawner.interval = 0.1
 	await physics_frames(20)
 	spawner.interval = 9999.0
 	var fighter := _spawn(Vector2(40, 328))
 	fighter.equip_throwable(GRENADE, 1)
 	await physics_frames(20)
-	check(fighter.thrower.item == GRENADE and spawner.has_weapon(), "a full throwable slot does not take an item by walking over")
+	check(fighter.thrower.item == GRENADE and spawner.has_item(), "a full throwable slot does not take an item by walking over")
 	fighter.controller.down = true
 	await physics_frames(1)
 	fighter.controller.down = false
 	await physics_frames(2)
 	check(fighter.thrower.item == MOLOTOV and fighter.thrower.count == MOLOTOV.count, "down swaps in the full count of the new throwable")
 	check(fighter.active_slot == Fighter.Slot.THROWABLE, "the picked-up throwable is selected")
-	var dropped := get_nodes_in_group("dropped_weapons")
+	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and dropped[0].data == GRENADE and not dropped[0].pickable, "the old throwables drop and cannot be picked up")
 
 

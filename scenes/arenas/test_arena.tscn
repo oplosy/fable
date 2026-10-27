@@ -1,8 +1,8 @@
 [gd_scene load_steps=14 format=3]
 
-[ext_resource type="Script" path="res://scenes/weapons/weapon_spawner.gd" id="1_spawner"]
+[ext_resource type="Script" path="res://scenes/items/item_spawner.gd" id="1_spawner"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="2_pistol"]
-[ext_resource type="Script" path="res://scenes/weapons/item_data.gd" id="3_data"]
+[ext_resource type="Script" path="res://scenes/items/item_data.gd" id="3_data"]
 [ext_resource type="Resource" path="res://data/weapons/shotgun.tres" id="4_shotgun"]
 [ext_resource type="Resource" path="res://data/weapons/smg.tres" id="5_smg"]
 [ext_resource type="Resource" path="res://data/weapons/sniper.tres" id="6_sniper"]
@@ -71,12 +71,12 @@ position = Vector2(320, 328)
 [node name="P2" type="Marker2D" parent="SpawnPoints"]
 position = Vector2(480, 328)
 
-[node name="WeaponSpawns" type="Node2D" parent="."]
+[node name="ItemSpawns" type="Node2D" parent="."]
 
-[node name="W1" type="Marker2D" parent="WeaponSpawns"]
+[node name="W1" type="Marker2D" parent="ItemSpawns"]
 position = Vector2(40, 320)
 script = ExtResource("1_spawner")
-weapons = Array[ExtResource("3_data")]([ExtResource("2_pistol"), ExtResource("4_shotgun"), ExtResource("5_smg"), ExtResource("6_sniper"), ExtResource("7_knife"), ExtResource("8_bat"), ExtResource("9_grenade"), ExtResource("10_molotov")])
+items = Array[ExtResource("3_data")]([ExtResource("2_pistol"), ExtResource("4_shotgun"), ExtResource("5_smg"), ExtResource("6_sniper"), ExtResource("7_knife"), ExtResource("8_bat"), ExtResource("9_grenade"), ExtResource("10_molotov")])
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(320, 180)

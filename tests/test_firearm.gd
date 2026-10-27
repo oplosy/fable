@@ -10,7 +10,7 @@ var arena: Node2D
 
 func run() -> void:
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
-	arena.get_node("WeaponSpawns/W1").interval = 9999.0
+	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 
 	await _test_ammo()
@@ -31,7 +31,7 @@ func _test_ammo() -> void:
 	await _fire(shooter)
 	check(shooter.firearm == null and shooter.active_slot == Fighter.Slot.MELEE, "the last shot drops the empty weapon and leaves bare hands")
 	await physics_frames(2)
-	var dropped := get_nodes_in_group("dropped_weapons")
+	var dropped := get_nodes_in_group("dropped_items")
 	check(dropped.size() == 1 and not dropped[0].pickable, "the empty weapon lies in the arena and cannot be picked up")
 	shooter.queue_free()
 	await physics_frames(5)

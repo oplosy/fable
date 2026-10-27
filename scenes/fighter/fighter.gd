@@ -2,7 +2,7 @@ class_name Fighter
 extends CharacterBody2D
 
 const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
-const DROPPED_WEAPON_SCENE := preload("res://scenes/weapons/dropped_weapon.tscn")
+const PICKUP_SCENE := preload("res://scenes/items/item_pickup.tscn")
 ## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
 const FIGHTERS_LAYER := 2
 const PICKUPS_LAYER := 8
@@ -298,7 +298,7 @@ func _drop_throwables() -> void:
 
 ## Dropped items can never be picked up again and disappear after a while.
 func _drop_item(data: ItemData) -> void:
-	var dropped: DroppedWeapon = DROPPED_WEAPON_SCENE.instantiate()
+	var dropped: ItemPickup = PICKUP_SCENE.instantiate()
 	dropped.data = data
 	dropped.position = get_parent().to_local(_hand.global_position)
 	dropped.linear_velocity = Vector2(-facing * 40.0, -120.0)
@@ -335,13 +335,13 @@ func _update_pickup() -> void:
 	item.take()
 
 
-func _pickup_under() -> DroppedWeapon:
+func _pickup_under() -> ItemPickup:
 	var query := PhysicsShapeQueryParameters2D.new()
 	query.shape = _body_shape.shape
 	query.transform = _body_shape.global_transform
 	query.collision_mask = PICKUPS_LAYER
 	for result in get_world_2d().direct_space_state.intersect_shape(query):
-		var item := result.collider as DroppedWeapon
+		var item := result.collider as ItemPickup
 		if item and item.pickable and not item.is_queued_for_deletion():
 			return item
 	return null
