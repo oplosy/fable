@@ -12,17 +12,21 @@ const PARTS := [
 	["coat_back", "pelvis"],
 	["leg_back_upper", "pelvis"],
 	["leg_back_lower", "leg_back_upper"],
+	["foot_back", "leg_back_lower"],
 	["pelvis", ""],
 	["leg_front_upper", "pelvis"],
 	["leg_front_lower", "leg_front_upper"],
+	["foot_front", "leg_front_lower"],
 	["torso", "pelvis"],
 	["coat_tail", "pelvis"],
 	["head", "torso"],
 	["arm_front_upper", "torso"],
 	["arm_front_lower", "arm_front_upper"],
 ]
-## Parts a character may leave out of its rig.json.
-const OPTIONAL := ["coat_back", "coat_tail"]
+## Parts a character may leave out of its rig.json. Without feet, the lower legs carry them.
+const OPTIONAL := ["coat_back", "coat_tail", "foot_back", "foot_front"]
+## Parts that bend like cloth instead of turning stiffly.
+const COATS := ["coat_back", "coat_tail"]
 
 ## Part name -> the node it rotates around its joint.
 var joints := {}
@@ -78,7 +82,7 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 			(self if parent_name == "" else joints[parent_name]).add_child(joint)
 			# Coats bend like cloth; every other part is stiff.
 			var art: Node2D
-			if part in OPTIONAL:
+			if part in COATS:
 				art = CoatMesh.new()
 				art.texture = textures[part]
 			else:
@@ -94,7 +98,7 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 		points[key] = _vec(rig.points[key])
 	for part: String in textures:
 		pivots[part] = _vec(rig_pivots[part])
-	for part: String in OPTIONAL:
+	for part: String in COATS:
 		if joints.has(part):
 			coats.append(joints[part].get_child(0))
 			coats.back().setup(self, part)
