@@ -4,6 +4,9 @@ extends Resource
 ## One punch, kick or swing. Timings are in seconds.
 
 @export var display_name := ""
+## Clip played for it (docs/CHARACTER_ANIMATION_SPEC.md). The animator first tries
+## "<animation>_<place in the combo, from 1>", so repeated attacks can alternate fists.
+@export var animation := &""
 @export var damage := 5
 ## Added to the target's velocity; +x points away from the attacker.
 @export var knockback := Vector2(40, 0)

@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="swing"]
 script = ExtResource("2_attack")
 display_name = "Swing"
+animation = &"bat_swing"
 damage = 8
 knockback = Vector2(120, 0)
 stun_time = 0.55
@@ -19,6 +20,7 @@ hitbox_size = Vector2(22, 14)
 [sub_resource type="Resource" id="home_run"]
 script = ExtResource("2_attack")
 display_name = "Home Run"
+animation = &"bat_home_run"
 damage = 14
 knockback = Vector2(250, -100)
 stun_time = 0.6

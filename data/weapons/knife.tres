@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="stab"]
 script = ExtResource("2_attack")
 display_name = "Stab"
+animation = &"knife_stab"
 damage = 5
 knockback = Vector2(20, 0)
 stun_time = 0.3
@@ -19,6 +20,7 @@ hitbox_size = Vector2(16, 8)
 [sub_resource type="Resource" id="slash"]
 script = ExtResource("2_attack")
 display_name = "Slash"
+animation = &"knife_slash"
 damage = 8
 knockback = Vector2(90, 0)
 stun_time = 0.4

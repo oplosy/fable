@@ -6,6 +6,7 @@
 [sub_resource type="Resource" id="jab"]
 script = ExtResource("2_attack")
 display_name = "Jab"
+animation = &"fast_jab"
 damage = 4
 knockback = Vector2(30, 0)
 stun_time = 0.35
@@ -18,6 +19,7 @@ hitbox_size = Vector2(14, 8)
 [sub_resource type="Resource" id="hook"]
 script = ExtResource("2_attack")
 display_name = "Hook"
+animation = &"fast_hook"
 damage = 7
 knockback = Vector2(150, -60)
 stun_time = 0.5
@@ -31,6 +33,7 @@ hitbox_size = Vector2(14, 10)
 [sub_resource type="Resource" id="jump_kick"]
 script = ExtResource("2_attack")
 display_name = "Jump Kick"
+animation = &"fast_jump_kick"
 damage = 8
 knockback = Vector2(160, -60)
 stun_time = 0.5
