@@ -70,6 +70,7 @@ Built:
 - Each arena defines fixed weapon spawn points. An empty spawn point spawns a weapon at an interval (about 10 s).
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
+- Fighters start the match with a pistol (user decision).
 
 Current pickup rules (prototype, easy to change):
 - Spawn points are `WeaponSpawner` nodes under the arena's `WeaponSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
@@ -133,7 +134,6 @@ Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s kno
 
 ## Current Prototype Deviations
 
-- The player still starts with the pistol (a testing aid); Superfighters-style unarmed starts would need the tests reworked.
 - Melee uses bare hands only; melee weapons, throwables and power-ups are not implemented yet.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
 - The main scene spawns an idle target dummy that respawns 1.5 s after dying; it is a testing aid, not a game mode.
