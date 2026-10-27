@@ -12,7 +12,7 @@ Branch `main`, pushed to https://github.com/oplosy/fable. Session 3 was a code a
 |------|------------|------------|
 | Project setup | Godot 4.7.2, 1920x1080 viewport (fullscreen), integer scaling while the window holds it and fractional below (`main.gd`), nearest filter, pixel snap. The Esc menu is laid out for 640x360 and drawn 3x. Physics layers: 1 world, 2 fighters, 3 projectiles, 4 pickups. | `project.godot` |
 | Arena | Every arena root is an `Arena` (`scenes/arenas/arena.gd`): `bounds` (leaving them kills fighters and removes items) and the match `rng` and `camera_limits`. Test arena: floor, side walls, `SpawnPoints` (P1, P2), `ItemSpawns` (one spawner with every built firearm and melee item), `FollowCamera`. | `scenes/arenas/test_arena.tscn` |
-| Camera | `FollowCamera`: follows the living fighters (group `Fighter.GROUP`), art zoom 3 (art pixel = screen pixel), zooms out to 1.5 when they spread, clamped to `camera_limits`. | `scenes/arenas/follow_camera.gd` |
+| Camera | `FollowCamera`: follows the living fighters (group `Fighter.GROUP`) with one zoom: 3 (art pixel = screen pixel) down to the whole map, never below 0.75; fast out, calm in with a 10% threshold, log-space easing; clamped to `camera_limits`. Arenas draw with linear filtering and mipmaps. | `scenes/arenas/follow_camera.gd`, `arena.gd` |
 | Main scene | Loads the arena, spawns local players from its `characters` list (P1 Fast on `p1_*`, P2 Heavy on `p2_*`), each with the pistol and 3 grenades, and respawns a dead player after 1.5 s. Adds the controls menu. | `scenes/main.gd` |
 | Fighter | One shared `CharacterBody2D`: walk, run, jump (K), facing. Its `Inventory` component holds the 4 slots (melee, firearm, throwable, power-up; the first three can hold something), picks spawned items up and drops items. | `scenes/fighter/fighter.gd`, `scenes/fighter/inventory.gd` |
 | Controllers | Fighters never read `Input`; a `FighterController` provides intent (move, run, aim, down, jump, attack, slot). `LocalController` reads `p1_*` actions and turns Shift or a double tap into the run intent. The base controller is idle (used in tests). | `scenes/fighter/controllers/` |
@@ -48,7 +48,7 @@ Risks for later content (from code): wake-up combo loops after knockdown; no spa
 
 - The user writes in Turkish; code, comments, docs and commits are in English.
 - Split each task into 4-5 atomic commits; push to `main` when done.
-- Record architectural decisions in the `system-design` MCP, design id `fable` (18 steps so far; the user reviews them there).
+- Record architectural decisions in the `system-design` MCP, design id `fable` (19 steps so far; the user reviews them there).
 - Verify gameplay changes visually: run the game non-headless with a capture script (`SceneTree` script that drives `Input.action_press` and saves `root.get_texture().get_image()`), then crop and zoom the PNG.
 - In tests, the fighter reads a press one physics frame later; wait 2 frames before checking. Nodes added in `_initialize` get `_ready` only after the first frame, so read `fighter.controller` after an await.
 - `test_case.gd` registers a `Logger`, so any engine or script error fails the suite. Run everything with `tests/run_all.sh` (fixed 60 fps, ~11 s). Tests that load `main.tscn` also get player 2 at the second spawn point, which can absorb bullets.
