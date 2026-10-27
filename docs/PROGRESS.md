@@ -4,7 +4,7 @@ Where development stands and what comes next. Update this at the end of every wo
 
 ## Status (2026-10-27, session 2)
 
-Branch `main` (movement package and combo breaker done this session), pushed to https://github.com/oplosy/fable. All 8 headless test suites pass. Placeholder art only (colored rectangles); no menus, maps, bots or networking yet.
+Branch `main` (movement package, combo breaker and per-class stats done this session), pushed to https://github.com/oplosy/fable. All 8 headless test suites pass. Placeholder art only (colored rectangles); no menus, maps, bots or networking yet.
 
 ## Built So Far
 
@@ -21,16 +21,15 @@ Branch `main` (movement package and combo breaker done this session), pushed to 
 | Knockdown | Combo finishers and the jump kick knock down for 1.25 s. Downed fighters cannot be hit (per-class `downed_invulnerable`), plus 0.4 s invulnerability after getting up. Knockdown drops the firearm into the arena. | `fighter.gd`, `scenes/weapons/dropped_weapon.gd` |
 | Jump kick | No punches in the air; attack while airborne is the class jump kick, once per jump, hitting forward at foot level. | `melee.gd`, `data/classes/*.tres` |
 | Combo breaker | While melee-stunned, attack + jump together ends the stun and pushes the attacker back (no damage, 0.3 s stun). 10 s cooldown; settings in `FighterClass`. Melee passes the attacker to `take_hit`. | `fighter.gd`, `local_controller.gd`, `fighter_class.gd` |
-| Movement | Walk/run speeds; walking jump straight up, running jump is a forward dive; S while running rolls (invulnerable). No air steering. Speeds are `Fighter` exports until per-class stats. | `fighter.gd`, `local_controller.gd` |
+| Movement | Walk/run speeds; walking jump straight up, running jump is a forward dive; S while running rolls (invulnerable). No air steering. Speeds and health come from `FighterClass`; Fast and Heavy differ. | `fighter.gd`, `local_controller.gd` |
 | Art pipeline | Aseprite CLI with Lua scripts; first sprite: pistol (9x5). | `art/weapons/pistol.aseprite` → `assets/weapons/pistol.png` |
 
 Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, all on the `test_case.gd` base (30 s watchdog). How to run them: see `CLAUDE.md` → Running Tests.
 
 ## Next Steps (in agreed order)
 
-1. **Per-class stats**: walk/run speed, dive and roll, jump height and health move into `FighterClass`.
-2. **Weapon pickups**: pick up dropped/spawned firearms (dropped weapons already exist in the arena but cannot be picked up).
-3. Then: sprites and animation states, player 2 key layout, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+1. **Weapon pickups**: pick up dropped/spawned firearms (dropped weapons already exist in the arena but cannot be picked up).
+2. Then: sprites and animation states, player 2 key layout, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
 Open questions for the user are listed in `GAME_DESIGN.md` (player 2 keys, aim kept on turn, firearm holstered in the air).
 

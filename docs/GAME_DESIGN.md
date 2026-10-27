@@ -50,10 +50,10 @@ Built:
 - Pressing down (S) while running rolls forward. S is free while running because the firearm is put away.
 
 Current movement rules (prototype, easy to change):
-- Walk 120 px/s, run 200 px/s. A double tap counts when the second press comes within 0.25 s of the first; the run lasts while that direction is held.
+- Speeds are per class (see Character Classes). A double tap counts when the second press comes within 0.25 s of the first; the run lasts while that direction is held.
 - No steering or turning in the air: every jump, dive and jump kick keeps its takeoff momentum.
-- The dive launches at 260 px/s forward, lower than a normal jump. No attacking during a dive; it ends on landing and the fighter slides to a stop. A hit cancels the dive.
-- The roll lasts 0.4 s at 220 px/s in the facing direction. The fighter cannot be hit, act or draw the firearm while rolling.
+- The dive launches forward (Fast 260, Heavy 220 px/s), lower than a normal jump. No attacking during a dive; it ends on landing and the fighter slides to a stop. A hit cancels the dive.
+- The roll lasts 0.4 s in the facing direction (Fast 235, Heavy 190 px/s). The fighter cannot be hit, act or draw the firearm while rolling.
 - Dive and roll poses are placeholders (head-first rectangle, squashed rectangle) until animations exist.
 
 ## Controls
@@ -68,7 +68,8 @@ Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack
 - Characters belong to classes that change how they fight; a character's look and its class are separate data.
 - Each class has its own melee combo, a fixed chain of attacks. After the last attack of the chain there is a pause before the fighter can attack again, so melee is never unlimited.
 - Examples: fast classes chain 4 punches; big classes chain punch, punch, kick.
-- Classes also differ in stats: run speed, jump height, health.
+- Classes also differ in stats: walk and run speed, jump height, dive and roll, health (built; all in `FighterClass`).
+  Prototype values (not yet tuned): Fast 90 health, walk 130, run 215 px/s, normal jump; Heavy 130 health, walk 100, run 170 px/s, lower jump and shorter dive and roll.
 
 Built:
 - **Knockdown**: a knocked-down fighter lies on the ground for 1-1.5 s (1.25 s by default, per class), then gets up.
@@ -97,12 +98,12 @@ Current melee rules (prototype, easy to change):
 
 ## Damage and Hit Reactions
 
-- Fighters have health (100 by default); weapons define damage and knockback.
+- Fighters have health (per class: Fast 90, Heavy 130); weapons define damage and knockback.
 - A hit flashes the fighter, pushes it along the hit direction and stuns it briefly (0.25 s): no moving, jumping, aiming or firing.
 - At zero health the fighter dies: the body stays on the map lying down, ignores input, and projectiles pass through it.
 - A fighter's own projectiles never hit it.
 
-Prototype values (not yet tuned or confirmed): 100 health, pistol 10 damage and 100 px/s knockback, 0.25 s stun.
+Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s knockback, 0.25 s stun.
 
 ## Players and Modes
 
