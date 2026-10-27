@@ -25,6 +25,12 @@ static func rng_of(node: Node) -> RandomNumberGenerator:
 	return node.rng if node else _fallback_rng
 
 
+func _ready() -> void:
+	# The camera only ever shrinks the 3x art (never past 1:1), so mipmaps keep it from
+	# dropping pixels and shimmering while zooming. At the art zoom it draws pixel for pixel.
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+
+
 func _physics_process(_delta: float) -> void:
 	for node: Node2D in get_tree().get_nodes_in_group(BOUNDED):
 		if not is_ancestor_of(node) or bounds.has_point(to_local(node.global_position)):

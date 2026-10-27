@@ -22,6 +22,12 @@ window/size/mode=3
 window/stretch/mode="viewport"
 window/stretch/scale_mode="integer"
 
+[importer_defaults]
+
+texture={
+"mipmaps/generate": true
+}
+
 [input]
 
 p1_left={
