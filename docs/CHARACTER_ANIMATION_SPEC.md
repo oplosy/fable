@@ -279,6 +279,12 @@ For every animation:
 - [ ] A preview PNG exists for every animation.
 - [ ] Nothing in `scenes/`, `data/`, `tests/` or `project.godot` was changed.
 
+### 3.6 Clips already made by Claude
+
+While the art AI was out of quota, Claude generated these clips into `assets/animations/` with `tools/make_animations.gd` (leg poses solved from foot targets): `idle`, `walk`, `run`, `jump_rise`, `fall`, `land`, `crouch_idle`, `crouch_walk`. A delivered clip of the same name replaces the generated one. Two rules learned while making them:
+- The rig has no ankle, so a foot turns with its shin. In standing and crouched poses keep the shins near their standing angle (lower the body by turning the thighs, knees forward) so feet stay flat.
+- The game squashes `coat_tail` and `coat_back` when their hem would go through the floor (crouching, landing), so coats may simply follow the thighs.
+
 ## 4. Order of Work and Hand-over
 
 1. Phase 1 for **character 01 only**. Stop and hand over for review (Claude builds the rig in the game with it).
