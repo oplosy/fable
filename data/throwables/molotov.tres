@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ThrowableData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/throwables/throwable_data.gd" id="1_data"]
+[ext_resource type="Texture2D" path="res://assets/throwables/molotov.png" id="2_texture"]
+[ext_resource type="PackedScene" path="res://scenes/throwables/fire_area.tscn" id="3_effect"]
+
+[resource]
+script = ExtResource("1_data")
+display_name = "Molotov"
+texture = ExtResource("2_texture")
+grip = Vector2(2, 5)
+spawn_weight = 2.0
+count = 2
+fuse_time = 0.0
+breaks_on_impact = true
+throw_speed = 300.0
+bounce = 0.0
+effect_scene = ExtResource("3_effect")

@@ -6,6 +6,8 @@ extends Node2D
 @export var characters: Array[CharacterData] = []
 ## Every fighter starts the match with this firearm.
 @export var starting_weapon: WeaponData
+## Every fighter starts the match with this throwable, as many as its `count`.
+@export var starting_throwable: ThrowableData
 ## Temporary until rounds exist: a dead player comes back at its spawn point.
 @export var respawn_time := 1.5
 
@@ -30,6 +32,8 @@ func _spawn_player(index: int) -> void:
 	var spawned := _spawn_fighter(characters[index], controller, index)
 	if starting_weapon:
 		spawned.equip_firearm(starting_weapon)
+	if starting_throwable:
+		spawned.equip_throwable(starting_throwable, starting_throwable.count)
 	spawned.health.died.connect(_on_player_died.bind(spawned, index))
 	players[index] = spawned
 

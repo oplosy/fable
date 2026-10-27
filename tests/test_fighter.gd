@@ -133,8 +133,10 @@ func run() -> void:
 
 	await _press("p1_slot_1")
 	check(fighter.active_slot == Fighter.Slot.MELEE and not fighter.firearm.visible, "key 1 selects melee and puts the firearm away")
+	await _press("p1_slot_4")
+	check(fighter.active_slot == Fighter.Slot.MELEE, "empty power-up slot cannot be selected")
 	await _press("p1_slot_3")
-	check(fighter.active_slot == Fighter.Slot.MELEE, "empty throwable slot cannot be selected")
+	check(fighter.active_slot == Fighter.Slot.THROWABLE, "key 3 selects the starting grenades")
 	await _press("p1_slot_2")
 	check(fighter.active_slot == Fighter.Slot.FIREARM and fighter.firearm.visible, "key 2 selects and draws the firearm")
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/arenas/test_arena.tscn" id="2_arena"]
@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="5_pistol"]
 [ext_resource type="Resource" path="res://data/characters/dummy.tres" id="6_dummy"]
 [ext_resource type="Script" path="res://scenes/fighter/character_data.gd" id="7_data"]
+[ext_resource type="Resource" path="res://data/throwables/grenade.tres" id="8_grenade"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
@@ -14,3 +15,4 @@ arena_scene = ExtResource("2_arena")
 fighter_scene = ExtResource("3_fighter")
 characters = Array[ExtResource("7_data")]([ExtResource("4_character"), ExtResource("6_dummy")])
 starting_weapon = ExtResource("5_pistol")
+starting_throwable = ExtResource("8_grenade")
