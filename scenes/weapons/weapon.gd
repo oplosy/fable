@@ -37,6 +37,7 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D, spread_scale := 
 		return false
 	_cooldown = data.fire_interval
 	ammo_left -= 1
+	var rng := Arena.rng_of(world)
 	var max_deviation := deg_to_rad(spread(spread_scale))
 	bloom = minf(bloom + data.spread_per_shot, data.max_bloom_degrees)
 	var muzzle := to_global(data.muzzle - data.grip)
@@ -45,7 +46,7 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D, spread_scale := 
 	if not wall.is_empty():
 		muzzle = wall.position
 	for i in data.pellets:
-		var shot := direction.rotated(randf_range(-max_deviation, max_deviation))
+		var shot := direction.rotated(rng.randf_range(-max_deviation, max_deviation))
 		var projectile: Projectile = data.projectile_scene.instantiate()
 		projectile.velocity = shot * data.projectile_speed
 		projectile.rotation = shot.angle()

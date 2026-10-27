@@ -2,17 +2,17 @@
 
 Where development stands and what comes next. Update this at the end of every working session. Gameplay rules live in [GAME_DESIGN.md](GAME_DESIGN.md); this file tracks what is built.
 
-## Status (2026-10-27, session 2)
+## Status (2026-10-27, session 3)
 
-Branch `main` (movement package, combo breaker, per-class stats, weapon pickups, key rebinding, review fixes, ammo, spread, crouching, shotgun, SMG, sniper, knife, bat, grenade and molotov done this session), pushed to https://github.com/oplosy/fable. All 14 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
+Branch `main`, pushed to https://github.com/oplosy/fable. Session 3 was a code audit and cleanup: stuns no longer cut each other short, per-weapon hit stun (SMG no longer stunlocks), no hit lands through walls, falling out of the arena kills, `Inventory` split out of `Fighter`, items renamed from "weapon" to "item", one `Fighter.state()` for animations, per-character body size, a seedable match rng, and a 12x faster test runner that fails on script errors. All 17 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
 
 ## Built So Far
 
 | Area | What works | Main files |
 |------|------------|------------|
 | Project setup | Godot 4.7.2, 640x360 viewport scaled x2 to 1280x720, integer scaling, nearest filter, pixel snap. Physics layers: 1 world, 2 fighters, 3 projectiles, 4 pickups. | `project.godot` |
-| Arena | Test arena: floor, side walls, `SpawnPoints` (P1, P2), `ItemSpawns` (one spawner with every built firearm and melee item), fixed `Camera2D`. | `scenes/arenas/test_arena.tscn` |
-| Main scene | Loads the arena, spawns local players from its `characters` list (P1 Fast on `p1_*`, P2 Heavy on `p2_*`), each with the pistol, and respawns a dead player after 1.5 s. Adds the controls menu. | `scenes/main.gd` |
+| Arena | Every arena root is an `Arena` (`scenes/arenas/arena.gd`): `bounds` (leaving them kills fighters and removes items) and the match `rng`. Test arena: floor, side walls, `SpawnPoints` (P1, P2), `ItemSpawns` (one spawner with every built firearm and melee item), fixed `Camera2D`. | `scenes/arenas/test_arena.tscn` |
+| Main scene | Loads the arena, spawns local players from its `characters` list (P1 Fast on `p1_*`, P2 Heavy on `p2_*`), each with the pistol and 3 grenades, and respawns a dead player after 1.5 s. Adds the controls menu. | `scenes/main.gd` |
 | Fighter | One shared `CharacterBody2D`: walk, run, jump (K), facing. Its `Inventory` component holds the 4 slots (melee, firearm, throwable, power-up; the first three can hold something), picks spawned items up and drops items. | `scenes/fighter/fighter.gd`, `scenes/fighter/inventory.gd` |
 | Controllers | Fighters never read `Input`; a `FighterController` provides intent (move, run, aim, down, jump, attack, slot). `LocalController` reads `p1_*` actions and turns Shift or a double tap into the run intent. The base controller is idle (used in tests). | `scenes/fighter/controllers/` |
 | Firearm | Drawn only when standing still on the floor in the firearm slot; A/D holster it. W/S rotate aim within the facing 180°. Attack fires along the aim, deviated within the weapon's spread (plus bloom on held fire, narrower when crouched). Limited ammo; the empty weapon drops itself. Pistol, shotgun (pellets, short range, point-blank knockdown), SMG (automatic, bloom), sniper (piercing). Projectiles are ray-traced each frame (no tunneling). | `scenes/weapons/`, `scenes/projectiles/projectile.gd`, `data/weapons/` |
@@ -26,9 +26,9 @@ Branch `main` (movement package, combo breaker, per-class stats, weapon pickups,
 | Weapon pickups | `ItemSpawner` points spawn pickable firearms and melee items every 10 s while empty, picked by each item's `spawn_weight`. Empty slot: walk over to take; full slot: S on the item swaps and drops the old one. Fighter-dropped weapons are never pickable and vanish after 5 s. | `scenes/weapons/item_spawner.gd`, `item_pickup.gd`, `fighter.gd` |
 | Throwables | Slot 3 holds a counted `ThrowableData` (grenade x3 at start, molotov x2 from spawns). `Thrower` runs pin, fuse and throw; `ThrownItem` flies and goes off by fuse or on impact; `Explosion` and `FireArea` hurt everyone in range, thrower included. | `scenes/fighter/thrower.gd`, `scenes/throwables/`, `data/throwables/` |
 | Controls | Default `p1_*` and `p2_*` actions (P2 on arrows, Right Shift, / and .). `KeyBindings` saves per-player rebinds to `user://keybindings.cfg` (swap on conflict); Esc opens `SettingsMenu`, which pauses the game. | `scenes/ui/`, `project.godot` |
-| Art pipeline | Aseprite CLI with Lua scripts; first sprite: pistol (9x5). | `art/weapons/pistol.aseprite` → `assets/weapons/pistol.png` |
+| Art pipeline | Aseprite CLI with Lua scripts for the placeholder item sprites (firearms, knife, bat, grenade, molotov). The user's 64x96 character designs are in `characters/` (not yet in the game). | `art/` → `assets/` |
 
-Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, `test_firearm`, `test_weapons`, `test_melee_items`, `test_throwables`, all on the `test_case.gd` base (30 s watchdog). How to run them: see `CLAUDE.md` → Running Tests.
+Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, `test_firearm`, `test_weapons`, `test_melee_items`, `test_throwables`, `test_walls`, `test_bounds`, `test_state`, all on the `test_case.gd` base (30 s watchdog, fails on any script error). How to run them: see `CLAUDE.md` → Running Tests.
 
 ## Next Steps
 

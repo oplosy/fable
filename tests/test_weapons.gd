@@ -93,6 +93,16 @@ func _test_weighted_spawn() -> void:
 	check(picks.keys() == [SMG], "a weapon with no spawn weight never spawns")
 	spawner.free()
 
+	var arena_spawner: ItemSpawner = arena.get_node("ItemSpawns/W1")
+	var runs: Array = []
+	for run_index in 2:
+		arena.rng.seed = 7
+		var sequence: Array[ItemData] = []
+		for i in 20:
+			sequence.append(arena_spawner._pick_weighted())
+		runs.append(sequence)
+	check(runs[0] == runs[1] and runs[0].size() == 20, "seeding the arena rng repeats the same spawn picks")
+
 
 func _fire(shooter: Fighter) -> void:
 	shooter.controller.attack = true

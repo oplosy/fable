@@ -21,7 +21,7 @@ func _pick_weighted() -> ItemData:
 	var weights := PackedFloat32Array()
 	for item in items:
 		weights.append(item.spawn_weight)
-	var index := RandomNumberGenerator.new().rand_weighted(weights)
+	var index := Arena.rng_of(self).rand_weighted(weights)
 	# rand_weighted returns -1 when every weight is zero.
 	return items[maxi(index, 0)]
 
