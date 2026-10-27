@@ -14,7 +14,7 @@ func run() -> void:
 	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 	var fighter: Fighter = load("res://scenes/fighter/fighter.tscn").instantiate()
-	fighter.character = load("res://data/characters/trenchcoat_agent.tres")
+	fighter.character = load("res://data/characters/street_brawler.tres")
 	arena.add_child(fighter)
 	fighter.global_position = Vector2(200, 328)
 	await physics_frames(1)

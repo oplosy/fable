@@ -1,12 +1,12 @@
 extends SceneTree
 
 ## Writes the keyframe clips in assets/animations/ (format: docs/CHARACTER_ANIMATION_SPEC.md,
-## section 3.1) from the trench coat agent's rig. Poses name where the feet go; the legs
+## section 3.1) from the street brawler's rig, the reference every character is drawn to. Poses name where the feet go; the legs
 ## are solved to reach them (two-bone IK) and grounded so the lowest sole pixel sits on
 ## the floor. Planted feet move back at exactly the clip's reference speed, so they never
 ## slide. Run: <godot> --headless --path . -s res://tools/make_animations.gd
 
-const RIG_DIR := "res://assets/characters/trenchcoat_agent"
+const RIG_DIR := "res://assets/characters/street_brawler"
 const OUT_DIR := "res://assets/animations"
 ## Floor line in art px: the bottom edge of sole row 92.
 const FLOOR := 93.0
@@ -14,25 +14,27 @@ const FLOOR := 93.0
 const CYCLE_KEYS := 12
 ## Lying down, the hips drop until the turned body rests on the floor; the pelvis pivot
 ## is off the body's middle, so face up and face down differ.
-const LYING_DROP := {"back": 28.0, "front": 34.0}
+const LYING_DROP := {"back": 25.0, "front": 20.0}
 const PLANTED := {"front": "planted", "back": "planted"}
 ## Degrees a coat may turn against the hips to keep hanging straight down.
 const COAT_HANG_LIMIT := 30.0
 ## The deep squat the crouch copies: CMU subject 69 squatting to pick something up.
 const SQUAT_CAPTURE := "res://art/mocap/69_70.bvh"
 const SQUAT_FRAME := 360
+## Least forward lean (degrees) of the crouch.
+const CROUCH_HUNCH := 45.0
 ## Furthest a knee bends (degrees from straight); deeper squats lift the hips.
 const KNEE_LIMIT := 150.0
 ## Extra art px a swinging foot is lifted at twice the body's speed (and faster).
 const SWING_LIFT := 3.0
 const Mocap = preload("res://tools/mocap.gd")
-## Mocap side -> rig side. Facing right in the 3/4 view, the body's right side is the near one.
+## Mocap side -> rig side. Facing right, the body's right side is the near one.
 const MOCAP_SIDES := {"front": "Right", "back": "Left"}
 
 var _pivots := {}
 var _points := {}
 var _head_top := Vector2.ZERO
-## "front"/"back" -> {hip, knee, ankle, sole, l1, l2, a1, a2}
+## "front"/"back" -> {hip, knee, ankle, sole, l1, l2, a1, a2, foot}
 var _legs := {}
 
 
@@ -110,6 +112,14 @@ func _mocap_cycle(path: String, name: String, body := {}) -> Dictionary:
 			for f in range(start, end):
 				floors[joint] = minf(floors[joint], -frames[f][joint].y + drift * float(f - start) / (end - start))
 	var scale: float = (_legs.front.l1 + _legs.front.l2) / _mocap_leg(bvh)
+	# A foot lies flat where it is lowest; its pitch is measured from there.
+	var flat := {}
+	for side: String in MOCAP_SIDES.values():
+		var lowest := start
+		for f in range(start, end):
+			if -frames[f][side + "Foot"].y - frames[f][side + "ToeBase"].y < -frames[lowest][side + "Foot"].y - frames[lowest][side + "ToeBase"].y:
+				lowest = f
+		flat[side] = frames[lowest]
 	var length: float = (end - start) * bvh.frame_time
 	var speed: float = (frames[end].Hips.x - frames[start].Hips.x) * scale / 3.0 / length
 	var poses := []
@@ -117,10 +127,9 @@ func _mocap_cycle(path: String, name: String, body := {}) -> Dictionary:
 		var p := float(i) / CYCLE_KEYS
 		var at: Dictionary = frames[start + roundi(p * (end - start))]
 		var height := func(joint: String) -> float: return -at[joint].y + drift * p
-		var pose := {"arms": {}, "feet": {}}
+		var pose := {"arms": {}, "feet": {}, "pitch": {}}
 		for side: String in MOCAP_SIDES:
 			var m: String = MOCAP_SIDES[side]
-			var leg: Dictionary = _legs[side]
 			var lift := minf(height.call(m + "Foot") - floors[m + "Foot"], height.call(m + "ToeBase") - floors[m + "ToeBase"])
 			# A real toe clears the floor by a pixel, which reads as shuffling at this size:
 			# a swinging foot lifts more the faster it goes.
@@ -129,6 +138,7 @@ func _mocap_cycle(path: String, name: String, body := {}) -> Dictionary:
 			lift += SWING_LIFT / scale * clampf(foot_speed / (2.0 * speed * 3.0 / scale), 0.0, 1.0)
 			# Seen from the side, the ankles swing about points right under the hips.
 			pose.feet[side] = Vector2((at[m + "Foot"].x - at[m + "UpLeg"].x) * scale, -maxf(0.0, lift) * scale)
+			pose.pitch[side] = _mocap_pitch(flat[m], at, m)
 			pose.arms[side] = _mocap_arm(side, at[m + "Arm"], at[m + "ForeArm"], at[m + "Hand"])
 		# Hip joints' height over the floor, against the rig's standing hip height.
 		var hip_height: float = (height.call("RightUpLeg") + height.call("LeftUpLeg")) / 2.0 - floors.RightFoot
@@ -137,7 +147,7 @@ func _mocap_cycle(path: String, name: String, body := {}) -> Dictionary:
 	if body:
 		var mean_root: float = poses.reduce(func(sum: float, pose: Dictionary) -> float: return sum + pose.root.y, 0.0) / poses.size()
 		for pose: Dictionary in poses:
-			pose.root.y += body.root.y - mean_root
+			pose.root.y = _fit_hips(pose, pose.root.y + body.root.y - mean_root)
 			pose.torso = body.torso
 			pose.head = body.head
 			pose.erase("arms")
@@ -165,10 +175,12 @@ func _mocap_still(path: String, frame: int) -> Dictionary:
 	var floor_y := -INF
 	for side: String in MOCAP_SIDES.values():
 		floor_y = maxf(floor_y, maxf(at[side + "Foot"].y, at[side + "ToeBase"].y))
-	var pose := {"arms": {}, "feet": {}}
+	var standing_at := Mocap.side_view(standing, Vector3.UP.cross(Vector3(right.x, 0.0, right.z)).normalized())
+	var pose := {"arms": {}, "feet": {}, "pitch": {}}
 	for side: String in MOCAP_SIDES:
 		var m: String = MOCAP_SIDES[side]
 		pose.feet[side] = Vector2((at[m + "Foot"].x - at[m + "UpLeg"].x) * scale, 0.0)
+		pose.pitch[side] = _mocap_pitch(standing_at, at, m)
 		pose.arms[side] = _mocap_arm(side, at[m + "Arm"], at[m + "ForeArm"], at[m + "Hand"])
 	_mocap_body(pose, at, (floor_y - (at.RightUpLeg.y + at.LeftUpLeg.y) / 2.0 - ankle_height) * scale)
 	return pose
@@ -176,27 +188,51 @@ func _mocap_still(path: String, frame: int) -> Dictionary:
 
 ## Sets a captured pose's hips (from their height over the ankles, in art px), lean and head.
 func _mocap_body(pose: Dictionary, at: Dictionary, hip_height: float) -> void:
-	var root_y: float = _legs.front.ankle.y - _legs.front.hip.y - hip_height
+	pose.root = Vector2(0.0, _fit_hips(pose, _legs.front.ankle.y - _legs.front.hip.y - hip_height))
+	var spine: Vector2 = at.Neck - at.Hips
+	pose.torso = rad_to_deg(atan2(spine.x, -spine.y))
+	# The head stays level, looking ahead.
+	pose.head = -pose.torso
+
+
+## Degrees a captured foot (ankle to toes) has turned from lying flat in `flat`;
+## positive tips the toes down and lifts the heel.
+func _mocap_pitch(flat: Dictionary, at: Dictionary, side: String) -> float:
+	var rest: Vector2 = flat[side + "ToeBase"] - flat[side + "Foot"]
+	var now: Vector2 = at[side + "ToeBase"] - at[side + "Foot"]
+	return rad_to_deg(angle_difference(rest.angle(), now.angle()))
+
+
+## The hips' drop `root_y` moved as little as needed for the rig's legs to reach the
+## pose's feet without folding past KNEE_LIMIT.
+func _fit_hips(pose: Dictionary, root_y: float) -> float:
 	# The rig's legs are not the capture's: where a leg cannot reach its ankle, the
 	# hips come down until it does, straight-kneed like a real stance leg.
 	for side: String in MOCAP_SIDES:
 		var leg: Dictionary = _legs[side]
-		var to: Vector2 = Vector2(pose.feet[side].x, leg.ankle.y + pose.feet[side].y - leg.hip.y)
+		var to: Vector2 = Vector2(pose.feet[side].x, _ankle_y(leg, pose.feet[side].y, pose.pitch[side]) - leg.hip.y)
 		var longest: float = leg.l1 + leg.l2 - 0.5
 		if absf(to.x) < longest:
 			root_y = maxf(root_y, to.y - sqrt(longest * longest - to.x * to.x))
 	# Nor can they fold as far: the hips stop where a knee would bend past KNEE_LIMIT.
 	for side: String in MOCAP_SIDES:
 		var leg: Dictionary = _legs[side]
-		var to: Vector2 = Vector2(pose.feet[side].x, leg.ankle.y + pose.feet[side].y - leg.hip.y)
+		var to: Vector2 = Vector2(pose.feet[side].x, _ankle_y(leg, pose.feet[side].y, pose.pitch[side]) - leg.hip.y)
 		var shortest: float = sqrt(leg.l1 * leg.l1 + leg.l2 * leg.l2 + 2.0 * leg.l1 * leg.l2 * cos(deg_to_rad(KNEE_LIMIT)))
 		if absf(to.x) < shortest:
 			root_y = minf(root_y, to.y - sqrt(shortest * shortest - to.x * to.x))
-	pose.root = Vector2(0.0, root_y)
-	var spine: Vector2 = at.Neck - at.Hips
-	pose.torso = rad_to_deg(atan2(spine.x, -spine.y))
-	# The head stays level, looking ahead.
-	pose.head = -pose.torso
+	return root_y
+
+
+## Canvas y of a grounded ankle whose lowest sole pixel is `height` (<= 0) off the floor,
+## its foot turned `pitch` degrees; without a foot, at its standing height.
+func _ankle_y(leg: Dictionary, height: float, pitch: float) -> float:
+	if not leg.foot:
+		return leg.ankle.y + height
+	var low := -INF
+	for point: Vector2 in leg.sole:
+		low = maxf(low, (point - leg.ankle).rotated(deg_to_rad(pitch)).y)
+	return FLOOR - low + height
 
 
 ## Hip-to-ankle length of the capture's leg, in BVH units.
@@ -220,7 +256,8 @@ func _mocap_arm(side: String, shoulder: Vector2, elbow: Vector2, hand: Vector2) 
 ## Leaning forward, longer strides with both feet off the floor between steps, arms pumping.
 func _run() -> Dictionary:
 	var speed := 200.0
-	var stride := 36.0
+	# A stride as long as the leg, the swinging foot lifted a third of it.
+	var stride: float = _legs.front.l1 + _legs.front.l2
 	var stance := 0.35
 	var length := stride / (speed * 3.0 * stance)
 	var keys := []
@@ -233,8 +270,8 @@ func _run() -> Dictionary:
 			"arm_front_upper": 45 * cos(TAU * p), "arm_front_lower": -85,
 			"arm_back_upper": -45 * cos(TAU * p), "arm_back_lower": -85,
 			"feet": {
-				"front": _cycle_foot("front", p, stride, stance, 12.0),
-				"back": _cycle_foot("back", p + 0.5, stride, stance, 12.0),
+				"front": _cycle_foot("front", p, stride, stance, stride / 3.0),
+				"back": _cycle_foot("back", p + 0.5, stride, stance, stride / 3.0),
 			},
 		}))
 	return {"name": "run", "loop": true, "length": snappedf(length, 0.001), "reference_speed": speed,
@@ -293,6 +330,10 @@ func _crouch_idle() -> Dictionary:
 func _squat() -> Dictionary:
 	var pose := _mocap_still(SQUAT_CAPTURE, SQUAT_FRAME)
 	pose.erase("arms")
+	# A big head on short legs stays high in a squat; hunching over the knees brings it
+	# down to the crouch hitbox, the head tipped halfway back to look ahead.
+	pose.torso = maxf(pose.torso, CROUCH_HUNCH)
+	pose.head = -pose.torso / 2.0
 	pose.arm_front_upper = -45
 	pose.arm_front_lower = -70
 	pose.arm_back_upper = -40
@@ -458,7 +499,7 @@ func _lying(side: String, breath: float) -> Dictionary:
 	var sign := -1.0 if side == "back" else 1.0
 	# Face up, the near arm would sink into the floor; it rests across the belly instead.
 	var front_arm := Vector2(-130, -63) if side == "back" else Vector2(105, 120)
-	return {"root": Vector2(0, LYING_DROP[side]), "pelvis": sign * 90, "torso": -sign * breath, "head": -15.0 if side == "back" else 5.0,
+	return {"root": Vector2(0, LYING_DROP[side]), "pelvis": sign * 90, "torso": -sign * breath, "head": 20.0 if side == "back" else 5.0,
 		"arms": {"front": front_arm, "back": Vector2(sign * 90 - 15, sign * 90 - 5)},
 		"feet": {"front": "rest", "back": "rest"}}
 
@@ -506,7 +547,7 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 	var pelvis := deg_to_rad(pose.get("pelvis", 0.0))
 	var angles := {}
 	for part: String in pose:
-		if part not in ["root", "feet", "arms"]:
+		if part not in ["root", "feet", "arms", "pitch"]:
 			angles[part] = snappedf(pose[part], 0.1)
 	# Arms are posed in world turns (from hanging down), whatever the torso does.
 	var torso_turn: float = pose.get("pelvis", 0.0) + pose.get("torso", 0.0)
@@ -520,22 +561,28 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 		var leg: Dictionary = _legs[side]
 		var hip: Vector2 = _pivots.pelvis + root + (leg.hip - _pivots.pelvis).rotated(pelvis)
 		var target: Variant = pose.feet[side]
+		var pitch := deg_to_rad(pose.get("pitch", {}).get(side, 0.0))
 		var solved: Vector2
 		if target is Vector2:
-			solved = _solve_leg(leg, hip, target.x, target.y, pelvis)
+			solved = _solve_leg(leg, hip, target.x, target.y, pelvis, pitch)
 		elif target is Dictionary:
 			# A free foot: the ankle goes to this canvas point.
 			var turns := _ik(leg, hip, target.at)
 			solved = Vector2(rad_to_deg(turns.x - pelvis), rad_to_deg(turns.y - turns.x))
 		elif target == "planted":
 			# Stays where it stands while the body moves over it.
-			solved = _solve_leg(leg, hip, leg.ankle.x - hip.x, 0.0, pelvis)
+			solved = _solve_leg(leg, hip, leg.ankle.x - hip.x, 0.0, pelvis, pitch)
 		elif target == "rest":
 			solved = Vector2.ZERO
 		else:
 			solved = _flat_leg(leg, hip, pelvis)
 		angles["leg_%s_upper" % side] = snappedf(solved.x, 0.1)
 		angles["leg_%s_lower" % side] = snappedf(solved.y, 0.1)
+		# A foot on the floor lies at its pitch whatever the leg does; in the air it
+		# turns with the shin. Rigs without feet ignore the angle.
+		var grounded: bool = target is Vector2 and target.y > -500.0 or target is String and target != "rest"
+		var shin := pelvis + deg_to_rad(solved.x + solved.y)
+		angles["foot_" + side] = snappedf(rad_to_deg(wrapf(pitch - shin, -PI, PI)), 0.1) if grounded else 0.0
 	# Coats hang straight down whatever the hips do, as far as the body lets them. The game
 	# bends them over the legs, sways them after the body and keeps them off the floor.
 	var hang := snappedf(clampf(-rad_to_deg(pelvis), -COAT_HANG_LIMIT, COAT_HANG_LIMIT), 0.1)
@@ -548,7 +595,8 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 ## Leg joint rotations (degrees, upper relative to the pelvis) that put the ankle `dx`
 ## from the hip. `height` <= 0 is how far the lowest sole pixel is lifted off the floor;
 ## below -1000 the ankle is placed `height + 1000` above its standing height instead.
-func _solve_leg(leg: Dictionary, hip: Vector2, dx: float, height: float, pelvis: float) -> Vector2:
+## `pitch` (radians) is the foot's turn from lying flat, for rigs with feet.
+func _solve_leg(leg: Dictionary, hip: Vector2, dx: float, height: float, pelvis: float, pitch := 0.0) -> Vector2:
 	var free := height < -500.0
 	var ankle := Vector2(hip.x + dx, leg.ankle.y + (height + 1000.0 if free else height))
 	var turns := Vector2.ZERO
@@ -556,10 +604,12 @@ func _solve_leg(leg: Dictionary, hip: Vector2, dx: float, height: float, pelvis:
 		turns = _ik(leg, hip, ankle)
 		if free:
 			break
-		# Ground the foot: the lowest sole pixel, turned with the shin, touches the floor.
+		# Ground the foot: the lowest sole pixel, turned with the foot (or the shin, which
+		# carries the sole on rigs without feet), touches the floor.
+		var tilt: float = pitch if leg.foot else turns.y
 		var low := -INF
 		for point: Vector2 in leg.sole:
-			low = maxf(low, (point - leg.ankle).rotated(turns.y).y)
+			low = maxf(low, (point - leg.ankle).rotated(tilt).y)
 		ankle.y = FLOOR - low + height
 	# Turns between -180 and 180, so keys never spin the long way round.
 	return Vector2(rad_to_deg(wrapf(turns.x - pelvis, -PI, PI)), rad_to_deg(wrapf(turns.y - turns.x, -PI, PI)))
@@ -664,7 +714,9 @@ func _ik(leg: Dictionary, hip: Vector2, ankle: Vector2) -> Vector2:
 func _measure_leg(side: String) -> Dictionary:
 	var hip: Vector2 = _pivots["leg_%s_upper" % side]
 	var knee: Vector2 = _pivots["leg_%s_lower" % side]
-	var image := Image.load_from_file(ProjectSettings.globalize_path("%s/leg_%s_lower.png" % [RIG_DIR, side]))
+	# A separate foot carries the sole; without one, the lower leg does.
+	var foot := _pivots.has("foot_" + side)
+	var image := Image.load_from_file(ProjectSettings.globalize_path("%s/%s.png" % [RIG_DIR, ("foot_%s" if foot else "leg_%s_lower") % side]))
 	var sole := []
 	var sum := 0.0
 	for y in range(int(FLOOR) - 3, int(FLOOR)):
@@ -672,9 +724,9 @@ func _measure_leg(side: String) -> Dictionary:
 			if image.get_pixel(x, y).a > 0.5:
 				sole.append(Vector2(x, y + 1))
 				sum += x + 0.5
-	# The ankle sits above the middle of the sole, 6 px over the floor.
-	var ankle := Vector2(sum / sole.size(), FLOOR - 6.0)
-	return {"hip": hip, "knee": knee, "ankle": ankle, "sole": sole,
+	# Without a foot, the ankle sits above the middle of the sole, 6 px over the floor.
+	var ankle: Vector2 = _pivots["foot_" + side] if foot else Vector2(sum / sole.size(), FLOOR - 6.0)
+	return {"hip": hip, "knee": knee, "ankle": ankle, "sole": sole, "foot": foot,
 		"l1": hip.distance_to(knee), "l2": knee.distance_to(ankle),
 		"a1": (knee - hip).angle(), "a2": (ankle - knee).angle()}
 

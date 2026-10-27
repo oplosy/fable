@@ -15,7 +15,7 @@ const SLIP := 1.5
 
 func run() -> void:
 	var fighter: Fighter = load("res://scenes/fighter/fighter.tscn").instantiate()
-	fighter.character = load("res://data/characters/trenchcoat_agent.tres")
+	fighter.character = load("res://data/characters/street_brawler.tres")
 	root.add_child(fighter)
 	fighter.set_physics_process(false)
 	await physics_frames(1)
@@ -24,7 +24,7 @@ func run() -> void:
 	var rig: CharacterRig = fighter.get_node("Visuals/Rig")
 	var soles := {}
 	for side in ["front", "back"]:
-		soles[side] = _sole(rig.joints["leg_%s_lower" % side].get_child(0))
+		soles[side] = _sole(rig.joints["foot_%s" % side].get_child(0))
 	for clip: String in CLIPS:
 		animator.play(clip)
 		var length := animator.current_animation_length
@@ -40,8 +40,8 @@ func run() -> void:
 				var knee := _at(rig, "leg_%s_lower" % side, Vector2.ZERO)
 				var sole := []
 				for point: Vector2 in soles[side]:
-					sole.append(_at(rig, "leg_%s_lower" % side, point))
-				var ankle := _mean(sole)
+					sole.append(_at(rig, "foot_%s" % side, point))
+				var ankle := _at(rig, "foot_%s" % side, Vector2.ZERO)
 				var lowest: float = sole.reduce(func(low: float, p: Vector2) -> float: return maxf(low, p.y), -INF)
 				var thigh := ankle - hip
 				# Facing right, the knee sits on the forward side of the hip-ankle line.
@@ -81,7 +81,7 @@ func _at(rig: CharacterRig, part: String, point: Vector2) -> Vector2:
 	return rig.to_local(sprite.to_global(point + sprite.offset))
 
 
-## Canvas points along the bottom of a lower leg's sole: its lowest three opaque rows.
+## Canvas points along the bottom of a foot's sole: its lowest three opaque rows.
 func _sole(sprite: Sprite2D) -> Array:
 	var image := sprite.texture.get_image()
 	var bottom := image.get_used_rect().end.y
@@ -92,9 +92,3 @@ func _sole(sprite: Sprite2D) -> Array:
 				points.append(Vector2(x + 0.5, y + 1.0))
 	return points
 
-
-func _mean(points: Array) -> Vector2:
-	var sum := Vector2.ZERO
-	for point: Vector2 in points:
-		sum += point
-	return sum / points.size()

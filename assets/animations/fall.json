@@ -16,10 +16,12 @@
 				"arm_front_lower": -20.0,
 				"arm_back_upper": 70.0,
 				"arm_back_lower": -25.0,
-				"leg_front_upper": -40.2,
-				"leg_front_lower": 73.0,
-				"leg_back_upper": -26.1,
-				"leg_back_lower": 69.4,
+				"leg_front_upper": -43.6,
+				"leg_front_lower": 65.6,
+				"foot_front": 0.0,
+				"leg_back_upper": -11.7,
+				"leg_back_lower": 46.1,
+				"foot_back": 0.0,
 				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
@@ -37,10 +39,12 @@
 				"arm_front_lower": -10.0,
 				"arm_back_upper": 80.0,
 				"arm_back_lower": -25.0,
-				"leg_front_upper": -35.8,
-				"leg_front_lower": 61.3,
-				"leg_back_upper": -32.0,
-				"leg_back_lower": 82.4,
+				"leg_front_upper": -35.9,
+				"leg_front_lower": 49.8,
+				"foot_front": 0.0,
+				"leg_back_upper": -17.8,
+				"leg_back_lower": 63.1,
+				"foot_back": 0.0,
 				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}

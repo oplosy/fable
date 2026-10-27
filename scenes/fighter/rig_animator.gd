@@ -9,7 +9,7 @@ const CLIPS_DIR := "res://assets/animations"
 ## Hip-to-floor length (art px) of the rig the clips were made on. A rig's body offsets
 ## and movement speeds scale by its own leg length against it, so feet stay planted on
 ## short and tall characters alike.
-const REFERENCE_LEG_LENGTH := 40.0
+const REFERENCE_LEG_LENGTH := 32.0
 ## Seconds two clips cross-fade when the clip changes.
 const BLEND := 0.1
 ## Seconds to cross-fade into an attack, a flinch or a fall, short so the hit pose lands on time.
