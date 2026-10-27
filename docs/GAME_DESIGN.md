@@ -41,7 +41,7 @@ Example: the fighter walks, stops, the firearm appears in hand and attack fires 
 - With the firearm slot active, attack in the air does nothing: no shot and no jump kick (user decision). The jump kick needs the melee slot.
 
 Ammo (built):
-- Every firearm has limited ammo, the starting pistol included (amounts in Content List). Only the pistol exists so far (12 shots).
+- Every firearm has limited ammo, the starting pistol included (amounts in Content List). Built so far: pistol 12, shotgun 6, SMG 30, sniper rifle 3.
 - An empty firearm is dropped automatically (it cannot be picked up) and the fighter falls back to bare hands.
 - There are no ammo pickups (user decision); a weapon has only the ammo it came with.
 
@@ -51,6 +51,18 @@ Spread, bullet speed and crouching (built):
 - Holding the trigger on automatic weapons widens the spread shot by shot; it narrows again when firing stops.
 - Crouching narrows the spread (like crouching in Counter-Strike). Crouch has its own key (not S, which keeps aiming down): the fighter can walk slowly while crouched, and the body gets lower so level shots from a standing shooter pass over it. Walking while crouched still puts the firearm away, so crouched firing means crouching still.
 - Prototype values: pistol 2° spread, 600 px/s bullets, no bloom. Crouching multiplies the spread by 0.4, lowers the body from 28 to 14 px (the hand moves down with it) and walks at 50 px/s. Each weapon sets `spread_degrees`, `spread_per_shot`, `max_bloom_degrees`, `bloom_recovery` and `projectile_speed` in its `WeaponData`.
+
+Built firearm values (prototype, easy to change):
+
+| Weapon | Ammo | Damage | Fire interval | Bullet speed | Spread | Other |
+|---|---|---|---|---|---|---|
+| Pistol | 12 | 10 | 0.3 s | 600 px/s | 2° | |
+| Shotgun | 6 | 8 per pellet | 0.8 s | 700 px/s | 12° | 5 pellets, 180 px range, knocks down within 40 px of the muzzle |
+| SMG | 30 | 5 | 0.08 s, automatic | 450 px/s | 4° + 1° per shot, up to +6° | |
+| Sniper rifle | 3 | 80 | 1.2 s | 1500 px/s | 0° | Passes through 2 fighters and stops in the third |
+
+- Bullets trace a ray along their path every frame, so even the sniper bullet never skips through a fighter or a thin wall.
+- A point-blank shotgun blast lands every pellet before the knockdown makes the target invulnerable.
 
 Current defaults (not yet confirmed by the user, easy to change):
 - The aim angle is kept when turning around (mirrored into the new facing half).
@@ -87,7 +99,8 @@ Built:
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
 - Fighters start the match with a pistol (user decision) and 3 grenades (decided, not built yet).
-- Decided, not built yet: melee items and throwables also come only from spawn points (and the starting loadout). Spawn points pick weighted at random: strong weapons (bazooka, sniper) are rare, common ones (pistol, SMG) frequent.
+- Spawn points pick weighted at random by each weapon's `spawn_weight` (built): pistol and SMG 3, shotgun 2, sniper rifle 1.
+- Decided, not built yet: melee items and throwables also come only from spawn points (and the starting loadout).
 - A fighter that dies drops its firearm too, like a knocked-down one. Like every fighter-dropped weapon, it cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
@@ -201,7 +214,7 @@ Rules for throwables and explosions:
 - Explosions and fire hurt the thrower too; position and timing matter. A molotov thrown at your own feet burns you. A grenade's fuse starts when the pin is pulled, so holding it too long makes it explode in your hand.
 - Grenade controls: holding the attack key pulls the pin and starts the fuse; releasing it throws. Held past the fuse time, it explodes in the hand.
 
-Build order is open; the suggested first batch covers every core mechanic: shotgun, SMG, sniper rifle; knife, baseball bat; grenade, molotov.
+Build order is open; shotgun, SMG and sniper rifle are built. Suggested next: knife, baseball bat; grenade, molotov.
 
 ## Current Prototype Deviations
 
