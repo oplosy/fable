@@ -21,6 +21,9 @@ extends Resource
 @export var melee_combo: Array[MeleeAttack] = []
 ## Pause after the full combo before the next attack; a combo cut short pauses proportionally less.
 @export var combo_cooldown := 0.6
+## Seconds a target stunned by a cut-short combo is guaranteed to be free before the
+## attacker's next combo can hit, so single-attack spam cannot stunlock.
+@export var combo_escape_time := 0.2
 ## Jump kick, once per jump. There are no air punches.
 @export var air_attack: MeleeAttack
 

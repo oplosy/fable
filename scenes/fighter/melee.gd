@@ -93,8 +93,16 @@ func physics_update(delta: float) -> void:
 		_start(_index + 1)
 	else:
 		# A longer chain earns a longer pause, so cutting combos short cannot be spammed.
-		_cooldown = fighter_class.combo_cooldown * float(_index + 1) / fighter_class.melee_combo.size()
+		var scaled := fighter_class.combo_cooldown * float(_index + 1) / fighter_class.melee_combo.size()
+		_cooldown = maxf(scaled, _escape_pause(attack))
 		_index = -1
+
+
+## Shortest pause after `last` that leaves its target free for combo_escape_time before
+## the next combo can hit, assuming the latest possible hit (end of the active time).
+func _escape_pause(last: MeleeAttack) -> float:
+	var stun_left_at_end := last.stun_time - last.recovery
+	return stun_left_at_end - fighter_class.melee_combo[0].windup + fighter_class.combo_escape_time
 
 
 func _start(index: int) -> void:
@@ -117,4 +125,11 @@ func _apply_hits(attack: MeleeAttack) -> void:
 		if body in _already_hit or not body.has_method("take_hit"):
 			continue
 		_already_hit.append(body)
-		body.take_hit(attack.damage, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), attack.stun_time, attack.knocks_down, fighter)
+		# Landed after every fighter's physics step, so two attacks connecting on the same
+		# frame both land instead of the first-processed fighter cancelling the other.
+		_land_hit.call_deferred(body, attack, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y))
+
+
+func _land_hit(body: Node, attack: MeleeAttack, knockback: Vector2) -> void:
+	if is_instance_valid(body) and is_instance_valid(fighter):
+		body.take_hit(attack.damage, knockback, attack.stun_time, attack.knocks_down, fighter)

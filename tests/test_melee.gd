@@ -30,7 +30,7 @@ func run() -> void:
 	check(not fast.melee.is_attacking() and fast.melee.is_cooling_down(), "a short chain ends with a short pause")
 	await _press_attack(fast)
 	check(not fast.melee.is_attacking(), "attack is ignored during the pause")
-	await physics_frames(15)
+	await physics_frames(30)
 	check(not fast.melee.is_cooling_down(), "short pause wears off")
 
 	# Full combo, then the long pause.
@@ -97,6 +97,51 @@ func run() -> void:
 	await _press_attack(fast)
 	await physics_frames(15)
 	check(hits_on_heavy.is_empty(), "melee passes over dead bodies")
+
+	await _test_trade()
+	await _test_jab_spam()
+
+
+## Two attacks landing on the same frame both hit, whichever fighter is processed first.
+func _test_trade() -> void:
+	var first := _spawn(FAST, Vector2(400, 328))
+	var second := _spawn(FAST, Vector2(414, 328))
+	await physics_frames(5)
+	second.facing = -1
+	second.get_node("Visuals").scale.x = -1
+	first.controller.attack = true
+	second.controller.attack = true
+	await physics_frames(1)
+	first.controller.attack = false
+	second.controller.attack = false
+	await physics_frames(10)
+	check(first.health.current < first.health.max_health and second.health.current < second.health.max_health, "simultaneous punches trade")
+	first.queue_free()
+	second.queue_free()
+	await physics_frames(5)
+
+
+## Spamming single jabs leaves the target at least combo_escape_time to act between them.
+func _test_jab_spam() -> void:
+	var attacker := _spawn(FAST, Vector2(500, 328))
+	var target := _spawn(HEAVY, Vector2(514, 328))
+	await physics_frames(5)
+	var hit_once := false
+	var free_run := 0
+	var shortest_window := 999
+	for i in 240:
+		attacker.controller.attack = not attacker.melee.is_attacking() and not attacker.melee.is_cooling_down()
+		await physics_frames(1)
+		if target.can_act():
+			free_run += 1
+		else:
+			if hit_once and free_run > 0:
+				shortest_window = mini(shortest_window, free_run)
+			hit_once = true
+			free_run = 0
+	attacker.controller.attack = false
+	var needed := int(FAST.fighter_class.combo_escape_time * 60) - 1
+	check(shortest_window != 999 and shortest_window >= needed, "single-jab spam leaves at least the escape time free (%d frames)" % shortest_window)
 
 
 func _spawn(data: CharacterData, at: Vector2) -> Fighter:
