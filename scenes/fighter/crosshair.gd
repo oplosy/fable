@@ -1,13 +1,13 @@
 class_name Crosshair
 extends Node2D
 
-## A small cross where a drawn firearm points: along the exact aim, never moved by
+## A small hollow square where a drawn firearm points: along the exact aim, never moved by
 ## spread or recoil. Visual only.
 
 ## World px from the hand.
 const DISTANCE := 120.0
-const SIZE := 4.0
-const GAP := 1.5
+## Side of the square, world px.
+const SIZE := 3.0
 const COLOR := Color(1, 1, 1, 0.85)
 
 
@@ -18,7 +18,7 @@ func _init() -> void:
 	visible = false
 
 
-## Shows the cross DISTANCE along `direction` from `hand`, or hides it.
+## Shows the square DISTANCE along `direction` from `hand`, or hides it.
 func point(shown: bool, hand: Vector2, direction: Vector2) -> void:
 	visible = shown
 	if shown:
@@ -26,6 +26,4 @@ func point(shown: bool, hand: Vector2, direction: Vector2) -> void:
 
 
 func _draw() -> void:
-	for axis: Vector2 in [Vector2.RIGHT, Vector2.DOWN]:
-		draw_line(axis * GAP, axis * SIZE, COLOR, 1.0)
-		draw_line(-axis * GAP, -axis * SIZE, COLOR, 1.0)
+	draw_rect(Rect2(-SIZE / 2.0, -SIZE / 2.0, SIZE, SIZE), COLOR, false, 0.5)
