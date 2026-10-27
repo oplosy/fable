@@ -7,7 +7,7 @@ func run() -> void:
 	KeyBindings.save_path = "user://test_keybindings.cfg"
 	KeyBindings.reset_to_defaults()
 
-	check(KeyBindings.key_of("p1_jump").physical_keycode == KEY_K, "player 1 jumps with K by default")
+	check(KeyBindings.key_of("p1_jump").physical_keycode == KEY_SPACE, "player 1 jumps with Space by default")
 	check(KeyBindings.key_of("p2_left").physical_keycode == KEY_LEFT, "player 2 moves with the arrows by default")
 	check(KeyBindings.key_text("p1_run") == "Left Shift" and KeyBindings.key_text("p2_run") == "Right Shift", "the two Shift keys are told apart")
 	check(not _triggers("p1_run", _key(KEY_SHIFT, KEY_LOCATION_RIGHT)), "player 2's Shift does not run player 1")
@@ -18,18 +18,18 @@ func run() -> void:
 	check(all_keys.size() == KeyBindings.all_actions().size(), "every default action has its own key")
 
 	KeyBindings.rebind("p1_jump", _key(KEY_L))
-	check(_triggers("p1_jump", _key(KEY_L)) and not _triggers("p1_jump", _key(KEY_K)), "rebinding replaces the key")
+	check(_triggers("p1_jump", _key(KEY_L)) and not _triggers("p1_jump", _key(KEY_SPACE)), "rebinding replaces the key")
 	KeyBindings.rebind("p1_jump", _key(KEY_J))
 	check(_triggers("p1_jump", _key(KEY_J)) and _triggers("p1_attack", _key(KEY_L)), "taking a used key swaps the two bindings")
 
 	# Saved bindings survive a restart.
 	InputMap.load_from_project_settings()
-	check(_triggers("p1_jump", _key(KEY_K)), "defaults are back before loading")
+	check(_triggers("p1_jump", _key(KEY_SPACE)), "defaults are back before loading")
 	KeyBindings.load_saved()
 	check(_triggers("p1_jump", _key(KEY_J)) and _triggers("p1_attack", _key(KEY_L)), "saved bindings load")
 
 	KeyBindings.reset_to_defaults()
-	check(_triggers("p1_jump", _key(KEY_K)) and not FileAccess.file_exists(KeyBindings.save_path), "reset restores defaults and forgets the file")
+	check(_triggers("p1_jump", _key(KEY_SPACE)) and not FileAccess.file_exists(KeyBindings.save_path), "reset restores defaults and forgets the file")
 
 	await _test_menu()
 	KeyBindings.reset_to_defaults()

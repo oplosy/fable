@@ -25,18 +25,33 @@ func run() -> void:
 	await physics_frames(20)
 	check(is_equal_approx(fighter.velocity.x, fighter.fighter_class.run_speed) and fighter.is_running(), "run intent speeds up to run speed")
 
-	# A walking jump goes straight up, with no steering in the air.
+	# A walking jump arcs forward with the walking speed.
 	_reset(fighter, 100)
 	input.run = false
+	input.move = 1.0
 	await physics_frames(20)
 	await _tap(fighter, "jump")
 	var takeoff_x := fighter.position.x
+	input.move = 0.0
 	await physics_frames(20)
 	check(not fighter.is_on_floor() and not fighter.is_diving(), "walking jump is a normal jump")
-	check(absf(fighter.position.x - takeoff_x) < 0.5, "walking jump goes straight up while move is held")
-	input.move = 0.0
+	check(fighter.position.x - takeoff_x > 30.0, "walking jump keeps going forward with move released (%.0f px)" % (fighter.position.x - takeoff_x))
 	await physics_frames(60)
 	check(fighter.is_on_floor(), "fighter lands")
+
+	# A/D steer in the air, up to walk speed.
+	_reset(fighter, 300)
+	input.move = 0.0
+	await physics_frames(5)
+	await _tap(fighter, "jump")
+	input.move = -1.0
+	await physics_frames(20)
+	check(fighter.velocity.x < -100.0 and fighter.facing == -1, "a standing jump can be steered and turned left in the air")
+	input.move = 1.0
+	await physics_frames(10)
+	check(fighter.velocity.x > -50.0, "steering back the other way slows the jump in the air")
+	input.move = 0.0
+	await physics_frames(60)
 
 	# A running jump is a forward dive.
 	_reset(fighter, 100)
