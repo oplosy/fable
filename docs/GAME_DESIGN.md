@@ -38,6 +38,11 @@ Every fighter has four slots:
 
 Example: the fighter walks, stops, the firearm appears in hand and attack fires it. Pressing A or D again puts the firearm away and the fighter runs; on stopping, the firearm is drawn again.
 
+- With the firearm slot active, attack in the air does nothing: no shot and no jump kick (user decision). The jump kick needs the melee slot.
+
+Ammo (decided, not built yet):
+- Every firearm has limited ammo. Open: ammo per weapon, what an empty weapon does (dropped automatically or kept as a club), whether ammo pickups exist.
+
 Current defaults (not yet confirmed by the user, easy to change):
 - The aim angle is kept when turning around (mirrored into the new facing half).
 - The firearm is also put away while airborne.
@@ -73,6 +78,7 @@ Built:
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
 - Fighters start the match with a pistol (user decision).
+- Decided, not built yet: a fighter that dies drops its firearm too, like a knocked-down one. Like every fighter-dropped weapon, it cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
 - Spawn points are `WeaponSpawner` nodes under the arena's `WeaponSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
@@ -118,6 +124,7 @@ Current melee rules (prototype, easy to change):
 - A hit flashes the fighter, pushes it along the hit direction and stuns it briefly (0.25 s): no moving, jumping, aiming or firing.
 - At zero health the fighter dies: the body stays on the map lying down, ignores input, and projectiles pass through it.
 - A fighter's own projectiles never hit it.
+- Fighters pass through each other; they do not block or push one another (user decision).
 
 Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s knockback, 0.25 s stun.
 
@@ -128,11 +135,21 @@ Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s kno
 - Multiplayer is both local (several players on one machine) and online.
 - Implication: fighters must not read `Input` directly; a controller (local player, bot, remote player) drives each fighter, and local players need separate key bindings.
 
+Game modes (decided, not built yet):
+- Several modes, for example capture the flag and a straight versus fight (deathmatch).
+- Modes end in different ways: some by score, some by time, some by lives.
+- Lives mode: every player has 3 lives. Each death costs one life and the player respawns until no lives are left; a player out of lives is out of the match.
+- Open: the full mode list, each mode's rules (team or free-for-all, score limits, time limits), and whether a HUD shows health, lives, score and time.
+
 ## Maps
 
 - Maps are classified as small, medium or large. Example designs will be discussed later.
 - Players will be able to import their own maps from outside the game. Format and tooling to be discussed later.
 - Implication: imported maps must not run arbitrary code; a data-only map format (no scripts) is required for user content.
+
+## Content List (to be decided)
+
+To decide together before building more content: the firearms, the handheld melee items (knives, swords, bats...), and the bomb and throwable types (grenades, molotovs...) the game will have, with each one's role.
 
 ## Current Prototype Deviations
 

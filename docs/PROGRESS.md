@@ -30,9 +30,22 @@ Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `te
 
 ## Next Steps
 
-1. Next (order not agreed yet): sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
+1. Fix the bugs found in the session 2 review (see Known Bugs).
+2. Decide the content list together: firearms, handheld melee items, bombs and throwables (GAME_DESIGN.md → Content List).
+3. Later (order not agreed yet): ammo, game modes (capture the flag, deathmatch; score, time or 3-life endings), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
-Open questions for the user are listed in `GAME_DESIGN.md` (player 2 keys, aim kept on turn, firearm holstered in the air).
+Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, ammo details, mode rules, content list).
+
+## Known Bugs
+
+Found in the session 2 review (confirmed with a probe script unless noted):
+- Simultaneous melee hits: the fighter processed first always wins the trade (its hit cancels the other attack before it lands).
+- Fast single-jab spam is a near stunlock (2-3 free frames per cycle): jab stun 0.35 s vs 0.15 s pause after a single jab.
+- A dying fighter keeps its firearm instead of dropping it.
+- Airborne knockback stacks with no air drag (8 bullets: 800 px/s).
+- The respawn timer keeps running while the controls menu pauses the game (from code).
+
+Risks for later content (from code): fast projectiles can tunnel through thin walls; melee hits through walls; no out-of-bounds kill zone (a lost weapon also blocks its spawn point forever); wake-up combo loops after knockdown; no spawn protection; keyboard ghosting with two players; no input buffering; S on a spawned weapon swaps even when the player meant to aim down.
 
 ## Working Notes
 
