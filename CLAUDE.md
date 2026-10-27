@@ -31,7 +31,9 @@ New maps, character designs and weapons will be added often, so adding content m
 Godot is not on PATH; the binary is `C:\Users\mesut\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.7.2-stable_win64_console.exe`.
 
 - Reimport after adding scripts or assets: `<godot> --headless --path . --import`
-- Run each suite: `<godot> --headless --path . -s res://tests/<test_name>.gd` (exit code 0 = pass). Suites extend `tests/test_case.gd`.
+- Run every suite (Git Bash): `tests/run_all.sh`; one or more: `tests/run_all.sh test_melee test_pickup`. Exit code 0 = all passed.
+- A single suite by hand: `<godot> --headless --fixed-fps 60 --path . -s res://tests/<test_name>.gd`. `--fixed-fps 60` runs physics as fast as possible instead of in real time (about 12x faster).
+- Suites extend `tests/test_case.gd`, which fails the suite on any engine or script error, not only on failed checks.
 
 # Commit Conventions
 

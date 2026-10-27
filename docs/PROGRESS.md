@@ -50,5 +50,5 @@ Risks for later content (from code): melee hits, blasts and fire go through wall
 - Record architectural decisions in the `system-design` MCP, design id `fable` (12 steps so far; the user reviews them there).
 - Verify gameplay changes visually: run the game non-headless with a capture script (`SceneTree` script that drives `Input.action_press` and saves `root.get_texture().get_image()`), then crop and zoom the PNG.
 - In tests, the fighter reads a press one physics frame later; wait 2 frames before checking. Nodes added in `_initialize` get `_ready` only after the first frame, so read `fighter.controller` after an await.
-- `test_case.gd` does not catch script errors: a crashing test can still print ALL PASSED. Grep the output for `SCRIPT ERROR`. Tests that load `main.tscn` also get player 2 at the second spawn point, which can absorb bullets.
+- `test_case.gd` registers a `Logger`, so any engine or script error fails the suite. Run everything with `tests/run_all.sh` (fixed 60 fps, ~11 s). Tests that load `main.tscn` also get player 2 at the second spawn point, which can absorb bullets.
 - Not installed: an Aseprite MCP server (installation was blocked; the user said to skip it). Aseprite is used directly through its CLI.
