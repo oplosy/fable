@@ -5,6 +5,7 @@ const WEAPON_SCENE := preload("res://scenes/weapons/weapon.tscn")
 const DROPPED_WEAPON_SCENE := preload("res://scenes/weapons/dropped_weapon.tscn")
 ## Physics layer bit of hittable fighters; dead or invulnerable fighters leave it.
 const FIGHTERS_LAYER := 2
+const PICKUPS_LAYER := 8
 
 enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 
@@ -192,6 +193,33 @@ func _drop_firearm() -> void:
 		active_slot = Slot.MELEE
 
 
+## Only spawned weapons can be taken: with an empty firearm slot by walking over one,
+## with a full slot by standing on one and pressing down (the old firearm drops).
+func _update_pickup() -> void:
+	var swapping := firearm != null and controller.down and is_on_floor() and not is_running()
+	if firearm != null and not swapping:
+		return
+	var item := _pickup_under()
+	if item == null:
+		return
+	_drop_firearm()
+	equip_firearm(item.data)
+	item.take()
+
+
+func _pickup_under() -> DroppedWeapon:
+	var body_shape: CollisionShape2D = $CollisionShape2D
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = body_shape.shape
+	query.transform = body_shape.global_transform
+	query.collision_mask = PICKUPS_LAYER
+	for result in get_world_2d().direct_space_state.intersect_shape(query):
+		var item := result.collider as DroppedWeapon
+		if item and item.pickable and not item.is_queued_for_deletion():
+			return item
+	return null
+
+
 func _get_up() -> void:
 	_down_time = 0.0
 	_getup_invulnerable = fighter_class.getup_invulnerability
@@ -247,6 +275,8 @@ func _physics_process(delta: float) -> void:
 
 	if unlocked and controller.select_slot >= 0:
 		select_slot(controller.select_slot)
+	if unlocked:
+		_update_pickup()
 
 	if not is_on_floor():
 		velocity.y += gravity * delta
