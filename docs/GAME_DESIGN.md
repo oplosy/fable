@@ -195,7 +195,7 @@ Melee items (slot 1, replace the punch; each has its own combo and breaks after 
 
 - Durability counts hits that land on fighters; the jump kick is a kick and does not wear the item. An item that runs out finishes its current combo, then breaks and vanishes (nothing drops) and the fighter punches again.
 - Built values (prototype): knife = stab, stab, slash (5/5/8 damage, very fast, reach about 22 px), 0.5 s combo pause, 15 hits. Bat = swing, swing, home run (8/8/14, the home run knocks down, reach about 29 px), 0.8 s combo pause, 10 hits.
-- Current defaults (not yet confirmed by the user): a knockdown drops the firearm but keeps the melee item; death drops both.
+- A knockdown drops the firearm but keeps the melee item (user decision); death drops both.
 
 
 | Item | Speed | Reach | Role |
