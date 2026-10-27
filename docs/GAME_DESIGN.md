@@ -78,7 +78,7 @@ Built:
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
 - Fighters start the match with a pistol (user decision).
-- Decided, not built yet: a fighter that dies drops its firearm too, like a knocked-down one. Like every fighter-dropped weapon, it cannot be picked up.
+- A fighter that dies drops its firearm too, like a knocked-down one. Like every fighter-dropped weapon, it cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
 - Spawn points are `WeaponSpawner` nodes under the arena's `WeaponSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
@@ -110,6 +110,8 @@ Current combo breaker rules (prototype, easy to change):
 Current melee rules (prototype, easy to change):
 - Attack in the melee slot starts the class combo; pressing attack again during an attack queues the next one.
 - The pause after a combo scales with how far it got (full combo = full pause), so short chains cannot be spammed.
+- No stunlock: after a combo cut short, the pause is long enough that the target is free for at least 0.2 s (per-class `combo_escape_time`) before the next combo can hit it.
+- Trades: when two fighters' attacks connect on the same frame, both hits land.
 - Prototype classes: Fast (jab, jab, jab, hook; 0.6 s pause) and Heavy (punch, punch, kick; 0.8 s pause). Player 1 is Fast, player 2 is Heavy.
 - Each attack has wind-up, active and recovery time; it hits each target at most once, only during its active time.
 - Movement input is ignored on the ground while attacking; the fighter keeps facing the same way.
@@ -122,6 +124,7 @@ Current melee rules (prototype, easy to change):
 
 - Fighters have health (per class: Fast 90, Heavy 130); weapons define damage and knockback.
 - A hit flashes the fighter, pushes it along the hit direction and stuns it briefly (0.25 s): no moving, jumping, aiming or firing.
+- Knockback sets the fighter's speed along the push instead of adding to it, so repeated hits never stack into huge speeds (there is no air friction).
 - At zero health the fighter dies: the body stays on the map lying down, ignores input, and projectiles pass through it.
 - A fighter's own projectiles never hit it.
 - Fighters pass through each other; they do not block or push one another (user decision).
@@ -155,5 +158,5 @@ To decide together before building more content: the firearms, the handheld mele
 
 - Melee uses bare hands only; melee weapons, throwables and power-ups are not implemented yet.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
-- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol) and respawns a dead player after 1.5 s; this is a testing aid until rounds and a match flow exist.
+- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol) and respawns a dead player after 1.5 s of unpaused time; this is a testing aid until rounds and a match flow exist.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
