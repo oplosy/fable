@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/weapons/dropped_weapon.gd" id="1_dropped"]
 
-[node name="DroppedWeapon" type="RigidBody2D" groups=["dropped_weapons"]]
+[node name="DroppedWeapon" type="RigidBody2D"]
 collision_layer = 8
 script = ExtResource("1_dropped")
 

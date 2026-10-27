@@ -1,10 +1,16 @@
 class_name DroppedWeapon
 extends RigidBody2D
 
-## A firearm lying in the arena after its owner was knocked down.
-## Picking it up comes with the pickup system.
+## A firearm lying in the arena. Only weapons spawned by the game can be picked up;
+## weapons dropped by fighters cannot, and disappear after `lifetime`.
+
+## Emitted when a fighter picks this weapon up, just before it is removed.
+signal taken
 
 var data: WeaponData
+var pickable := false
+## Seconds a non-pickable (dropped) weapon stays in the arena.
+var lifetime := 5.0
 
 @onready var _sprite: Sprite2D = $Sprite2D
 @onready var _shape: CollisionShape2D = $CollisionShape2D
@@ -15,3 +21,11 @@ func _ready() -> void:
 	var shape := RectangleShape2D.new()
 	shape.size = data.texture.get_size()
 	_shape.shape = shape
+	add_to_group("weapon_pickups" if pickable else "dropped_weapons")
+	if not pickable:
+		get_tree().create_timer(lifetime, false, true).timeout.connect(queue_free)
+
+
+func take() -> void:
+	taken.emit()
+	queue_free()
