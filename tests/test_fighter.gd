@@ -125,8 +125,9 @@ func run() -> void:
 	check(bullets.size() == 1, "aimed shot spawns one bullet")
 	if bullets.size() == 1:
 		var bullet: Projectile = bullets[0]
-		check(bullet.velocity.normalized().is_equal_approx(aim), "bullet travels along the aim")
-		check(is_equal_approx(bullet.rotation, aim.angle()), "bullet is rotated to the aim")
+		var spread := deg_to_rad(fighter.firearm.spread()) + 0.001
+		check(absf(bullet.velocity.angle_to(aim)) <= spread, "bullet travels along the aim within the spread")
+		check(is_equal_approx(bullet.rotation, bullet.velocity.angle()), "bullet is rotated to its flight direction")
 		var muzzle := fighter.firearm.to_global(fighter.firearm.data.muzzle - fighter.firearm.data.grip)
 		check(bullet.global_position.distance_to(muzzle) < bullet.velocity.length() / 30.0, "bullet starts at the rotated muzzle")
 

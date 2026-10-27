@@ -15,3 +15,5 @@ damage = 10
 knockback = 100.0
 projectile_scene = ExtResource("3_bullet")
 projectile_speed = 600.0
+ammo = 12
+spread_degrees = 2.0
