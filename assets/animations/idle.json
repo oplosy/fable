@@ -1,0 +1,49 @@
+{
+	"name": "idle",
+	"loop": true,
+	"length": 1.4,
+	"keys": [
+		{
+			"t": 0.0,
+			"root": [
+				0.0,
+				2.0
+			],
+			"angles": {
+				"torso": 2.0,
+				"head": -2.0,
+				"arm_front_upper": -25.0,
+				"arm_front_lower": -70.0,
+				"arm_back_upper": -20.0,
+				"arm_back_lower": -60.0,
+				"leg_front_upper": -44.8,
+				"leg_front_lower": 44.8,
+				"leg_back_upper": -23.1,
+				"leg_back_lower": 23.1,
+				"coat_tail": -13.4,
+				"coat_back": 0.0
+			}
+		},
+		{
+			"t": 0.7,
+			"root": [
+				0.0,
+				3.0
+			],
+			"angles": {
+				"torso": 3.0,
+				"head": -3.0,
+				"arm_front_upper": -25.0,
+				"arm_front_lower": -73.0,
+				"arm_back_upper": -20.0,
+				"arm_back_lower": -63.0,
+				"leg_front_upper": -50.2,
+				"leg_front_lower": 50.2,
+				"leg_back_upper": -29.0,
+				"leg_back_lower": 29.0,
+				"coat_tail": -15.1,
+				"coat_back": 0.0
+			}
+		}
+	]
+}
