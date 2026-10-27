@@ -1,0 +1,49 @@
+{
+	"name": "hit_air",
+	"loop": false,
+	"length": 0.25,
+	"keys": [
+		{
+			"t": 0.0,
+			"root": [
+				0.0,
+				0.0
+			],
+			"angles": {
+				"torso": -15.0,
+				"head": 12.0,
+				"arm_front_upper": -135.0,
+				"arm_front_lower": -20.0,
+				"arm_back_upper": -115.0,
+				"arm_back_lower": -20.0,
+				"leg_front_upper": -22.2,
+				"leg_front_lower": 48.5,
+				"leg_back_upper": -49.5,
+				"leg_back_lower": 75.3,
+				"coat_tail": -14.8,
+				"coat_back": 0.0
+			}
+		},
+		{
+			"t": 0.25,
+			"root": [
+				0.0,
+				0.0
+			],
+			"angles": {
+				"torso": -15.0,
+				"head": 12.0,
+				"arm_front_upper": -135.0,
+				"arm_front_lower": -20.0,
+				"arm_back_upper": -115.0,
+				"arm_back_lower": -20.0,
+				"leg_front_upper": -22.2,
+				"leg_front_lower": 48.5,
+				"leg_back_upper": -49.5,
+				"leg_back_lower": 75.3,
+				"coat_tail": -14.8,
+				"coat_back": 0.0
+			}
+		}
+	]
+}

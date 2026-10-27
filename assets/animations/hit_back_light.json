@@ -1,0 +1,71 @@
+{
+	"name": "hit_back_light",
+	"loop": false,
+	"length": 0.2,
+	"keys": [
+		{
+			"t": 0.0,
+			"root": [
+				0.0,
+				2.0
+			],
+			"angles": {
+				"torso": 2.0,
+				"head": -2.0,
+				"arm_front_upper": -25.0,
+				"arm_front_lower": -70.0,
+				"arm_back_upper": -20.0,
+				"arm_back_lower": -60.0,
+				"leg_front_upper": -44.8,
+				"leg_front_lower": 44.8,
+				"leg_back_upper": -23.1,
+				"leg_back_lower": 23.1,
+				"coat_tail": -13.4,
+				"coat_back": 0.0
+			}
+		},
+		{
+			"t": 0.05,
+			"root": [
+				2.0,
+				3.0
+			],
+			"angles": {
+				"torso": 12.0,
+				"head": 14.0,
+				"arm_front_upper": -92.0,
+				"arm_front_lower": -40.0,
+				"arm_back_upper": -72.0,
+				"arm_back_lower": -50.0,
+				"leg_front_upper": -14.1,
+				"leg_front_lower": 43.3,
+				"leg_back_upper": -30.4,
+				"leg_back_lower": 74.9,
+				"coat_tail": -9.1,
+				"coat_back": 0.0
+			}
+		},
+		{
+			"t": 0.2,
+			"root": [
+				0.6,
+				2.3
+			],
+			"angles": {
+				"torso": 5.0,
+				"head": 2.8,
+				"pelvis": 0.0,
+				"arm_front_upper": -85.0,
+				"arm_front_lower": -40.0,
+				"arm_back_upper": -65.0,
+				"arm_back_lower": -50.0,
+				"leg_front_upper": -16.1,
+				"leg_front_lower": 41.8,
+				"leg_back_upper": -29.3,
+				"leg_back_lower": 67.1,
+				"coat_tail": -8.8,
+				"coat_back": 0.0
+			}
+		}
+	]
+}

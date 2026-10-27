@@ -14,8 +14,13 @@ const FLOOR := 93.0
 const CYCLE_KEYS := 12
 ## Crouched body offset: hips back over the heels and down until the thighs are level.
 const CROUCH_ROOT := Vector2(-8, 23)
+## Lying down, the hips drop until the turned body rests on the floor; the pelvis pivot
+## is off the body's middle, so face up and face down differ.
+const LYING_DROP := {"back": 28.0, "front": 34.0}
+const PLANTED := {"front": "planted", "back": "planted"}
 
 var _pivots := {}
+var _points := {}
 var _head_top := Vector2.ZERO
 ## "front"/"back" -> {hip, knee, ankle, sole, l1, l2, a1, a2}
 var _legs := {}
@@ -25,7 +30,9 @@ func _initialize() -> void:
 	var rig: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(RIG_DIR + "/rig.json").trim_prefix(char(0xFEFF)))
 	for part: String in rig.pivots:
 		_pivots[part] = Vector2(rig.pivots[part][0], rig.pivots[part][1])
-	_head_top = Vector2(rig.points.head_top[0], rig.points.head_top[1])
+	for point: String in rig.points:
+		_points[point] = Vector2(rig.points[point][0], rig.points[point][1])
+	_head_top = _points.head_top
 	for side in ["front", "back"]:
 		_legs[side] = _measure_leg(side)
 	DirAccess.make_dir_recursive_absolute(OUT_DIR)
@@ -37,6 +44,9 @@ func _initialize() -> void:
 	_write("land", _land())
 	_write("crouch_idle", _crouch_idle())
 	_write("crouch_walk", _crouch_walk())
+	_write_attacks()
+	_write_reactions()
+	_write_knockdowns()
 	quit()
 
 
@@ -181,6 +191,174 @@ func _crouch_walk() -> Dictionary:
 		"events": [{"t": 0.0, "name": "step"}, {"t": snappedf(length / 2.0, 0.001), "name": "step"}], "keys": keys}
 
 
+# --- Attacks -----------------------------------------------------------------------
+
+## Every melee attack in the class and item data, timed from its data file: wind-up,
+## the hit pose at `windup` (event "hit"), held through `active`, then back to the stance.
+## Each reports whether its fist, foot or blade tip is inside the hit area while it hits.
+func _write_attacks() -> void:
+	var fast: FighterClass = load("res://data/classes/fast.tres")
+	var heavy: FighterClass = load("res://data/classes/heavy.tres")
+	var knife: MeleeItemData = load("res://data/weapons/knife.tres")
+	var bat: MeleeItemData = load("res://data/weapons/bat.tres")
+	var front_jab := {"root": Vector2(6, 3), "torso": 15, "head": -12,
+		"arms": {"front": {"at": Vector2(56, 38)}, "back": Vector2(-20, -110)}, "feet": PLANTED}
+	var back_jab := {"root": Vector2(4, 3), "torso": 10, "head": -8,
+		"arms": {"front": Vector2(-15, -120), "back": {"at": Vector2(64, 36)}}, "feet": PLANTED}
+	var cock_front := {"root": Vector2(-1, 3), "torso": 0, "head": -2,
+		"arms": {"front": Vector2(-10, -125), "back": Vector2(-20, -105)}, "feet": PLANTED}
+	var cock_back := {"root": Vector2(-1, 3), "torso": 2, "head": -2,
+		"arms": {"front": Vector2(-30, -110), "back": Vector2(10, -120)}, "feet": PLANTED}
+	_write_attack("fast_jab_1", fast.melee_combo[0], cock_front, front_jab, front_jab, "hand_front")
+	_write_attack("fast_jab_2", fast.melee_combo[1], cock_back, back_jab, back_jab, "hand_back")
+	_write_attack("fast_jab_3", fast.melee_combo[2], cock_front, front_jab, front_jab, "hand_front")
+	_write_attack("fast_hook", fast.melee_combo[3],
+		{"root": Vector2(-3, 4), "torso": -12, "head": 4, "arms": {"front": Vector2(35, -40), "back": Vector2(-30, -110)}, "feet": PLANTED},
+		{"root": Vector2(7, 4), "torso": 20, "head": -15, "arms": {"front": {"at": Vector2(54, 34)}, "back": Vector2(10, -60)}, "feet": PLANTED},
+		{"root": Vector2(8, 4), "torso": 24, "head": -18, "arms": {"front": {"at": Vector2(58, 38)}, "back": Vector2(15, -50)}, "feet": PLANTED},
+		"hand_front")
+	var heavy_front := {"root": Vector2(8, 4), "torso": 18, "head": -14,
+		"arms": {"front": {"at": Vector2(58, 38)}, "back": Vector2(5, -100)}, "feet": PLANTED}
+	var heavy_back := {"root": Vector2(6, 4), "torso": 14, "head": -10,
+		"arms": {"front": Vector2(-10, -110), "back": {"at": Vector2(66, 36)}}, "feet": PLANTED}
+	_write_attack("heavy_punch_1", heavy.melee_combo[0],
+		{"root": Vector2(-4, 4), "torso": -8, "head": 4, "arms": {"front": Vector2(30, -110), "back": Vector2(-25, -110)}, "feet": PLANTED},
+		heavy_front, heavy_front, "hand_front")
+	_write_attack("heavy_punch_2", heavy.melee_combo[1],
+		{"root": Vector2(-4, 4), "torso": -6, "head": 4, "arms": {"front": Vector2(-30, -110), "back": Vector2(35, -100)}, "feet": PLANTED},
+		heavy_back, heavy_back, "hand_back")
+	# The leading (back) leg kicks out straight; the body leans away to balance it.
+	var kick := {"root": Vector2(-2, 2), "torso": -18, "head": 10,
+		"arms": {"front": Vector2(30, -60), "back": Vector2(-40, -90)},
+		"feet": {"front": "planted", "back": {"at": Vector2(66, 66)}}}
+	_write_attack("heavy_kick", heavy.melee_combo[2],
+		{"root": Vector2(-3, 3), "torso": -8, "head": 4, "arms": {"front": Vector2(15, -90), "back": Vector2(-30, -110)},
+			"feet": {"front": "planted", "back": {"at": Vector2(46, 70)}}},
+		kick, kick, "ankle_back")
+	for entry in [["fast_jump_kick", fast.air_attack], ["heavy_jump_kick", heavy.air_attack]]:
+		var flying := {"root": Vector2(4, 4), "torso": -10, "head": 6,
+			"arms": {"front": Vector2(40, -40), "back": Vector2(-60, -80)},
+			"feet": {"front": {"at": Vector2(34, 74)}, "back": {"at": Vector2(64, 84)}}}
+		_write_attack(entry[0], entry[1],
+			{"root": Vector2(2, 2), "torso": 0, "head": 0, "arms": {"front": Vector2(-30, -60), "back": Vector2(-30, -60)},
+				"feet": {"front": {"at": Vector2(30, 76)}, "back": {"at": Vector2(46, 78)}}},
+			flying, flying, "ankle_back", true)
+	var stab := {"root": Vector2(7, 3), "torso": 15, "head": -12,
+		"arms": {"front": {"at": Vector2(48, 40), "dir": 0}, "back": Vector2(-10, -100)}, "feet": PLANTED}
+	var draw_back := {"root": Vector2(-2, 3), "torso": -2, "head": 0,
+		"arms": {"front": Vector2(20, -80), "back": Vector2(-20, -105)}, "feet": PLANTED}
+	_write_attack("knife_stab_1", knife.combo[0], draw_back, stab, stab, "tip", false, knife)
+	_write_attack("knife_stab_2", knife.combo[1], draw_back, stab, stab, "tip", false, knife)
+	_write_attack("knife_slash", knife.combo[2],
+		{"root": Vector2(0, 3), "torso": -5, "head": 2, "arms": {"front": Vector2(-150, -175), "back": Vector2(-20, -100)}, "feet": PLANTED},
+		{"root": Vector2(6, 3), "torso": 14, "head": -10, "arms": {"front": {"at": Vector2(50, 34), "dir": -20}, "back": Vector2(0, -90)}, "feet": PLANTED},
+		{"root": Vector2(7, 4), "torso": 18, "head": -12, "arms": {"front": {"at": Vector2(50, 44), "dir": 30}, "back": Vector2(10, -80)}, "feet": PLANTED},
+		"tip", false, knife)
+	# Bat: both hands on the handle (the back fist just behind the front one); the bat
+	# comes round from behind the shoulder.
+	var swing := {"root": Vector2(5, 3), "torso": 14, "head": -10,
+		"arms": {"front": {"at": Vector2(46, 40), "dir": 0}, "back": {"at": Vector2(42, 41)}}, "feet": PLANTED}
+	var through := {"root": Vector2(6, 3), "torso": 18, "head": -12,
+		"arms": {"front": {"at": Vector2(48, 41), "dir": -20}, "back": {"at": Vector2(44, 43)}}, "feet": PLANTED}
+	var shoulder := {"root": Vector2(-3, 3), "torso": -10, "head": 6,
+		"arms": {"front": Vector2(30, 120), "back": Vector2(40, 110)}, "feet": PLANTED}
+	_write_attack("bat_swing_1", bat.combo[0], shoulder, swing, through, "tip", false, bat)
+	_write_attack("bat_swing_2", bat.combo[1], shoulder, swing, through, "tip", false, bat)
+	var big_shoulder := {"root": Vector2(-6, 4), "torso": -20, "head": 12,
+		"arms": {"front": Vector2(50, 150), "back": Vector2(60, 140)}, "feet": PLANTED}
+	var full := {"root": Vector2(8, 4), "torso": 25, "head": -18,
+		"arms": {"front": {"at": Vector2(48, 36), "dir": -20}, "back": {"at": Vector2(44, 38)}}, "feet": PLANTED}
+	_write_attack("bat_home_run", bat.combo[2], big_shoulder, swing, full, "tip", false, bat)
+
+
+## One attack clip: stance, wind-up, hit pose at `windup`, `follow` at the end of the
+## active time, then back to the stance. `reach` names the point that must land in the
+## hit area: hand_front, hand_back, ankle_back or tip (of the held `item`).
+func _write_attack(name: String, attack: MeleeAttack, windup: Dictionary, hit: Dictionary, follow: Dictionary, reach: String, airborne := false, item: ItemData = null) -> void:
+	var length := attack.duration()
+	var start := _stance(0.0) if not airborne else windup
+	var keys := [_key(0.0, start), _key(attack.windup * 0.6, windup), _key(attack.windup, hit),
+		_key(attack.windup + attack.active, follow), _key(length, start)]
+	var area := Rect2(Vector2(32, FLOOR) + attack.hitbox_offset * 3.0 - attack.hitbox_size * 1.5, attack.hitbox_size * 3.0)
+	for key: Dictionary in [keys[2], keys[3]]:
+		var at := _reach_point(key, reach, item)
+		if not area.has_point(at):
+			printerr("%s t %.3f: %s at %s misses %s" % [name, key.t, reach, at, area])
+	_write(name, {"name": name, "loop": false, "length": snappedf(length, 0.001),
+		"events": [{"t": snappedf(attack.windup, 0.001), "name": "hit"}], "keys": keys})
+
+
+# --- Hits, knockdowns and deaths ---------------------------------------------------
+
+## Flinches: light ones snap and recover, heavy ones stagger a step. They end near the
+## stance, so a longer stun simply holds the last pose.
+func _write_reactions() -> void:
+	for side in ["front", "back"]:
+		# Hit in front: thrown back (negative lean). Hit from behind: lurch forward.
+		var sign := -1.0 if side == "front" else 1.0
+		var light := {"root": Vector2(sign * 2, 3), "torso": sign * 12, "head": sign * 14,
+			"arms": {"front": Vector2(-60 - sign * 20, -120), "back": Vector2(-40 - sign * 20, -110)}, "feet": PLANTED}
+		_write("hit_%s_light" % side, {"name": "hit_%s_light" % side, "loop": false, "length": 0.2,
+			"keys": [_key(0.0, _stance(0.0)), _key(0.05, light), _key(0.2, _ease_to_stance(light, 0.3))]})
+		var heavy := {"root": Vector2(sign * 6, 6), "torso": sign * 22, "head": sign * 18,
+			"arms": {"front": Vector2(-90 - sign * 40, -150), "back": Vector2(-60 - sign * 40, -130)}, "feet": PLANTED}
+		_write("hit_%s_heavy" % side, {"name": "hit_%s_heavy" % side, "loop": false, "length": 0.35,
+			"keys": [_key(0.0, _stance(0.0)), _key(0.07, heavy), _key(0.35, _ease_to_stance(heavy, 0.35))]})
+	var flung := {"root": Vector2.ZERO, "torso": -15, "head": 12,
+		"arms": {"front": Vector2(-150, -170), "back": Vector2(-130, -150)},
+		"feet": {"front": {"at": Vector2(22, 84)}, "back": {"at": Vector2(52, 80)}}}
+	_write("hit_air", {"name": "hit_air", "loop": false, "length": 0.25, "keys": [_key(0.0, flung), _key(0.25, flung)]})
+
+
+## Knocked down onto the back (hit in front) or the face (hit from behind), lying, getting
+## up in exactly 0.4 s, and dying the same two ways.
+func _write_knockdowns() -> void:
+	for side in ["back", "front"]:
+		var sign := -1.0 if side == "back" else 1.0
+		var lying := _lying(side, 0.0)
+		var flying := {"root": Vector2(sign * 6, 12), "pelvis": sign * 45, "torso": sign * 10, "head": sign * 15,
+			"arms": {"front": Vector2(sign * 30 - 150, -160), "back": Vector2(sign * 30 - 120, -140)},
+			"feet": {"front": "rest", "back": "rest"}}
+		_write("knockdown_" + side, {"name": "knockdown_" + side, "loop": false, "length": 0.35,
+			"keys": [_key(0.0, _ease_to_stance(flying, 0.4)), _key(0.15, flying), _key(0.35, lying)]})
+		_write("lying_" + side, {"name": "lying_" + side, "loop": true, "length": 0.8,
+			"keys": [_key(0.0, lying), _key(0.4, _lying(side, 1.0))]})
+		# Up through a crouch: readable as standing from about 0.2 s, as the game may cut it there.
+		var push := {"root": Vector2(-sign * 2, 26), "pelvis": sign * 50, "torso": -sign * 20, "head": -sign * 25,
+			"arms": {"front": Vector2(sign * 60, sign * 60), "back": Vector2(sign * 70, sign * 70)},
+			"feet": {"front": "rest", "back": "rest"}}
+		_write("getup_" + side, {"name": "getup_" + side, "loop": false, "length": 0.4,
+			"keys": [_key(0.0, lying), _key(0.1, push), _key(0.22, _crouch(0.0, "flat", "flat")), _key(0.4, _stance(0.0))]})
+		var slump := {"root": Vector2(sign * 4, 14), "pelvis": sign * 30, "torso": sign * 15, "head": sign * 30,
+			"arms": {"front": Vector2(sign * 40, sign * 20), "back": Vector2(sign * 50, sign * 30)},
+			"feet": {"front": "planted", "back": "planted"}}
+		var dead := _lying(side, 0.0)
+		dead.head = sign * 20
+		dead.arms = {"front": Vector2(sign * 90 + 40, sign * 90 + 70), "back": Vector2(sign * 90 - 20, sign * 90 - 40)}
+		_write("death_" + side, {"name": "death_" + side, "loop": false, "length": 0.5,
+			"keys": [_key(0.0, _stance(0.0)), _key(0.2, slump), _key(0.5, dead)]})
+
+
+## Flat on the back (`side` "back", face up) or the face; `breath` lifts the chest a little.
+func _lying(side: String, breath: float) -> Dictionary:
+	var sign := -1.0 if side == "back" else 1.0
+	# Face up, the near arm would sink into the floor; it rests across the belly instead.
+	var front_arm := Vector2(-130, -63) if side == "back" else Vector2(105, 120)
+	return {"root": Vector2(0, LYING_DROP[side]), "pelvis": sign * 90, "torso": -sign * breath, "head": -15.0 if side == "back" else 5.0,
+		"arms": {"front": front_arm, "back": Vector2(sign * 90 - 15, sign * 90 - 5)},
+		"feet": {"front": "rest", "back": "rest"}}
+
+
+## A pose `amount` (0..1) of the way from the stance to `pose`, for root and lean.
+func _ease_to_stance(pose: Dictionary, amount: float) -> Dictionary:
+	var eased := pose.duplicate(true)
+	var stance := _stance(0.0)
+	eased.root = stance.root.lerp(pose.root, amount)
+	for part in ["pelvis", "torso", "head"]:
+		eased[part] = lerpf(stance.get(part, 0.0), pose.get(part, 0.0), amount)
+	return eased
+
+
 # --- Feet --------------------------------------------------------------------------
 
 ## A foot target: x of the ankle relative to its hip, and how far it is lifted off the
@@ -223,14 +401,35 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 	var pelvis := deg_to_rad(pose.get("pelvis", 0.0))
 	var angles := {}
 	for part: String in pose:
-		if part not in ["root", "feet"]:
+		if part not in ["root", "feet", "arms"]:
 			angles[part] = snappedf(pose[part], 0.1)
+	# Arms are posed in world turns (from hanging down), whatever the torso does.
+	var torso_turn: float = pose.get("pelvis", 0.0) + pose.get("torso", 0.0)
+	for side: String in pose.get("arms", {}):
+		var arm: Variant = pose.arms[side]
+		if arm is Dictionary:
+			arm = _arm_turns(side, _shoulder(side, root, pelvis, deg_to_rad(torso_turn)), arm)
+		angles["arm_%s_upper" % side] = snappedf(arm.x - torso_turn, 0.1)
+		angles["arm_%s_lower" % side] = snappedf(arm.y - arm.x, 0.1)
 	var thighs := []
 	for side: String in ["front", "back"]:
 		var leg: Dictionary = _legs[side]
 		var hip: Vector2 = _pivots.pelvis + root + (leg.hip - _pivots.pelvis).rotated(pelvis)
 		var target: Variant = pose.feet[side]
-		var solved := _flat_leg(leg, hip, pelvis) if target is String else _solve_leg(leg, hip, target.x, target.y, pelvis)
+		var solved: Vector2
+		if target is Vector2:
+			solved = _solve_leg(leg, hip, target.x, target.y, pelvis)
+		elif target is Dictionary:
+			# A free foot: the ankle goes to this canvas point.
+			var turns := _ik(leg, hip, target.at)
+			solved = Vector2(rad_to_deg(turns.x - pelvis), rad_to_deg(turns.y - turns.x))
+		elif target == "planted":
+			# Stays where it stands while the body moves over it.
+			solved = _solve_leg(leg, hip, leg.ankle.x - hip.x, 0.0, pelvis)
+		elif target == "rest":
+			solved = Vector2.ZERO
+		else:
+			solved = _flat_leg(leg, hip, pelvis)
 		angles["leg_%s_upper" % side] = snappedf(solved.x, 0.1)
 		angles["leg_%s_lower" % side] = snappedf(solved.y, 0.1)
 		thighs.append(solved.x)
@@ -285,6 +484,62 @@ func _report_head(t: float, pose: Dictionary, root: Vector2, pelvis: float) -> v
 	at += (_pivots.head - _pivots.torso).rotated(torso)
 	at += (_head_top - _pivots.head).rotated(head)
 	print("  t %.3f: head top %.1f art px above the floor" % [t, FLOOR - at.y])
+
+
+## Where a key puts a point (hand_front, hand_back, ankle_front, ankle_back, or the tip
+## of `item` held in the front hand), in canvas art px.
+func _reach_point(key: Dictionary, what: String, item: ItemData) -> Vector2:
+	var angles: Dictionary = key.angles
+	var pelvis_at: Vector2 = _pivots.pelvis + Vector2(key.root[0], key.root[1])
+	var pelvis := deg_to_rad(angles.get("pelvis", 0.0))
+	if what.begins_with("ankle"):
+		var side := what.trim_prefix("ankle_")
+		var leg: Dictionary = _legs[side]
+		var thigh := pelvis + deg_to_rad(angles["leg_%s_upper" % side])
+		var shin := thigh + deg_to_rad(angles["leg_%s_lower" % side])
+		var knee: Vector2 = pelvis_at + (leg.hip - _pivots.pelvis).rotated(pelvis) + (leg.knee - leg.hip).rotated(thigh)
+		return knee + (leg.ankle - leg.knee).rotated(shin)
+	var arm := "back" if what == "hand_back" else "front"
+	var torso := pelvis + deg_to_rad(angles.get("torso", 0.0))
+	var upper := torso + deg_to_rad(angles["arm_%s_upper" % arm])
+	var lower := upper + deg_to_rad(angles["arm_%s_lower" % arm])
+	var shoulder: Vector2 = pelvis_at + (_pivots.torso - _pivots.pelvis).rotated(pelvis) + (_pivots["arm_%s_upper" % arm] - _pivots.torso).rotated(torso)
+	var elbow: Vector2 = shoulder + (_pivots["arm_%s_lower" % arm] - _pivots["arm_%s_upper" % arm]).rotated(upper)
+	var hand: Vector2 = elbow + (_points["hand_" + arm] - _pivots["arm_%s_lower" % arm]).rotated(lower)
+	if what != "tip":
+		return hand
+	# Held items lie along the forearm, grip in the fist.
+	var forearm: Vector2 = (_points.hand_front - _pivots.arm_front_lower).normalized().rotated(lower)
+	return hand + forearm * (item.texture.get_width() - item.grip.x)
+
+
+## Canvas point of a shoulder for this body position (torso turn in radians).
+func _shoulder(side: String, root: Vector2, pelvis: float, torso: float) -> Vector2:
+	return _pivots.pelvis + root + (_pivots.torso - _pivots.pelvis).rotated(pelvis) + (_pivots["arm_%s_upper" % side] - _pivots.torso).rotated(torso)
+
+
+## World turns (degrees) of an arm whose hand reaches `aim.at` from `shoulder`. With
+## `aim.dir` (degrees, 0 = forward) the forearm points that way, as a held item lies
+## along it, and the upper arm aims at the elbow; without it the elbow bends downwards.
+func _arm_turns(side: String, shoulder: Vector2, aim: Dictionary) -> Vector2:
+	var elbow_rest: Vector2 = _pivots["arm_%s_lower" % side]
+	var upper_rest: Vector2 = elbow_rest - _pivots["arm_%s_upper" % side]
+	var lower_rest: Vector2 = _points["hand_" + side] - elbow_rest
+	var l1 := upper_rest.length()
+	var l2 := lower_rest.length()
+	var upper: float
+	var lower: float
+	if aim.has("dir"):
+		lower = deg_to_rad(aim.dir)
+		upper = (aim.at - Vector2.from_angle(lower) * l2 - shoulder).angle()
+	else:
+		var to: Vector2 = aim.at - shoulder
+		var d := clampf(to.length(), absf(l1 - l2) + 0.01, l1 + l2 - 0.001)
+		var bend := acos(clampf((l1 * l1 + d * d - l2 * l2) / (2.0 * l1 * d), -1.0, 1.0))
+		# Of the two elbow positions, the lower one.
+		upper = to.angle() + bend if Vector2.from_angle(to.angle() + bend).y > Vector2.from_angle(to.angle() - bend).y else to.angle() - bend
+		lower = (aim.at - (shoulder + Vector2.from_angle(upper) * l1)).angle()
+	return Vector2(rad_to_deg(angle_difference(upper_rest.angle(), upper)), rad_to_deg(angle_difference(lower_rest.angle(), lower)))
 
 
 ## World turns (radians from the standing pose) of the thigh and shin reaching `ankle`
