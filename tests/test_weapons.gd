@@ -20,6 +20,7 @@ func run() -> void:
 	await _test_shotgun()
 	await _test_sniper()
 	_test_weighted_spawn()
+	await _test_art_scale()
 
 
 ## Sniper bullets fly fastest and straightest; the SMG is the slow, wide one.
@@ -102,6 +103,31 @@ func _test_weighted_spawn() -> void:
 			sequence.append(arena_spawner._pick_weighted())
 		runs.append(sequence)
 	check(runs[0] == runs[1] and runs[0].size() == 20, "seeding the arena rng repeats the same spawn picks")
+
+
+## 3x item art is drawn at 1/3 scale: the held sprite, the muzzle and the pickup body
+## all stay at world size, and every grip and muzzle pixel lies inside its texture.
+func _test_art_scale() -> void:
+	var items := [PISTOL, SHOTGUN, SMG, SNIPER, load("res://data/weapons/knife.tres"), load("res://data/weapons/bat.tres"), load("res://data/throwables/grenade.tres"), load("res://data/throwables/molotov.tres")]
+	var inside := true
+	for item: ItemData in items:
+		var area := Rect2(Vector2.ZERO, item.texture.get_size())
+		inside = inside and area.has_point(item.grip) and (not item is WeaponData or area.has_point(item.muzzle))
+	check(inside, "every grip and muzzle pixel lies inside its texture")
+	var shooter := _spawn(Vector2(300, 328))
+	shooter.inventory.equip_firearm(PISTOL)
+	await physics_frames(2)
+	var sprite: Sprite2D = shooter.inventory.firearm.get_node("Sprite2D")
+	check(sprite.scale == Vector2.ONE / 3.0, "the held pistol is drawn at 1/3 scale")
+	await _fire(shooter)
+	var bullet: Node2D = get_nodes_in_group("projectiles")[0] if not get_nodes_in_group("projectiles").is_empty() else null
+	var reach := (PISTOL.muzzle.x - PISTOL.grip.x) / 3.0
+	check(bullet != null and bullet.global_position.x - shooter.inventory.firearm.global_position.x > reach, "the bullet leaves from the muzzle, about %d px past the hand" % reach)
+	var pickup: ItemPickup = preload("res://scenes/items/item_pickup.tscn").instantiate()
+	pickup.data = PISTOL
+	arena.add_child(pickup)
+	var body: RectangleShape2D = pickup.get_node("CollisionShape2D").shape
+	check(body.size == PISTOL.texture.get_size() / 3.0, "the pickup's body is the art's world size")
 
 
 func _fire(shooter: Fighter) -> void:
