@@ -13,6 +13,8 @@ func run() -> void:
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
 	spawner = arena.get_node("WeaponSpawns/W1")
 	spawner.interval = 0.5
+	# Only the pistol, so the test knows what spawns.
+	spawner.weapons = [PISTOL]
 	root.add_child(arena)
 
 	await physics_frames(20)

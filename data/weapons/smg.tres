@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/weapons/weapon_data.gd" id="1_data"]
+[ext_resource type="Texture2D" path="res://assets/weapons/smg.png" id="2_texture"]
+[ext_resource type="PackedScene" path="res://scenes/projectiles/bullet.tscn" id="3_bullet"]
+
+[resource]
+script = ExtResource("1_data")
+texture = ExtResource("2_texture")
+projectile_scene = ExtResource("3_bullet")
+display_name = "SMG"
+grip = Vector2(2, 3)
+muzzle = Vector2(11, 1)
+automatic = true
+fire_interval = 0.08
+damage = 5
+knockback = 40.0
+projectile_speed = 450.0
+ammo = 30
+spawn_weight = 3.0
+spread_degrees = 4.0
+spread_per_shot = 1.0
+max_bloom_degrees = 6.0
