@@ -26,6 +26,19 @@ func _ready() -> void:
 		_spawn_player(index)
 
 
+# The render size is fixed, so the viewport sends no resize signal; check the window instead.
+func _process(_delta: float) -> void:
+	_fit_window()
+
+
+## Whole-pixel scaling while the window holds the full 1920x1080 render; a smaller
+## window shrinks it smoothly instead (integer scaling never goes below 1x and would crop).
+func _fit_window() -> void:
+	var window := get_tree().root
+	var fits := window.size.x >= window.content_scale_size.x and window.size.y >= window.content_scale_size.y
+	window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_INTEGER if fits else Window.CONTENT_SCALE_STRETCH_FRACTIONAL
+
+
 func _spawn_player(index: int) -> void:
 	var controller := LocalController.new()
 	controller.prefix = "p%d_" % (index + 1)

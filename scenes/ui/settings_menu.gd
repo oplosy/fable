@@ -4,6 +4,9 @@ extends CanvasLayer
 ## Esc opens and closes the menu and pauses the game while it is open.
 ## Click a binding, then press the new key; Esc cancels. Escape itself cannot be bound.
 
+## The menu is laid out for a 640x360 screen and drawn 3x on the 1920x1080 render.
+const UI_SCALE := 3.0
+
 const LABELS := {
 	"left": "Move left", "right": "Move right", "up": "Aim up", "down": "Aim down / roll / swap",
 	"run": "Run", "crouch": "Crouch", "jump": "Jump", "attack": "Attack",
@@ -86,7 +89,12 @@ func _build() -> void:
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
-	add_child(_panel)
+	scale = Vector2.ONE * UI_SCALE
+	var screen := Control.new()
+	screen.size = get_viewport().get_visible_rect().size / UI_SCALE
+	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(screen)
+	screen.add_child(_panel)
 
 	var box := VBoxContainer.new()
 	_panel.add_child(box)
