@@ -78,19 +78,19 @@ Current defaults (not yet confirmed by the user, easy to change):
 
 Built:
 - Fighters walk by default. They run (speed up) either by double-tapping a direction (A A / D D) or while holding Shift.
-- A walking jump goes straight up. A running jump is a forward dive, like diving head-first into a pool.
+- A jump keeps the speed the fighter had at takeoff, so a walking jump arcs forward like a thrown ball (user decision, session 3; it went straight up before). A running jump is a forward dive, like diving head-first into a pool.
 - Pressing down (S) while running rolls forward. S is free while running because the firearm is put away.
 
 Current movement rules (prototype, easy to change):
 - Speeds are per class (see Character Classes). A double tap counts when the second press comes within 0.25 s of the first; the run lasts while that direction is held.
-- No steering or turning in the air: every jump, dive and jump kick keeps its takeoff momentum.
+- A/D steer and turn in the air during a normal jump (user decision, session 3): they accelerate at 500 px/s² (`FighterClass.air_acceleration`) up to walk speed and never brake faster momentum in the held direction. Without input the jump keeps its momentum. Dives and jump kicks still cannot be steered.
 - The dive launches forward (Fast 260, Heavy 220 px/s), lower than a normal jump. No attacking during a dive; it ends on landing and the fighter slides to a stop. A hit cancels the dive.
 - The roll lasts 0.4 s in the facing direction (Fast 235, Heavy 190 px/s). The fighter cannot be hit, act or draw the firearm while rolling.
 - Dive and roll poses are placeholders (head-first rectangle, squashed rectangle) until animations exist.
 
 ## Controls
 
-Player 1 (defaults): A/D move, Left Shift run, C crouch, W/S aim (S rolls while running), K jump, J attack (J + K together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
+Player 1 (defaults): A/D move, Left Shift run, C crouch, W/S aim (S rolls while running), Space jump (user decision, session 3; was K), J attack (J + Space together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
 Player 2 (defaults): Left/Right arrows move, Right Shift run, Right Ctrl crouch, Up/Down arrows aim, / jump, . (Period) attack, 7-0 select slot.
 
