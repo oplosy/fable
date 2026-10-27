@@ -8,8 +8,8 @@
 script = ExtResource("1_data")
 display_name = "Pistol"
 texture = ExtResource("2_texture")
-grip = Vector2(5, 10)
-muzzle = Vector2(24, 4)
+grip = Vector2(4, 10)
+muzzle = Vector2(21, 3)
 fire_interval = 0.3
 damage = 10
 knockback = 100.0
