@@ -8,7 +8,7 @@
 script = ExtResource("1_data")
 display_name = "Molotov"
 texture = ExtResource("2_texture")
-grip = Vector2(2, 5)
+grip = Vector2(7, 14)
 spawn_weight = 2.0
 count = 2
 fuse_time = 0.0

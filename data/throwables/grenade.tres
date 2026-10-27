@@ -8,7 +8,7 @@
 script = ExtResource("1_data")
 display_name = "Grenade"
 texture = ExtResource("2_texture")
-grip = Vector2(3, 3)
+grip = Vector2(9, 11)
 spawn_weight = 2.0
 count = 3
 fuse_time = 3.0

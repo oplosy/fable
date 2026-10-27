@@ -152,9 +152,7 @@ func _drop_item(data: ItemData) -> void:
 
 
 func _show_melee_item() -> void:
-	var item := fighter.melee.item
-	_melee_sprite.texture = item.texture if item else null
-	_melee_sprite.offset = -item.grip if item else Vector2.ZERO
+	ItemData.show_on(_melee_sprite, fighter.melee.item)
 
 
 func _pickup_under() -> ItemPickup:

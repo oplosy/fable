@@ -17,10 +17,10 @@ var _gone := false
 
 
 func _ready() -> void:
-	_sprite.texture = data.texture
+	ItemData.show_on(_sprite, data, false)
 	add_to_group(Arena.BOUNDED)
 	var shape := RectangleShape2D.new()
-	shape.size = data.texture.get_size()
+	shape.size = data.world_size()
 	_shape.shape = shape
 	physics_material_override = PhysicsMaterial.new()
 	physics_material_override.bounce = data.bounce

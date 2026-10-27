@@ -14,9 +14,9 @@ var lifetime := 5.0
 
 
 func _ready() -> void:
-	_sprite.texture = data.texture
+	ItemData.show_on(_sprite, data, false)
 	var shape := RectangleShape2D.new()
-	shape.size = data.texture.get_size()
+	shape.size = data.world_size()
 	_shape.shape = shape
 	add_to_group("item_pickups" if pickable else "dropped_items")
 	add_to_group(Arena.BOUNDED)

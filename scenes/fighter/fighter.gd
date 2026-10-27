@@ -401,8 +401,7 @@ func _physics_process(delta: float) -> void:
 		aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
-	_throwable_sprite.texture = thrower.item.texture if thrower.item else null
-	_throwable_sprite.offset = -thrower.item.grip if thrower.item else Vector2.ZERO
+	ItemData.show_on(_throwable_sprite, thrower.item)
 	_throwable_sprite.visible = throwable_ready
 	thrower.physics_update(delta, is_throwable_drawn(), controller.attack, controller.attack_held, _hand.global_position, aim_direction())
 	inventory.physics_update()
