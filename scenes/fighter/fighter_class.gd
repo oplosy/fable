@@ -11,6 +11,14 @@ extends Resource
 ## Jump kick, once per jump. There are no air punches.
 @export var air_attack: MeleeAttack
 
+@export_group("Combo Breaker")
+## Seconds before a used combo breaker can be used again.
+@export var combo_breaker_cooldown := 10.0
+## Speed (px/s) the breaker pushes the attacker back with.
+@export var combo_breaker_push := 160.0
+## Seconds the pushed attacker cannot act.
+@export var combo_breaker_stun := 0.3
+
 @export_group("Knockdown")
 ## Seconds a knocked-down fighter lies on the ground.
 @export var knockdown_time := 1.25

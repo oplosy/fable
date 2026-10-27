@@ -40,6 +40,9 @@ var _down_time := 0.0
 var _getup_invulnerable := 0.0
 var _roll_time := 0.0
 var _diving := false
+## The fighter whose melee hit caused the current stun; the combo breaker pushes it back.
+var _stunned_by: Fighter
+var _breaker_cooldown := 0.0
 var _flash_tween: Tween
 
 @onready var _visuals: Node2D = $Visuals
@@ -116,6 +119,15 @@ func is_diving() -> bool:
 	return _diving
 
 
+## Only a melee stun can be broken, and only once per cooldown.
+func can_break_combo() -> bool:
+	return is_stunned() and is_instance_valid(_stunned_by) and _breaker_cooldown <= 0.0 and not is_dead()
+
+
+func is_breaker_cooling_down() -> bool:
+	return _breaker_cooldown > 0.0
+
+
 func can_act() -> bool:
 	return not is_stunned() and not is_dead() and not is_knocked_down()
 
@@ -131,7 +143,8 @@ func aim_direction() -> Vector2:
 
 ## A negative `stun` uses the fighter's default hit_stun_time.
 ## `knocks_down` puts the fighter on the ground instead of stunning it.
-func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down := false) -> void:
+## `attacker` is the fighter behind a melee hit; its stun can be broken with the combo breaker.
+func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down := false, attacker: Fighter = null) -> void:
 	if is_dead() or is_invulnerable():
 		return
 	health.take_damage(damage)
@@ -149,6 +162,15 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 		_knock_down()
 	elif not is_knocked_down():
 		_hit_stun = stun if stun >= 0.0 else hit_stun_time
+		_stunned_by = attacker
+
+
+## Ends the stun and pushes the attacker back; its combo is cancelled by the hit.
+func _break_combo() -> void:
+	_hit_stun = 0.0
+	_breaker_cooldown = fighter_class.combo_breaker_cooldown
+	_stunned_by.take_hit(0, Vector2(-_stunned_by.facing * fighter_class.combo_breaker_push, 0.0), fighter_class.combo_breaker_stun)
+	_stunned_by = null
 
 
 func _knock_down() -> void:
@@ -218,8 +240,13 @@ func _physics_process(delta: float) -> void:
 			_update_hittable()
 	if _diving and is_on_floor():
 		_diving = false
+	_breaker_cooldown = maxf(_breaker_cooldown - delta, 0.0)
+	# The breaker's attack and jump presses are used up by the break.
+	var broke := controller.combo_break and can_break_combo()
+	if broke:
+		_break_combo()
 	# Dives and rolls commit the fighter until they end.
-	var acting := can_act() and not is_rolling() and not _diving
+	var acting := can_act() and not is_rolling() and not _diving and not broke
 	# A melee attack commits the fighter: no moving, turning, jumping or slot changes until it ends.
 	var unlocked := acting and not melee.is_attacking()
 

@@ -117,4 +117,4 @@ func _apply_hits(attack: MeleeAttack) -> void:
 		if body in _already_hit or not body.has_method("take_hit"):
 			continue
 		_already_hit.append(body)
-		body.take_hit(attack.damage, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), attack.stun_time, attack.knocks_down)
+		body.take_hit(attack.damage, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), attack.stun_time, attack.knocks_down, fighter)
