@@ -18,11 +18,11 @@ func run() -> void:
 	# Walk and run speeds.
 	input.move = 1.0
 	await physics_frames(40)
-	check(is_equal_approx(fighter.velocity.x, fighter.walk_speed), "fighter walks at walk speed")
+	check(is_equal_approx(fighter.velocity.x, fighter.fighter_class.walk_speed), "fighter walks at walk speed")
 	check(not fighter.is_running(), "walking is not running")
 	input.run = true
 	await physics_frames(20)
-	check(is_equal_approx(fighter.velocity.x, fighter.run_speed) and fighter.is_running(), "run intent speeds up to run speed")
+	check(is_equal_approx(fighter.velocity.x, fighter.fighter_class.run_speed) and fighter.is_running(), "run intent speeds up to run speed")
 
 	# A walking jump goes straight up, with no steering in the air.
 	_reset(fighter, 100)
@@ -44,7 +44,7 @@ func run() -> void:
 	await physics_frames(20)
 	await _tap(fighter, "jump")
 	takeoff_x = fighter.position.x
-	check(fighter.is_diving() and fighter.velocity.x > fighter.run_speed, "running jump starts a forward dive")
+	check(fighter.is_diving() and fighter.velocity.x > fighter.fighter_class.run_speed, "running jump starts a forward dive")
 	input.move = -1.0
 	await _tap(fighter, "attack")
 	check(not fighter.melee.is_attacking(), "no attacking during a dive")
@@ -76,7 +76,7 @@ func run() -> void:
 	var health_before := fighter.health.current
 	fighter.take_hit(10)
 	check(fighter.health.current == health_before, "a rolling fighter cannot be hit")
-	await physics_frames(int(fighter.roll_time * 60) - 2)
+	await physics_frames(int(fighter.fighter_class.roll_time * 60) - 2)
 	check(fighter.is_rolling() and fighter.position.x - roll_x > 60.0, "roll keeps moving forward without input")
 	await physics_frames(4)
 	check(not fighter.is_rolling() and fighter.collision_layer == Fighter.FIGHTERS_LAYER, "roll ends and the fighter is hittable again")

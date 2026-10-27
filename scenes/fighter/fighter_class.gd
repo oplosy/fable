@@ -1,9 +1,22 @@
 class_name FighterClass
 extends Resource
 
-## How a class of characters fights. Per-class stats (speed, health) will live here too.
+## How a class of characters moves and fights.
 
 @export var display_name := ""
+@export var max_health := 100
+
+@export_group("Movement")
+@export var walk_speed := 120.0
+@export var run_speed := 200.0
+@export var jump_velocity := -300.0
+## A running jump is a low, long forward dive.
+@export var dive_velocity := Vector2(260.0, -220.0)
+@export var roll_speed := 220.0
+## Seconds a roll lasts; the fighter cannot be hit while rolling.
+@export var roll_time := 0.4
+
+@export_group("Melee")
 ## Attacks chained by pressing attack again during the current one.
 @export var melee_combo: Array[MeleeAttack] = []
 ## Pause after the full combo before the next attack; a combo cut short pauses proportionally less.

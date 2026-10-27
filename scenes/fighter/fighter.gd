@@ -11,16 +11,8 @@ enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
 @export var controller: FighterController
-@export var walk_speed := 120.0
-@export var run_speed := 200.0
 @export var acceleration := 900.0
 @export var friction := 1100.0
-@export var jump_velocity := -300.0
-## A running jump is a low, long forward dive.
-@export var dive_velocity := Vector2(260.0, -220.0)
-@export var roll_speed := 220.0
-## Seconds a roll lasts; the fighter cannot be hit while rolling.
-@export var roll_time := 0.4
 @export var aim_speed_degrees := 90.0
 ## Seconds a hit fighter ignores its controller.
 @export var hit_stun_time := 0.25
@@ -57,6 +49,9 @@ func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
 	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
+	# Health's own _ready already ran with its default, so start it at the class's maximum.
+	health.max_health = fighter_class.max_health
+	health.current = health.max_health
 	melee.fighter = self
 	melee.fighter_class = fighter_class
 	if controller == null:
@@ -259,7 +254,7 @@ func _physics_process(delta: float) -> void:
 	# No steering in the air: jumps, dives and jump kicks keep their takeoff momentum.
 	var direction := controller.move if unlocked and is_on_floor() else 0.0
 	if direction:
-		var speed := run_speed if controller.run else walk_speed
+		var speed := fighter_class.run_speed if controller.run else fighter_class.walk_speed
 		velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
@@ -269,13 +264,13 @@ func _physics_process(delta: float) -> void:
 	if unlocked and controller.jump and is_on_floor():
 		if is_running():
 			_diving = true
-			velocity = Vector2(facing * dive_velocity.x, dive_velocity.y)
+			velocity = Vector2(facing * fighter_class.dive_velocity.x, fighter_class.dive_velocity.y)
 		else:
 			# A walking jump goes straight up.
-			velocity = Vector2(0.0, jump_velocity)
+			velocity = Vector2(0.0, fighter_class.jump_velocity)
 	elif unlocked and controller.down and is_running():
-		_roll_time = roll_time
-		velocity.x = facing * roll_speed
+		_roll_time = fighter_class.roll_time
+		velocity.x = facing * fighter_class.roll_speed
 		_update_hittable()
 
 	if firearm:
