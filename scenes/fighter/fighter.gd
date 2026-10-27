@@ -188,8 +188,8 @@ func _show_art(data: CharacterData) -> void:
 	_placeholder.visible = false
 
 
-## Builds the character's cutout rig in place of the placeholder box; a broken rig
-## logs an error and leaves the placeholder.
+## Builds the character's cutout rig and its animator in place of the placeholder box;
+## a broken rig logs an error and leaves the placeholder.
 func _show_rig(data: CharacterData) -> void:
 	var rig := CharacterRig.new()
 	rig.name = "Rig"
@@ -199,6 +199,10 @@ func _show_rig(data: CharacterData) -> void:
 	_visuals.add_child(rig)
 	_visuals.move_child(rig, 0)
 	_placeholder.visible = false
+	var animator := RigAnimator.new()
+	animator.name = "Animator"
+	add_child(animator)
+	animator.setup(self, rig)
 
 
 ## Middle of the body's hit shape (standing or crouched).
