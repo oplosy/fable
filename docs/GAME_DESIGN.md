@@ -177,6 +177,7 @@ Game modes (decided, not built yet):
 
 - Maps are classified as small, medium or large. Example designs will be discussed later.
 - Maps are large: bigger than one screen, so the camera follows the fighters. Even small maps are not tiny rooms.
+- Every arena's root is an `Arena` with a `bounds` rectangle. A fighter that leaves it (falls into a pit) dies; items and thrown objects that leave it are removed, so a lost spawned item frees its spawn point.
 - Players will be able to import their own maps from outside the game. Format and tooling to be discussed later.
 - Implication: imported maps must not run arbitrary code; a data-only map format (no scripts) is required for user content.
 

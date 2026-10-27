@@ -74,6 +74,7 @@ func _ready() -> void:
 	if controller.get_parent() == null:
 		add_child(controller)
 	health.died.connect(_on_died)
+	add_to_group(Arena.BOUNDED)
 	# The scene's shape resource is shared by every fighter, so crouching swaps in its own copy.
 	_stand_shape = _body_shape.shape
 	_crouch_shape = _stand_shape.duplicate()
@@ -365,6 +366,15 @@ func _update_pose() -> void:
 	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if _diving else 0.0)
 	_visuals.position.y = -6.0 if lying or _diving else 0.0
 	_visuals.scale.y = 0.5 if is_rolling() else 1.0
+
+
+## Called by the arena once the fighter has left the map: it dies and stops falling.
+func fall_out() -> void:
+	if not is_dead():
+		health.take_damage(health.current)
+	velocity = Vector2.ZERO
+	visible = false
+	set_physics_process(false)
 
 
 func _on_died() -> void:

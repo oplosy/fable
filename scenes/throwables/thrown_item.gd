@@ -18,6 +18,7 @@ var _gone := false
 
 func _ready() -> void:
 	_sprite.texture = data.texture
+	add_to_group(Arena.BOUNDED)
 	var shape := RectangleShape2D.new()
 	shape.size = data.texture.get_size()
 	_shape.shape = shape

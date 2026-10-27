@@ -22,6 +22,7 @@ func _ready() -> void:
 	shape.size = data.texture.get_size()
 	_shape.shape = shape
 	add_to_group("weapon_pickups" if pickable else "dropped_weapons")
+	add_to_group(Arena.BOUNDED)
 	if not pickable:
 		get_tree().create_timer(lifetime, false, true).timeout.connect(queue_free)
 
