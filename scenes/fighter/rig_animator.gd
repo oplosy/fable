@@ -18,6 +18,13 @@ const SNAP := 0.03
 const STILL_SPEED := 5.0
 ## A stun at least this long (s) gets the heavy flinch.
 const HEAVY_STUN := 0.4
+## Coat sway: a spring pulls each coat towards the clip's angle (stiffness 1/s², damping
+## 1/s, a little under critical so it swings once), and moving trails it behind the body
+## (radians per world px/s, up to COAT_MAX_TRAIL).
+const COAT_STIFFNESS := 150.0
+const COAT_DAMPING := 16.0
+const COAT_TRAIL := 0.0015
+const COAT_MAX_TRAIL := 0.35
 ## Cosmetic one-shots that finish while the fighter stands still; any action cuts them.
 const SETTLING := ["land", "getup_back", "getup_front"]
 
@@ -30,8 +37,8 @@ var _was_airborne := false
 var _last_state := -1
 ## Set by the fighter's hit_taken, so a new hit restarts the flinch.
 var _new_hit := false
-## Coat part -> the two bottom corners of its hem relative to its pivot, in art px.
-var _hems := {}
+## Coat part -> [angle, angular speed] of its sway, in radians, relative to the hips.
+var _sway := {}
 
 
 ## Loads every clip in CLIPS_DIR for this rig. Call once both are in the tree.
@@ -43,11 +50,6 @@ func setup(target: Fighter, rig: CharacterRig) -> void:
 	root_node = get_path_to(rig)
 	# Played by hand in _physics_process, so the coats can be fixed after each step.
 	callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
-	for part: String in CharacterRig.OPTIONAL:
-		if rig.joints.has(part):
-			var sprite: Sprite2D = rig.joints[part].get_child(0)
-			var used := sprite.texture.get_image().get_used_rect()
-			_hems[part] = [Vector2(used.position.x, used.end.y) - rig.pivots[part], Vector2(used.end) - rig.pivots[part]]
 	var library := AnimationLibrary.new()
 	for file in DirAccess.get_files_at(CLIPS_DIR):
 		if file.get_extension() == "json":
@@ -60,7 +62,9 @@ func setup(target: Fighter, rig: CharacterRig) -> void:
 func _physics_process(delta: float) -> void:
 	_choose_clip()
 	advance(delta)
-	_fit_coats()
+	_swing_coats(delta)
+	for coat in _rig.coats:
+		coat.deform()
 
 
 func _choose_clip() -> void:
@@ -128,22 +132,18 @@ func _attack_clip() -> String:
 	return numbered if has_animation(numbered) else String(attack.animation)
 
 
-## A stiff coat part whose hem would go through the floor (crouching, landing) is
-## squashed until it touches the floor instead, like cloth bunching up.
-func _fit_coats() -> void:
-	for part: String in _hems:
-		var joint: Node2D = _rig.joints[part]
-		joint.scale = Vector2.ONE
-		# The rig's origin is the feet, so the floor is y = 0 in rig space.
-		var waist := _rig.to_local(joint.global_position).y
-		var squash := 1.0
-		for corner: Vector2 in _hems[part]:
-			# A corner's height is waist + across + down * scale.y: solve it for the floor.
-			var across := _rig.to_local(joint.to_global(Vector2(corner.x, 0.0))).y - waist
-			var down := _rig.to_local(joint.to_global(Vector2(0.0, corner.y))).y - waist
-			if waist + across + down > 0.0 and down > 0.0:
-				squash = minf(squash, (-waist - across) / down)
-		joint.scale.y = clampf(squash, 0.3, 1.0)
+## The clip sets where each coat hangs; the coat follows it on a spring, lagging behind
+## the body as it moves, so it swings instead of snapping with the legs.
+func _swing_coats(delta: float) -> void:
+	var trail := clampf(fighter.velocity.x * fighter.facing * COAT_TRAIL, -COAT_MAX_TRAIL, COAT_MAX_TRAIL)
+	for coat in _rig.coats:
+		var joint: Node2D = coat.get_parent()
+		var part := String(joint.name)
+		var sway: Array = _sway.get(part, [joint.rotation, 0.0])
+		sway[1] += (COAT_STIFFNESS * (joint.rotation + trail - sway[0]) - COAT_DAMPING * sway[1]) * delta
+		sway[0] += sway[1] * delta
+		_sway[part] = sway
+		joint.rotation = sway[0]
 
 
 ## The clip for what the fighter is doing. States without their own clips yet show idle.

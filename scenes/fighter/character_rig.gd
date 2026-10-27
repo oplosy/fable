@@ -34,6 +34,8 @@ var feet := Vector2.ZERO
 ## On the front fist, turned along the forearm and at world scale, so a held item's art
 ## follows the hand. Visual only: hits and projectiles never use it.
 var hand_anchor: Node2D
+## The coat parts' meshes; RigAnimator bends them after each pose.
+var coats: Array[CoatMesh] = []
 
 
 ## Reads `rig_path` and builds the parts, drawn at 1/`pixels_per_unit` scale with the
@@ -74,18 +76,28 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 			joint.name = part
 			joint.position = pivot - (feet if parent_name == "" else _vec(rig_pivots[parent_name]))
 			(self if parent_name == "" else joints[parent_name]).add_child(joint)
-			var sprite := Sprite2D.new()
-			sprite.texture = textures[part]
-			sprite.centered = false
-			sprite.offset = -pivot
+			# Coats bend like cloth; every other part is stiff.
+			var art: Node2D
+			if part in OPTIONAL:
+				art = CoatMesh.new()
+				art.texture = textures[part]
+			else:
+				art = Sprite2D.new()
+				art.texture = textures[part]
+				art.centered = false
+				art.offset = -pivot
 			# Below zero, so held items and effects on the fighter draw over the body.
-			sprite.z_index = z - PARTS.size()
-			joint.add_child(sprite)
+			art.z_index = z - PARTS.size()
+			joint.add_child(art)
 			joints[part] = joint
 	for key: String in rig.get("points", {}):
 		points[key] = _vec(rig.points[key])
 	for part: String in textures:
 		pivots[part] = _vec(rig_pivots[part])
+	for part: String in OPTIONAL:
+		if joints.has(part):
+			coats.append(joints[part].get_child(0))
+			coats.back().setup(self, part)
 	if points.has("hand_front"):
 		hand_anchor = Node2D.new()
 		hand_anchor.name = "HandFront"

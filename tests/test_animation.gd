@@ -2,7 +2,7 @@
 extends "res://tests/test_case.gd"
 
 ## A rigged fighter plays the clip that matches what it does: idle, walk and run (at the
-## speed its legs match), crouching (a deep squat, coat off the floor), jumping, falling
+## speed its legs match), crouching (a deep squat, coat off the floor), jumping (coat hanging down), falling
 ## and landing; attacks play their own clip, hits a flinch, and a knockdown falls, lies
 ## and gets up on the side the hit came from.
 
@@ -40,10 +40,8 @@ func run() -> void:
 	await physics_frames(30)
 	check(animator.current_animation == "crouch_idle", "crouching plays crouch_idle")
 	check(_head_top(rig) < standing * 0.75, "crouching brings the head down to under 75%% of standing (%.0f%%)" % (100.0 * _head_top(rig) / standing))
-	for part: String in animator._hems:
-		var joint: Node2D = rig.joints[part]
-		for corner: Vector2 in animator._hems[part]:
-			check(rig.to_local(joint.to_global(corner)).y < 0.01, "the %s hem stays off the floor while crouched" % part)
+	for coat in rig.coats:
+		check(_coat_points(rig, coat).all(func(p: Vector2) -> bool: return p.y < 0.01), "the %s stays off the floor while crouched" % coat.get_parent().name)
 	input.move = 1.0
 	await physics_frames(10)
 	check(animator.current_animation == "crouch_walk", "moving while crouched plays crouch_walk")
@@ -56,6 +54,13 @@ func run() -> void:
 	input.jump = false
 	await physics_frames(5)
 	check(animator.current_animation == "jump_rise", "going up plays jump_rise")
+	await physics_frames(10)
+	for coat in rig.coats:
+		var part := String(coat.get_parent().name)
+		var waist := rig.to_local(coat.get_parent().global_position).y
+		var length: float = Array(coat.uv).map(func(p: Vector2) -> float: return p.y).max() - rig.pivots[part].y
+		var hem: float = _coat_points(rig, coat).map(func(p: Vector2) -> float: return p.y).max()
+		check(hem - waist > length * 0.5, "the %s hangs down in the air instead of flying up" % part)
 	while fighter.velocity.y <= 0.0:
 		await physics_frames(1)
 	await physics_frames(2)
@@ -96,6 +101,14 @@ func run() -> void:
 	fighter.take_hit(9999, Vector2(40, 0))
 	await physics_frames(3)
 	check(animator.current_animation == "death_front", "a killing hit from behind plays death_front (%s)" % animator.current_animation)
+
+
+## A coat mesh's points in rig space (art px, feet at the origin).
+func _coat_points(rig: CharacterRig, coat: CoatMesh) -> Array:
+	var points := []
+	for point in coat.polygon:
+		points.append(rig.to_local(coat.to_global(point)))
+	return points
 
 
 ## Height of the top of the head over the floor, in art px.
