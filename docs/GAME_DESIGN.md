@@ -9,10 +9,12 @@ Living list of agreed gameplay requirements. Add new items as they are decided; 
 
 ## Visual Direction
 
-- Simple, chunky, readable pixel art like the original Superfighters; strict side-view camera.
-- Small, stylized characters with clear silhouettes; limited palettes; simple industrial arenas.
-- No 3D models, photorealistic textures, heavy shading or high-detail character art. Animation readability beats visual complexity.
-- Pixels stay crisp: 640x360 internal resolution, integer scaling, nearest filtering. Characters are about 32 px tall, tiles are 16 px.
+- Readable pixel art; side-view camera. Characters do not have to be drawn in strict profile: a 3/4 standing pose is fine (user decision, session 3).
+- Stylized characters with clear silhouettes; limited palettes; simple industrial arenas.
+- The user's detailed 64x96 character designs (`characters/`, 1 px outline, cel shading, 5 body-part layers) set the character look. No 3D models or photorealistic textures. Animation readability beats visual complexity.
+- Characters must stay small relative to the map: maps are large and characters never look huge in them (user requirement, session 3).
+- Pixels stay crisp: integer scaling, nearest filtering. Built today: 640x360 internal resolution, 12x28 fighter hitbox, 16 px tiles.
+- Open: how the 64x96 art meets the 640x360 world. Proposed: keep world units, render at 1920x1080 with a 3x camera zoom and draw characters at 1/3 scale (86 px art ≈ 29 world px ≈ the hitbox); weapons, items and tiles are then redrawn at the same 3x detail. Undecided: whether the camera may zoom out on large maps (zooming out below 1:1 blurs the detailed art).
 - `images/` holds Superfighters screenshots (`main-image.png` shows nearly everything) as a reference for look and feel only. All characters, animations and art are drawn from scratch in Aseprite.
 - AI-generated art, if any, must match the style and be reviewed by the user before it goes in.
 
@@ -171,6 +173,7 @@ Game modes (decided, not built yet):
 ## Maps
 
 - Maps are classified as small, medium or large. Example designs will be discussed later.
+- Maps are large: bigger than one screen, so the camera follows the fighters. Even small maps are not tiny rooms.
 - Players will be able to import their own maps from outside the game. Format and tooling to be discussed later.
 - Implication: imported maps must not run arbitrary code; a data-only map format (no scripts) is required for user content.
 
