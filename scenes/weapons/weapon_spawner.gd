@@ -2,11 +2,11 @@ class_name WeaponSpawner
 extends Marker2D
 
 ## A fixed weapon spawn point owned by an arena. While empty, it spawns a
-## pickable weapon every `interval` seconds, picked from `weapons` by spawn_weight.
+## pickable item every `interval` seconds, picked from `weapons` by spawn_weight.
 
 const PICKUP_SCENE := preload("res://scenes/weapons/dropped_weapon.tscn")
 
-@export var weapons: Array[WeaponData] = []
+@export var weapons: Array[ItemData] = []
 @export var interval := 10.0
 
 var _item: DroppedWeapon
@@ -17,7 +17,7 @@ func has_weapon() -> bool:
 	return is_instance_valid(_item) and not _item.is_queued_for_deletion()
 
 
-func _pick_weighted() -> WeaponData:
+func _pick_weighted() -> ItemData:
 	var weights := PackedFloat32Array()
 	for weapon in weapons:
 		weights.append(weapon.spawn_weight)

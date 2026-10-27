@@ -1,13 +1,13 @@
 class_name DroppedWeapon
 extends RigidBody2D
 
-## A firearm lying in the arena. Only weapons spawned by the game can be picked up;
+## A firearm or melee item lying in the arena. Only weapons spawned by the game can be picked up;
 ## weapons dropped by fighters cannot, and disappear after `lifetime`.
 
 ## Emitted when a fighter picks this weapon up, just before it is removed.
 signal taken
 
-var data: WeaponData
+var data: ItemData
 var pickable := false
 ## Seconds a non-pickable (dropped) weapon stays in the arena.
 var lifetime := 5.0

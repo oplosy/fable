@@ -1,10 +1,8 @@
 class_name WeaponData
-extends Resource
+extends ItemData
 
-@export var display_name := ""
-@export var texture: Texture2D
-## Pixel of the texture held by the hand.
-@export var grip := Vector2.ZERO
+## A firearm.
+
 ## Pixel of the texture where projectiles appear.
 @export var muzzle := Vector2.ZERO
 ## Fires while the button is held instead of once per press.
@@ -25,8 +23,6 @@ extends Resource
 @export var pierce := 0
 ## Hits closer than this to the muzzle knock the target down (0 never does).
 @export var knockdown_range := 0.0
-## Relative chance of being picked by a spawn point that lists this weapon.
-@export var spawn_weight := 1.0
 
 @export_group("Spread")
 ## Each shot deviates randomly by up to this many degrees either side of the aim.

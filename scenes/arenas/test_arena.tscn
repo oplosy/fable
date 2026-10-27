@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/weapons/weapon_spawner.gd" id="1_spawner"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="2_pistol"]
-[ext_resource type="Script" path="res://scenes/weapons/weapon_data.gd" id="3_data"]
+[ext_resource type="Script" path="res://scenes/weapons/item_data.gd" id="3_data"]
 [ext_resource type="Resource" path="res://data/weapons/shotgun.tres" id="4_shotgun"]
 [ext_resource type="Resource" path="res://data/weapons/smg.tres" id="5_smg"]
 [ext_resource type="Resource" path="res://data/weapons/sniper.tres" id="6_sniper"]
