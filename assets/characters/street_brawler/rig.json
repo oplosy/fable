@@ -1,0 +1,25 @@
+{
+  "character": "Street Brawler",
+  "canvas": [64, 96],
+  "feet": [32, 93],
+  "pivots": {
+    "pelvis": [31, 59],
+    "torso": [31, 55],
+    "head": [32, 34],
+    "arm_back_upper": [31, 39],
+    "arm_back_lower": [31, 50],
+    "arm_front_upper": [31, 39],
+    "arm_front_lower": [31, 50],
+    "leg_back_upper": [31, 61],
+    "leg_back_lower": [32, 76],
+    "foot_back": [31, 87],
+    "leg_front_upper": [31, 61],
+    "leg_front_lower": [32, 76],
+    "foot_front": [31, 87]
+  },
+  "points": {
+    "hand_front": [32, 62],
+    "hand_back": [32, 62],
+    "head_top": [33, 7]
+  }
+}
