@@ -144,7 +144,12 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 	if is_dead() or is_invulnerable():
 		return
 	health.take_damage(damage)
-	velocity += knockback
+	# Knockback replaces the speed on each axis it pushes along, so repeated hits
+	# (e.g. bullets on an airborne fighter, which has no air friction) never stack.
+	if knockback.x != 0.0:
+		velocity.x = knockback.x
+	if knockback.y != 0.0:
+		velocity.y = knockback.y
 	melee.cancel()
 	_diving = false
 	if _flash_tween:
@@ -242,6 +247,7 @@ func _update_pose() -> void:
 
 
 func _on_died() -> void:
+	_drop_firearm()
 	_update_pose()
 	_update_hittable()
 	melee.cancel()

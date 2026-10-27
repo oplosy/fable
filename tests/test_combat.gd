@@ -46,9 +46,27 @@ func run() -> void:
 	check(target.velocity.x < 0.0, "target walks again after the stun")
 	check(target.get_node("Visuals").modulate == Color.WHITE, "flash fades back")
 
+	# Knockback replaces speed instead of adding up, even in the air.
+	target.velocity = Vector2.ZERO
+	target.controller.move = 0.0
+	target.controller.jump = true
+	await physics_frames(1)
+	target.controller.jump = false
+	await physics_frames(5)
+	for i in 8:
+		target.take_hit(0, Vector2(100, 0))
+	check(not target.is_on_floor() and is_equal_approx(target.velocity.x, 100.0), "repeated knockback does not stack")
+	await physics_frames(60)
+	target.controller.move = -1.0
+	await physics_frames(20)
+
+	target.equip_firearm(PISTOL)
 	target.take_hit(1000)
 	await physics_frames(20)
 	check(target.is_dead() and target.health.current == 0, "lethal hit kills the target")
+	check(target.firearm == null, "a dying fighter drops its firearm")
+	var dropped := get_nodes_in_group("dropped_weapons")
+	check(dropped.size() == 1 and not dropped[0].pickable, "the dead fighter's firearm lies in the arena and cannot be picked up")
 	check(target.collision_layer == 0, "dead body leaves the fighters layer")
 	check(is_equal_approx(absf(target.get_node("Visuals").rotation), PI / 2.0), "dead body lies down")
 	check(is_zero_approx(target.velocity.x), "dead body ignores its move intent")
