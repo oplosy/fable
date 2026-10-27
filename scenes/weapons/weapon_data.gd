@@ -17,6 +17,16 @@ extends Resource
 @export var projectile_speed := 600.0
 ## Shots before the weapon is empty; there are no ammo pickups.
 @export var ammo := 12
+## Projectiles per shot, each with its own random deviation (shotgun pellets).
+@export var pellets := 1
+## Distance in px a projectile flies before it disappears.
+@export var projectile_range := 1200.0
+## Extra fighters a projectile passes through after the first one it hits.
+@export var pierce := 0
+## Hits closer than this to the muzzle knock the target down (0 never does).
+@export var knockdown_range := 0.0
+## Relative chance of being picked by a spawn point that lists this weapon.
+@export var spawn_weight := 1.0
 
 @export_group("Spread")
 ## Each shot deviates randomly by up to this many degrees either side of the aim.

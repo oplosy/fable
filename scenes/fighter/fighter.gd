@@ -191,7 +191,9 @@ func take_hit(damage: int, knockback := Vector2.ZERO, stun := -1.0, knocks_down 
 		return
 	# Already-downed fighters (only hittable if the class allows it) are never knocked down again.
 	if knocks_down and not is_knocked_down():
-		_knock_down()
+		# Deferred so the other pellets of the same shotgun blast still land
+		# before the downed fighter turns invulnerable.
+		_knock_down.call_deferred()
 	elif not is_knocked_down():
 		_hit_stun = stun if stun >= 0.0 else hit_stun_time
 		_stunned_by = attacker
@@ -206,6 +208,8 @@ func _break_combo() -> void:
 
 
 func _knock_down() -> void:
+	if is_dead() or is_knocked_down():
+		return
 	_down_time = fighter_class.knockdown_time
 	_hit_stun = 0.0
 	_drop_firearm()
