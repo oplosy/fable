@@ -14,7 +14,8 @@
     "leg_back_lower": [39, 72],
     "leg_front_upper": [30, 53],
     "leg_front_lower": [25, 72],
-    "coat_tail": [33, 46]
+    "coat_tail": [33, 46],
+    "coat_back": [33, 46]
   },
   "points": {
     "hand_front": [24, 49],

@@ -169,7 +169,7 @@ func run() -> void:
 	main.arena.add_child(agent)
 	agent.global_position = Vector2(400, 300)
 	var rig: CharacterRig = agent.get_node_or_null("Visuals/Rig")
-	check(rig != null and rig.joints.size() == 12 and not agent.get_node("Visuals/Placeholder").visible, "a rigged character builds its 12 parts in place of the placeholder")
+	check(rig != null and rig.joints.size() == 13 and not agent.get_node("Visuals/Placeholder").visible, "a rigged character builds its 13 parts in place of the placeholder")
 	if rig:
 		var neck := agent.global_position + (Vector2(33, 22) - Vector2(32, 93)) / 3.0
 		check(rig.joints.head.global_position.is_equal_approx(neck), "each part's joint sits on its rig.json pivot (head at %s, want %s)" % [rig.joints.head.global_position, neck])
