@@ -25,8 +25,10 @@ func _test_ammo() -> void:
 	shooter.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
 	check(shooter.inventory.firearm.ammo_left == PISTOL.ammo, "a new weapon is fully loaded")
+	check(_crosshair_on_aim(shooter), "a drawn weapon shows the crosshair on the aim line")
 	for i in PISTOL.ammo - 1:
 		await _fire(shooter)
+	check(_crosshair_on_aim(shooter), "shooting (spread, bloom) never moves the crosshair off the aim line")
 	check(shooter.inventory.firearm != null and shooter.inventory.firearm.ammo_left == 1, "each shot uses one bullet")
 	await _fire(shooter)
 	check(shooter.inventory.firearm == null and shooter.inventory.active_slot == Inventory.Slot.MELEE, "the last shot drops the empty weapon and leaves bare hands")
@@ -162,3 +164,9 @@ func _spawn(at: Vector2) -> Fighter:
 	arena.add_child(fighter)
 	fighter.global_position = at
 	return fighter
+
+
+func _crosshair_on_aim(shooter: Fighter) -> bool:
+	var crosshair: Crosshair = shooter._crosshair
+	var aimed: Vector2 = shooter._hand.global_position + shooter.aim_direction() * Crosshair.DISTANCE
+	return crosshair.visible and crosshair.global_position.is_equal_approx(aimed)

@@ -55,6 +55,7 @@ var _crouch_shape: RectangleShape2D
 var _stand_hand_y: float
 ## Shows the held throwable; hit detection never uses it.
 var _throwable_sprite: Sprite2D
+var _crosshair := Crosshair.new()
 var _state := State.IDLE
 
 @onready var _visuals: Node2D = $Visuals
@@ -109,6 +110,7 @@ func _ready() -> void:
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
 	_hand.add_child(_throwable_sprite)
+	add_child(_crosshair)
 
 
 ## The firearm is in hand only while standing on the floor; moving puts it away.
@@ -454,6 +456,7 @@ func _physics_process(delta: float) -> void:
 			firearm.try_fire(aim_direction(), get_parent(), self, fighter_class.crouch_spread_scale if _crouching else 1.0)
 			if firearm.is_empty():
 				inventory.drop_firearm()
+	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction())
 
 	if acting and inventory.active_slot == Inventory.Slot.MELEE and controller.attack:
 		melee.request_attack(not is_on_floor())
