@@ -2,16 +2,16 @@ extends Node2D
 
 @export var arena_scene: PackedScene
 @export var fighter_scene: PackedScene
-@export var character: CharacterData
-## Temporary until weapon pickups exist; Superfighters starts fighters unarmed.
+## One character per local player; player N uses the pN_ actions and the Nth spawn point.
+@export var characters: Array[CharacterData] = []
+## Every fighter starts the match with this firearm.
 @export var starting_weapon: WeaponData
-## Temporary target for testing combat; spawned idle at the second spawn point.
-@export var dummy_character: CharacterData
-@export var dummy_respawn_time := 1.5
+## Temporary until rounds exist: a dead player comes back at its spawn point.
+@export var respawn_time := 1.5
 
 var arena: Node2D
-var fighter: Fighter
-var dummy: Fighter
+## Index 0 is player 1.
+var players: Array[Fighter] = []
 
 
 func _ready() -> void:
@@ -19,13 +19,19 @@ func _ready() -> void:
 	add_child(SettingsMenu.new())
 	arena = arena_scene.instantiate()
 	add_child(arena)
+	players.resize(characters.size())
+	for index in characters.size():
+		_spawn_player(index)
 
-	fighter = _spawn_fighter(character, LocalController.new(), 0)
+
+func _spawn_player(index: int) -> void:
+	var controller := LocalController.new()
+	controller.prefix = "p%d_" % (index + 1)
+	var spawned := _spawn_fighter(characters[index], controller, index)
 	if starting_weapon:
-		fighter.equip_firearm(starting_weapon)
-
-	if dummy_character:
-		_spawn_dummy()
+		spawned.equip_firearm(starting_weapon)
+	spawned.health.died.connect(_on_player_died.bind(spawned, index))
+	players[index] = spawned
 
 
 func _spawn_fighter(data: CharacterData, controller: FighterController, spawn_index: int) -> Fighter:
@@ -38,13 +44,7 @@ func _spawn_fighter(data: CharacterData, controller: FighterController, spawn_in
 	return spawned
 
 
-func _spawn_dummy() -> void:
-	# No controller: the fighter stands idle.
-	dummy = _spawn_fighter(dummy_character, null, 1)
-	dummy.health.died.connect(_on_dummy_died.bind(dummy))
-
-
-func _on_dummy_died(dead: Fighter) -> void:
-	await get_tree().create_timer(dummy_respawn_time).timeout
+func _on_player_died(dead: Fighter, index: int) -> void:
+	await get_tree().create_timer(respawn_time).timeout
 	dead.queue_free()
-	_spawn_dummy()
+	_spawn_player(index)

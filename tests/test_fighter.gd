@@ -6,7 +6,7 @@ func run() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	await physics_frames(30)
-	var fighter: Fighter = main.fighter
+	var fighter: Fighter = main.players[0]
 
 	check(fighter.is_on_floor(), "fighter rests on the floor")
 	check(fighter.get_node("Visuals/Placeholder").color == fighter.character.placeholder_color, "character data sets the look")
@@ -78,7 +78,7 @@ func run() -> void:
 	await physics_frames(120)
 	check(get_nodes_in_group("projectiles").is_empty(), "bullet is removed after hitting the wall")
 
-	# Count spawns rather than live bullets: a shot may already have hit the dummy.
+	# Count spawns rather than live bullets: a shot may already have hit player 2.
 	var shots := [0]
 	var count_shot := func(node: Node) -> void:
 		if node is Projectile:
