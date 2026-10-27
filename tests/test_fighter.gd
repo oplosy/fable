@@ -4,6 +4,8 @@ extends "res://tests/test_case.gd"
 
 func run() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
+	# The checks rely on the test arena's flat floor, walls and open line of fire.
+	main.arena_scene = load("res://scenes/arenas/test_arena.tscn")
 	root.add_child(main)
 	await physics_frames(30)
 	var fighter: Fighter = main.players[0]

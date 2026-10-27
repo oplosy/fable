@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://scenes/arenas/test_arena.tscn" id="2_arena"]
+[ext_resource type="PackedScene" path="res://scenes/arenas/docks.tscn" id="2_arena"]
 [ext_resource type="PackedScene" path="res://scenes/fighter/fighter.tscn" id="3_fighter"]
 [ext_resource type="Resource" path="res://data/characters/street_brawler.tres" id="4_character"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="5_pistol"]
