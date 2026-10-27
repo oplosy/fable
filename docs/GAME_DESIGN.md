@@ -98,10 +98,11 @@ Built:
 - Each arena defines fixed weapon spawn points. An empty spawn point spawns a weapon at an interval (about 10 s).
 - With an empty firearm slot, walking over a spawned firearm picks it up automatically.
 - With a full firearm slot, the fighter stands on the weapon and presses S once to swap: the new weapon is equipped and the old one drops (and cannot be picked up).
+- Melee items work the same way with the melee slot (bare hands count as empty). Picking up an item selects its slot.
 - Fighters start the match with a pistol (user decision) and 3 grenades (decided, not built yet).
-- Spawn points pick weighted at random by each weapon's `spawn_weight` (built): pistol and SMG 3, shotgun 2, sniper rifle 1.
-- Decided, not built yet: melee items and throwables also come only from spawn points (and the starting loadout).
-- A fighter that dies drops its firearm too, like a knocked-down one. Like every fighter-dropped weapon, it cannot be picked up.
+- Spawn points pick weighted at random by each weapon's `spawn_weight` (built): pistol, SMG and knife 3; shotgun and baseball bat 2; sniper rifle 1.
+- Melee items come only from spawn points (built). Decided, not built yet: throwables too (plus the starting loadout).
+- A fighter that dies drops its firearm and its melee item. Like every fighter-dropped weapon, they cannot be picked up.
 
 Current pickup rules (prototype, easy to change):
 - Spawn points are `WeaponSpawner` nodes under the arena's `WeaponSpawns`; each lists the weapons it can spawn (one picked at random) and its interval. The test arena has one pistol spawn point near the left wall.
@@ -190,7 +191,12 @@ Firearms (slot 2):
 | Bazooka | 2 | Rocket | Explosion hurts and knocks down everyone in range. |
 | Flamethrower | 50 (fuel) | Hold | Short range; sets the target on fire (burn damage over time). |
 
-Melee items (slot 1, replace the punch; each has its own combo and breaks after 10-15 hits):
+Melee items (slot 1, replace the punch; each has its own combo and breaks after 10-15 hits). Knife and baseball bat are built:
+
+- Durability counts hits that land on fighters; the jump kick is a kick and does not wear the item. An item that runs out finishes its current combo, then breaks and vanishes (nothing drops) and the fighter punches again.
+- Built values (prototype): knife = stab, stab, slash (5/5/8 damage, very fast, reach about 22 px), 0.5 s combo pause, 15 hits. Bat = swing, swing, home run (8/8/14, the home run knocks down, reach about 29 px), 0.8 s combo pause, 10 hits.
+- Current defaults (not yet confirmed by the user): a knockdown drops the firearm but keeps the melee item; death drops both.
+
 
 | Item | Speed | Reach | Role |
 |------|-------|-------|------|
@@ -214,11 +220,11 @@ Rules for throwables and explosions:
 - Explosions and fire hurt the thrower too; position and timing matter. A molotov thrown at your own feet burns you. A grenade's fuse starts when the pin is pulled, so holding it too long makes it explode in your hand.
 - Grenade controls: holding the attack key pulls the pin and starts the fuse; releasing it throws. Held past the fuse time, it explodes in the hand.
 
-Build order is open; shotgun, SMG and sniper rifle are built. Suggested next: knife, baseball bat; grenade, molotov.
+Build order is open; shotgun, SMG, sniper rifle, knife and baseball bat are built. Suggested next: grenade, molotov.
 
 ## Current Prototype Deviations
 
-- Melee uses bare hands only; melee weapons, throwables and power-ups are not implemented yet.
+- Only the knife and baseball bat exist as melee items; throwables and power-ups are not implemented yet. Melee items are held level in the hand like a firearm until swing animations exist.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
 - The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol) and respawns a dead player after 1.5 s of unpaused time; this is a testing aid until rounds and a match flow exist.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
