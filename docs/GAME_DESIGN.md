@@ -88,6 +88,8 @@ Current movement rules (prototype, easy to change):
 - The roll lasts 0.4 s in the facing direction (Fast 235, Heavy 190 px/s). The fighter cannot be hit, act or draw the firearm while rolling.
 - Dive and roll poses are placeholders (head-first rectangle, squashed rectangle) until animations exist.
 
+Open question (session 4): walk speed against the walk animation. The walk clip is a real walk: 1.1 s per two steps at about 17 px/s for a 32 px tall body. At the current walk speed (Fast 130, Heavy 120 px/s, about 4 body heights per second, a sprint for a real person) the feet only stay planted if the steps play 7-8 times faster, which looks frantic. Crouch walk is the same at 50 px/s (about 5 times). Either the speeds come down, or the walk becomes a jog/run and the run a sprint.
+
 ## Controls
 
 Player 1 (defaults): A/D move, Left Shift run, C crouch, W/S aim (S rolls while running), Space jump (user decision, session 3; was K), J attack (J + Space together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.

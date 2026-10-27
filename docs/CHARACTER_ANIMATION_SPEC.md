@@ -281,11 +281,12 @@ For every animation:
 
 ### 3.6 Clips already made by Claude
 
-While the art AI was out of quota, Claude generated these clips into `assets/animations/` with `tools/make_animations.gd` (leg poses solved from foot targets): `idle`, `walk`, `run`, `jump_rise`, `fall`, `land`, `crouch_idle`, `crouch_walk`; the melee attacks `fast_jab_1..3`, `fast_hook`, `fast_jump_kick`, `heavy_punch_1..2`, `heavy_kick`, `heavy_jump_kick`, `knife_stab_1..2`, `knife_slash`, `bat_swing_1..2`, `bat_home_run` (timed from the data files, the hit pose reaching the hit area); `hit_front_light`, `hit_front_heavy`, `hit_back_light`, `hit_back_heavy`, `hit_air`; `knockdown_back/front`, `lying_back/front`, `getup_back/front`, `death_back/front`. A delivered clip of the same name replaces the generated one. Two rules learned while making them:
-- The rig has no ankle, so a foot turns with its shin. In standing and crouched poses keep the shins near their standing angle (lower the body by turning the thighs, knees forward) so feet stay flat.
+While the art AI was out of quota, Claude generated these clips into `assets/animations/` with `tools/make_animations.gd` (leg poses solved from foot targets): `idle`, `walk`, `run`, `jump_rise`, `fall`, `land`, `crouch_idle`, `crouch_walk`; the melee attacks `fast_jab_1..3`, `fast_hook`, `fast_jump_kick`, `heavy_punch_1..2`, `heavy_kick`, `heavy_jump_kick`, `knife_stab_1..2`, `knife_slash`, `bat_swing_1..2`, `bat_home_run` (timed from the data files, the hit pose reaching the hit area); `hit_front_light`, `hit_front_heavy`, `hit_back_light`, `hit_back_heavy`, `hit_air`; `knockdown_back/front`, `lying_back/front`, `getup_back/front`, `death_back/front`. A delivered clip of the same name replaces the generated one. Rules learned while making them:
+- The rig has no ankle, so a foot turns with its shin. A deep crouch therefore stands on the balls of the feet (a real squat), not flat-footed with upright shins; walking feet roll heel to toe with the shin.
+- `walk`, `crouch_idle` and `crouch_walk` are copied from motion capture (CMU, `art/mocap/`), so their body height, lean and foot paths are a real person's.
 - Held items lie along the forearm, grip in the fist, so an attack aims the item by turning the forearm.
 - Lying face up, the near arm and leg sit lower than the body line in the 3/4 view; keep them across the body so they stay above the floor.
-- The game squashes `coat_tail` and `coat_back` when their hem would go through the floor (crouching, landing), so coats may simply follow the thighs.
+- The game bends `coat_tail` and `coat_back` as cloth over the thighs and keeps them off the floor, so clips only turn coats to hang straight down; they need no coat poses.
 
 ## 4. Order of Work and Hand-over
 
