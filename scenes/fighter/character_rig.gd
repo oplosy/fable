@@ -28,6 +28,9 @@ const OPTIONAL := ["coat_back", "coat_tail"]
 var joints := {}
 ## rig.json "points" (hand_front, hand_back, head_top) in art pixels on the canvas.
 var points := {}
+## rig.json "pivots" and "feet", in art pixels on the canvas.
+var pivots := {}
+var feet := Vector2.ZERO
 
 
 ## Reads `rig_path` and builds the parts, drawn at 1/`pixels_per_unit` scale with the
@@ -39,12 +42,12 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 	if not rig is Dictionary or not rig.get("pivots") is Dictionary or not rig.get("feet") is Array:
 		push_error("%s: not a valid rig file" % rig_path)
 		return false
-	var pivots: Dictionary = rig.pivots
+	var rig_pivots: Dictionary = rig.pivots
 	var dir := rig_path.get_base_dir()
 	var textures := {}
 	for entry in PARTS:
 		var part: String = entry[0]
-		if not pivots.has(part):
+		if not rig_pivots.has(part):
 			if part in OPTIONAL:
 				continue
 			push_error("%s: no pivot for %s" % [rig_path, part])
@@ -54,7 +57,7 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 			push_error("%s: missing part %s.png" % [rig_path, part])
 			return false
 		textures[part] = texture
-	var feet := _vec(rig.feet)
+	feet = _vec(rig.feet)
 	scale = Vector2.ONE / pixels_per_unit
 	# Parents first; the draw order comes from each part's place in PARTS instead.
 	while joints.size() < textures.size():
@@ -63,10 +66,10 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 			var parent_name: String = PARTS[z][1]
 			if not textures.has(part) or joints.has(part) or (parent_name != "" and not joints.has(parent_name)):
 				continue
-			var pivot := _vec(pivots[part])
+			var pivot := _vec(rig_pivots[part])
 			var joint := Node2D.new()
 			joint.name = part
-			joint.position = pivot - (feet if parent_name == "" else _vec(pivots[parent_name]))
+			joint.position = pivot - (feet if parent_name == "" else _vec(rig_pivots[parent_name]))
 			(self if parent_name == "" else joints[parent_name]).add_child(joint)
 			var sprite := Sprite2D.new()
 			sprite.texture = textures[part]
@@ -78,7 +81,15 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 			joints[part] = joint
 	for key: String in rig.get("points", {}):
 		points[key] = _vec(rig.points[key])
+	for part: String in textures:
+		pivots[part] = _vec(rig_pivots[part])
 	return true
+
+
+## Hip to floor in art pixels: animations scale their body offsets by it, so the same
+## clip fits a short and a tall character.
+func leg_length() -> float:
+	return feet.y - pivots.leg_front_upper.y
 
 
 static func _vec(value: Array) -> Vector2:
