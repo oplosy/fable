@@ -86,7 +86,9 @@ func _test_spread_and_bloom() -> void:
 	arena.child_entered_tree.disconnect(count_shot)
 	check(not angles.is_empty() and absf(angles.max()) < 0.001 and absf(angles.min()) < 0.001, "a zero-spread weapon fires dead straight")
 	shooter.queue_free()
-	await physics_frames(5)
+	# Let the last bullets reach the wall before the next fighter spawns in their path.
+	await physics_frames(90)
+	check(get_nodes_in_group("projectiles").is_empty(), "bullets stop at the wall")
 
 
 ## Crouching: slow walk, lower body, narrower spread, and level shots pass over.
