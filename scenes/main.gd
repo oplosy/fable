@@ -15,6 +15,8 @@ var dummy: Fighter
 
 
 func _ready() -> void:
+	KeyBindings.load_saved()
+	add_child(SettingsMenu.new())
 	arena = arena_scene.instantiate()
 	add_child(arena)
 
