@@ -44,14 +44,21 @@ Current defaults (not yet confirmed by the user, easy to change):
 
 ## Movement: Walk, Run, Jump, Dive, Roll
 
-Decided, not built yet:
+Built:
 - Fighters walk by default. They run (speed up) either by double-tapping a direction (A A / D D) or while holding Shift.
 - A walking jump goes straight up. A running jump is a forward dive, like diving head-first into a pool.
 - Pressing down (S) while running rolls forward. S is free while running because the firearm is put away.
 
+Current movement rules (prototype, easy to change):
+- Walk 120 px/s, run 200 px/s. A double tap counts when the second press comes within 0.25 s of the first; the run lasts while that direction is held.
+- No steering or turning in the air: every jump, dive and jump kick keeps its takeoff momentum.
+- The dive launches at 260 px/s forward, lower than a normal jump. No attacking during a dive; it ends on landing and the fighter slides to a stop. A hit cancels the dive.
+- The roll lasts 0.4 s at 220 px/s in the facing direction. The fighter cannot be hit, act or draw the firearm while rolling.
+- Dive and roll poses are placeholders (head-first rectangle, squashed rectangle) until animations exist.
+
 ## Controls
 
-Player 1: A/D move, W/S aim, K jump, J attack, 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
+Player 1: A/D move, Shift run, W/S aim (S rolls while running), K jump, J attack, 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
 - Jump stays on K in every state; W never jumps.
 - Open: player 2 key layout on a shared keyboard.
@@ -69,8 +76,9 @@ Built:
 - **Combo finishers**: the last attack of every class combo (Fast's hook, Heavy's kick) knocks the target down. Single punches do not.
 - **Disarming**: a single punch never disarms. A knocked-down fighter drops its firearm (full combo or jump kick) into the arena.
 
+- **Defence**: no blocking; rolling (see Movement) is the only defence.
+
 Decided, not built yet:
-- **Defence**: no blocking; rolling (see Movement).
 - **Combo breaker**: while being hit in a combo, pressing attack + jump together breaks free and pushes the attacker back slightly. It then has a long cooldown (around 10 s).
 
 Current melee rules (prototype, easy to change):
