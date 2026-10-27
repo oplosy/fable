@@ -44,6 +44,10 @@ hitbox_size = Vector2(16, 16)
 [resource]
 script = ExtResource("1_class")
 display_name = "Fast"
+max_health = 90
+walk_speed = 130.0
+run_speed = 215.0
+roll_speed = 235.0
 melee_combo = Array[ExtResource("2_attack")]([SubResource("jab"), SubResource("jab"), SubResource("jab"), SubResource("hook")])
 combo_cooldown = 0.6
 air_attack = SubResource("jump_kick")

@@ -44,6 +44,12 @@ hitbox_size = Vector2(18, 16)
 [resource]
 script = ExtResource("1_class")
 display_name = "Heavy"
+max_health = 130
+walk_speed = 100.0
+run_speed = 170.0
+jump_velocity = -260.0
+dive_velocity = Vector2(220, -190)
+roll_speed = 190.0
 melee_combo = Array[ExtResource("2_attack")]([SubResource("punch"), SubResource("punch"), SubResource("kick")])
 combo_cooldown = 0.8
 air_attack = SubResource("jump_kick")
