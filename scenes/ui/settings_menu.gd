@@ -6,7 +6,7 @@ extends CanvasLayer
 
 const LABELS := {
 	"left": "Move left", "right": "Move right", "up": "Aim up", "down": "Aim down / roll / swap",
-	"run": "Run", "jump": "Jump", "attack": "Attack",
+	"run": "Run", "crouch": "Crouch", "jump": "Jump", "attack": "Attack",
 	"slot_1": "Slot 1", "slot_2": "Slot 2", "slot_3": "Slot 3", "slot_4": "Slot 4",
 }
 
@@ -67,8 +67,20 @@ func _input(event: InputEvent) -> void:
 
 
 func _build() -> void:
+	# Compact rows so every action fits the 360 px tall viewport.
 	var theme := Theme.new()
-	theme.default_font_size = 10
+	theme.default_font_size = 9
+	theme.set_constant("v_separation", "GridContainer", 1)
+	var compact := StyleBoxFlat.new()
+	compact.bg_color = Color(0.2, 0.22, 0.27)
+	compact.set_content_margin_all(2)
+	compact.content_margin_left = 6
+	compact.content_margin_right = 6
+	var compact_hover: StyleBoxFlat = compact.duplicate()
+	compact_hover.bg_color = Color(0.3, 0.33, 0.4)
+	theme.set_stylebox("normal", "Button", compact)
+	theme.set_stylebox("pressed", "Button", compact)
+	theme.set_stylebox("hover", "Button", compact_hover)
 	_panel = PanelContainer.new()
 	_panel.theme = theme
 	_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
@@ -78,9 +90,12 @@ func _build() -> void:
 
 	var box := VBoxContainer.new()
 	_panel.add_child(box)
+	var row := HBoxContainer.new()
+	box.add_child(row)
 	var title := Label.new()
 	title.text = "Controls (Esc closes)"
-	box.add_child(title)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(title)
 
 	var grid := GridContainer.new()
 	grid.columns = KeyBindings.PLAYERS + 1
@@ -103,8 +118,6 @@ func _build() -> void:
 			grid.add_child(button)
 			_buttons[action_id] = button
 
-	var row := HBoxContainer.new()
-	box.add_child(row)
 	var reset := Button.new()
 	reset.text = "Reset to defaults"
 	reset.focus_mode = Control.FOCUS_NONE

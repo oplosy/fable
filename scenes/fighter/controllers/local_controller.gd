@@ -24,6 +24,7 @@ func poll() -> void:
 			_since_tap = 0.0
 		_held_dir = dir
 	run = _tap_run or Input.is_action_pressed(prefix + "run")
+	crouch = Input.is_action_pressed(prefix + "crouch")
 	aim = Input.get_axis(prefix + "up", prefix + "down")
 	down = Input.is_action_just_pressed(prefix + "down")
 	jump = Input.is_action_just_pressed(prefix + "jump")

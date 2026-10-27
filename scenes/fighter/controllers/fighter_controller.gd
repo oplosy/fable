@@ -6,6 +6,7 @@ extends Node
 
 var move := 0.0 ## -1 left .. 1 right
 var run := false ## Move at run speed instead of walking.
+var crouch := false ## Held: crouch (slow walk, lower body, narrower spread).
 var aim := 0.0 ## -1 up .. 1 down
 var down := false ## Down pressed this physics frame (rolls while running).
 var jump := false ## Pressed this physics frame.

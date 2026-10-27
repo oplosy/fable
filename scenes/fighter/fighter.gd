@@ -17,6 +17,10 @@ enum Slot { MELEE, FIREARM, THROWABLE, POWERUP }
 @export var aim_speed_degrees := 90.0
 ## Seconds a hit fighter ignores its controller.
 @export var hit_stun_time := 0.25
+## Spread multiplier while firing crouched.
+@export var crouch_spread_scale := 0.4
+## Body height while crouched; level shots from a standing shooter pass over it.
+@export var crouch_height := 14.0
 
 var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 var facing := 1
@@ -36,7 +40,11 @@ var _diving := false
 ## The fighter whose melee hit caused the current stun; the combo breaker pushes it back.
 var _stunned_by: Fighter
 var _breaker_cooldown := 0.0
+var _crouching := false
 var _flash_tween: Tween
+var _stand_shape: RectangleShape2D
+var _crouch_shape: RectangleShape2D
+var _stand_hand_y: float
 
 @onready var _visuals: Node2D = $Visuals
 @onready var _placeholder: ColorRect = $Visuals/Placeholder
@@ -44,6 +52,7 @@ var _flash_tween: Tween
 @onready var _attack_placeholder: ColorRect = $Visuals/AttackPlaceholder
 @onready var health: Health = $Health
 @onready var melee: Melee = $Melee
+@onready var _body_shape: CollisionShape2D = $CollisionShape2D
 
 
 func _ready() -> void:
@@ -60,6 +69,11 @@ func _ready() -> void:
 	if controller.get_parent() == null:
 		add_child(controller)
 	health.died.connect(_on_died)
+	# The scene's shape resource is shared by every fighter, so crouching swaps in its own copy.
+	_stand_shape = _body_shape.shape
+	_crouch_shape = _stand_shape.duplicate()
+	_crouch_shape.size.y = crouch_height
+	_stand_hand_y = _hand.position.y
 
 
 func equip_firearm(data: WeaponData) -> void:
@@ -128,9 +142,26 @@ func can_act() -> bool:
 	return not is_stunned() and not is_dead() and not is_knocked_down()
 
 
-## Running is moving on the floor with the controller's run intent.
+## Running is moving on the floor with the controller's run intent; crouching overrides it.
 func is_running() -> bool:
-	return is_on_floor() and controller.run and controller.move != 0.0
+	return is_on_floor() and controller.run and controller.move != 0.0 and not _crouching
+
+
+func is_crouching() -> bool:
+	return _crouching
+
+
+## Lowers the body, its hit shape and the hand; standing up restores them.
+func _set_crouching(crouching: bool) -> void:
+	if crouching == _crouching:
+		return
+	_crouching = crouching
+	var shape := _crouch_shape if crouching else _stand_shape
+	_body_shape.shape = shape
+	_body_shape.position.y = -shape.size.y / 2.0
+	_hand.position.y = _stand_hand_y * shape.size.y / _stand_shape.size.y
+	# Placeholder look; the hand is resized above rather than squashing the weapon sprite.
+	_placeholder.offset_top = -shape.size.y
 
 
 func aim_direction() -> Vector2:
@@ -213,10 +244,9 @@ func _update_pickup() -> void:
 
 
 func _pickup_under() -> DroppedWeapon:
-	var body_shape: CollisionShape2D = $CollisionShape2D
 	var query := PhysicsShapeQueryParameters2D.new()
-	query.shape = body_shape.shape
-	query.transform = body_shape.global_transform
+	query.shape = _body_shape.shape
+	query.transform = _body_shape.global_transform
 	query.collision_mask = PICKUPS_LAYER
 	for result in get_world_2d().direct_space_state.intersect_shape(query):
 		var item := result.collider as DroppedWeapon
@@ -284,13 +314,20 @@ func _physics_process(delta: float) -> void:
 	if unlocked:
 		_update_pickup()
 
+	# Jumping stands the fighter up; so does anything that takes away control.
+	_set_crouching(acting and is_on_floor() and controller.crouch and not controller.jump)
+
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
 	# No steering in the air: jumps, dives and jump kicks keep their takeoff momentum.
 	var direction := controller.move if unlocked and is_on_floor() else 0.0
 	if direction:
-		var speed := fighter_class.run_speed if controller.run else fighter_class.walk_speed
+		var speed := fighter_class.walk_speed
+		if _crouching:
+			speed = fighter_class.crouch_speed
+		elif controller.run:
+			speed = fighter_class.run_speed
 		velocity.x = move_toward(velocity.x, direction * speed, acceleration * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
@@ -319,7 +356,9 @@ func _physics_process(delta: float) -> void:
 		var wants_fire := controller.attack_held if firearm.data.automatic else controller.attack
 		if drawn and wants_fire:
 			# Projectiles belong to the arena, not the fighter, so they outlive it.
-			firearm.try_fire(aim_direction(), get_parent(), self)
+			firearm.try_fire(aim_direction(), get_parent(), self, crouch_spread_scale if _crouching else 1.0)
+			if firearm.is_empty():
+				_drop_firearm()
 
 	if acting and active_slot == Slot.MELEE and controller.attack:
 		melee.request_attack(not is_on_floor())

@@ -9,6 +9,7 @@ extends Resource
 @export_group("Movement")
 @export var walk_speed := 120.0
 @export var run_speed := 200.0
+@export var crouch_speed := 50.0
 @export var jump_velocity := -300.0
 ## A running jump is a low, long forward dive.
 @export var dive_velocity := Vector2(260.0, -220.0)
