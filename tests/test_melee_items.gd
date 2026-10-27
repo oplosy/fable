@@ -120,6 +120,12 @@ func _test_pickup_and_drop() -> void:
 	var dropped := get_nodes_in_group("dropped_weapons")
 	check(dropped.size() == 1 and dropped[0].data == KNIFE and not dropped[0].pickable, "the old melee item drops and cannot be picked up")
 
+	fighter.take_hit(0, Vector2.ZERO, -1.0, true)
+	await physics_frames(2)
+	check(fighter.is_knocked_down() and fighter.firearm == null and fighter.melee.item == BAT, "a knockdown drops the firearm but keeps the melee item")
+	# Wait out the downed and get-up invulnerability.
+	await physics_frames(110)
+
 	fighter.take_hit(1000)
 	await physics_frames(2)
 	dropped = get_nodes_in_group("dropped_weapons")
