@@ -12,6 +12,9 @@ extends Node2D
 ## How far below its start the fire looks for a floor to settle on.
 @export var max_fall := 200.0
 
+## The fighter credited with its hits: whoever threw it.
+var attacker: Fighter
+
 var _age := 0.0
 var _until_tick := 0.0
 
@@ -39,7 +42,7 @@ func _physics_process(delta: float) -> void:
 	var middle := global_position + Vector2(0, -height / 2.0)
 	for body in HitQuery.fighters_in(get_world_2d(), shape, Transform2D(0.0, middle), middle):
 		# Zero stun: burning fighters can still run out of the fire.
-		body.take_hit(damage_per_tick, Vector2.ZERO, 0.0)
+		body.take_hit(damage_per_tick, Vector2.ZERO, 0.0, false, attacker if is_instance_valid(attacker) else null)
 
 
 func _draw() -> void:

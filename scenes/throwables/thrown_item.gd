@@ -45,12 +45,15 @@ func go_off() -> void:
 	if _gone:
 		return
 	_gone = true
-	spawn_effect(data, get_parent(), global_position)
+	spawn_effect(data, get_parent(), global_position, thrower as Fighter if is_instance_valid(thrower) else null)
 	queue_free()
 
 
-## Spawns `data`'s effect at `at`; deferred because it can be called from physics callbacks.
-static func spawn_effect(data: ThrowableData, world: Node, at: Vector2) -> void:
+## Spawns `data`'s effect at `at`, crediting its hits to `attacker`; deferred because
+## it can be called from physics callbacks.
+static func spawn_effect(data: ThrowableData, world: Node, at: Vector2, attacker: Fighter = null) -> void:
 	var effect: Node2D = data.effect_scene.instantiate()
+	if "attacker" in effect:
+		effect.attacker = attacker
 	effect.position = world.to_local(at)
 	world.add_child.call_deferred(effect)

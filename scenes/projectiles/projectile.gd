@@ -50,7 +50,8 @@ func _physics_process(delta: float) -> void:
 			return
 		var at_range := _traveled + global_position.distance_to(hit.position)
 		var knocks_down := knockdown_range > 0.0 and at_range <= knockdown_range
-		body.take_hit(damage, velocity.normalized() * knockback, stun, knocks_down)
+		var credit: Fighter = shooter as Fighter if is_instance_valid(shooter) else null
+		body.take_hit(damage, velocity.normalized() * knockback, stun, knocks_down, credit)
 		_hits += 1
 		if _hits > pierce:
 			queue_free()

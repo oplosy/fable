@@ -11,6 +11,9 @@ extends Node2D
 @export var knocks_down := true
 @export var show_time := 0.25
 
+## The fighter credited with its hits: whoever threw it.
+var attacker: Fighter
+
 var _age := 0.0
 
 
@@ -26,7 +29,7 @@ func _blast() -> void:
 		# Pushed away from the blast and a little upwards.
 		var away := (body.global_position - global_position).normalized()
 		var push := Vector2(signf(away.x) if away.x != 0.0 else 0.0, -0.5).normalized() * knockback
-		body.take_hit(damage, push, -1.0, knocks_down)
+		body.take_hit(damage, push, -1.0, knocks_down, attacker if is_instance_valid(attacker) else null)
 
 
 func _process(delta: float) -> void:

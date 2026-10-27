@@ -44,7 +44,7 @@ func physics_update(delta: float, drawn: bool, pressed: bool, held: bool, hand: 
 		# Held too long: it goes off in the hand.
 		var data := item
 		_use_one()
-		ThrownItem.spawn_effect(data, fighter.get_parent(), hand)
+		ThrownItem.spawn_effect(data, fighter.get_parent(), hand, fighter)
 		return
 	# A stunned fighter keeps holding it; the throw waits until it can act.
 	if not held and fighter.can_act():
