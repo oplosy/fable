@@ -40,15 +40,17 @@ Example: the fighter walks, stops, the firearm appears in hand and attack fires 
 
 - With the firearm slot active, attack in the air does nothing: no shot and no jump kick (user decision). The jump kick needs the melee slot.
 
-Ammo (decided, not built yet):
-- Every firearm has limited ammo, the starting pistol included (amounts in Content List).
+Ammo (built):
+- Every firearm has limited ammo, the starting pistol included (amounts in Content List). Only the pistol exists so far (12 shots).
 - An empty firearm is dropped automatically (it cannot be picked up) and the fighter falls back to bare hands.
-- Open: whether ammo pickups exist.
+- There are no ammo pickups (user decision); a weapon has only the ammo it came with.
 
-Spread and bullet speed (decided, not built yet):
+Spread, bullet speed and crouching (built):
 - Bullets do not all fly in a perfect line. Each weapon has a spread angle (each shot deviates randomly within it) and its own bullet speed.
 - The sniper rifle fires dead straight with the fastest bullets; the SMG has the slowest bullets and the widest spread; the machine gun sits between them. Other weapons follow the same idea (the shotgun's pellets spread by design).
-- Open: whether spread also grows while holding the trigger on automatic weapons.
+- Holding the trigger on automatic weapons widens the spread shot by shot; it narrows again when firing stops.
+- Crouching narrows the spread (like crouching in Counter-Strike). Crouch has its own key (not S, which keeps aiming down): the fighter can walk slowly while crouched, and the body gets lower so level shots from a standing shooter pass over it. Walking while crouched still puts the firearm away, so crouched firing means crouching still.
+- Prototype values: pistol 2° spread, 600 px/s bullets, no bloom. Crouching multiplies the spread by 0.4, lowers the body from 28 to 14 px (the hand moves down with it) and walks at 50 px/s. Each weapon sets `spread_degrees`, `spread_per_shot`, `max_bloom_degrees`, `bloom_recovery` and `projectile_speed` in its `WeaponData`.
 
 Current defaults (not yet confirmed by the user, easy to change):
 - The aim angle is kept when turning around (mirrored into the new facing half).
@@ -70,9 +72,9 @@ Current movement rules (prototype, easy to change):
 
 ## Controls
 
-Player 1 (defaults): A/D move, Left Shift run, W/S aim (S rolls while running), K jump, J attack (J + K together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
+Player 1 (defaults): A/D move, Left Shift run, C crouch, W/S aim (S rolls while running), K jump, J attack (J + K together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
-Player 2 (defaults): Left/Right arrows move, Right Shift run, Up/Down arrows aim, / jump, . (Period) attack, 7-0 select slot.
+Player 2 (defaults): Left/Right arrows move, Right Shift run, Right Ctrl crouch, Up/Down arrows aim, / jump, . (Period) attack, 7-0 select slot.
 
 - Jump always uses the jump key, in every state; aim up never jumps.
 - Built: Esc opens a Controls menu (the game pauses) where every player rebinds their own keys: click a binding, press the new key (Esc cancels). Taking a key that another action uses swaps the two, so no action is left unbound. Bindings are saved to `user://keybindings.cfg`; "Reset to defaults" restores the list above. Escape cannot be bound.
@@ -197,7 +199,7 @@ Bombs and throwables (slot 3, counted):
 Rules for throwables and explosions:
 - Throwing aims like a firearm (the facing half-circle, W/S), with a fixed throw strength.
 - Explosions and fire hurt the thrower too; position and timing matter. A molotov thrown at your own feet burns you. A grenade's fuse starts when the pin is pulled, so holding it too long makes it explode in your hand.
-- Open: how the grenade is "held" (hold the attack key to cook, release to throw?) and what decides the fuse start.
+- Grenade controls: holding the attack key pulls the pin and starts the fuse; releasing it throws. Held past the fuse time, it explodes in the hand.
 
 Build order is open; the suggested first batch covers every core mechanic: shotgun, SMG, sniper rifle; knife, baseball bat; grenade, molotov.
 

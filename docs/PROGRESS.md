@@ -4,7 +4,7 @@ Where development stands and what comes next. Update this at the end of every wo
 
 ## Status (2026-10-27, session 2)
 
-Branch `main` (movement package, combo breaker, per-class stats, weapon pickups and key rebinding done this session), pushed to https://github.com/oplosy/fable. All 10 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
+Branch `main` (movement package, combo breaker, per-class stats, weapon pickups, key rebinding, review fixes, ammo, spread and crouching done this session), pushed to https://github.com/oplosy/fable. All 11 headless test suites pass. Placeholder art only (colored rectangles); only menu is the Esc controls menu; no maps, bots or networking yet.
 
 ## Built So Far
 
@@ -15,25 +15,25 @@ Branch `main` (movement package, combo breaker, per-class stats, weapon pickups 
 | Main scene | Loads the arena, spawns local players from its `characters` list (P1 Fast on `p1_*`, P2 Heavy on `p2_*`), each with the pistol, and respawns a dead player after 1.5 s. Adds the controls menu. | `scenes/main.gd` |
 | Fighter | One shared `CharacterBody2D`: walk, run, jump (K), facing, 4 slots (melee, firearm, throwable, power-up; only the first two can hold anything). | `scenes/fighter/fighter.gd` |
 | Controllers | Fighters never read `Input`; a `FighterController` provides intent (move, run, aim, down, jump, attack, slot). `LocalController` reads `p1_*` actions and turns Shift or a double tap into the run intent. The base controller is idle (used in tests). | `scenes/fighter/controllers/` |
-| Firearm | Drawn only when standing still on the floor in the firearm slot; A/D holster it. W/S rotate aim within the facing 180°. Attack fires projectiles along the aim. | `scenes/weapons/`, `data/weapons/pistol.tres` |
+| Firearm | Drawn only when standing still on the floor in the firearm slot; A/D holster it. W/S rotate aim within the facing 180°. Attack fires along the aim, deviated within the weapon's spread (plus bloom on held fire, narrower when crouched). Limited ammo; the empty weapon drops itself. | `scenes/weapons/`, `data/weapons/pistol.tres` |
 | Health and hits | `Health` component; `take_hit(damage, knockback, stun, knocks_down)`; hit flash, knockback, stun. Dead bodies lie down and leave the fighters layer. | `scenes/components/health.gd` |
 | Classes and melee | `FighterClass` resources hold the melee combo (`MeleeAttack` resources), combo cooldown, jump kick and knockdown settings. Fast: jab x3 + hook. Heavy: punch x2 + kick. Hits use a physics shape query, once per target per attack. | `scenes/fighter/melee.gd`, `data/classes/` |
 | Knockdown | Combo finishers and the jump kick knock down for 1.25 s. Downed fighters cannot be hit (per-class `downed_invulnerable`), plus 0.4 s invulnerability after getting up. Knockdown drops the firearm into the arena. | `fighter.gd`, `scenes/weapons/dropped_weapon.gd` |
 | Jump kick | No punches in the air; attack while airborne is the class jump kick, once per jump, hitting forward at foot level. | `melee.gd`, `data/classes/*.tres` |
 | Combo breaker | While melee-stunned, attack + jump together ends the stun and pushes the attacker back (no damage, 0.3 s stun). 10 s cooldown; settings in `FighterClass`. Melee passes the attacker to `take_hit`. | `fighter.gd`, `local_controller.gd`, `fighter_class.gd` |
-| Movement | Walk/run speeds; walking jump straight up, running jump is a forward dive; S while running rolls (invulnerable). No air steering. Speeds and health come from `FighterClass`; Fast and Heavy differ. | `fighter.gd`, `local_controller.gd` |
+| Movement | Walk/run speeds; walking jump straight up, running jump is a forward dive; S while running rolls (invulnerable). Crouch key: slow walk, half-height body. No air steering. Speeds and health come from `FighterClass`; Fast and Heavy differ. | `fighter.gd`, `local_controller.gd` |
 | Weapon pickups | `WeaponSpawner` points spawn pickable weapons every 10 s while empty. Empty slot: walk over to take; full slot: S on the weapon swaps and drops the old one. Fighter-dropped weapons are never pickable and vanish after 5 s. | `scenes/weapons/weapon_spawner.gd`, `dropped_weapon.gd`, `fighter.gd` |
 | Controls | Default `p1_*` and `p2_*` actions (P2 on arrows, Right Shift, / and .). `KeyBindings` saves per-player rebinds to `user://keybindings.cfg` (swap on conflict); Esc opens `SettingsMenu`, which pauses the game. | `scenes/ui/`, `project.godot` |
 | Art pipeline | Aseprite CLI with Lua scripts; first sprite: pistol (9x5). | `art/weapons/pistol.aseprite` → `assets/weapons/pistol.png` |
 
-Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, all on the `test_case.gd` base (30 s watchdog). How to run them: see `CLAUDE.md` → Running Tests.
+Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `test_melee`, `test_knockdown`, `test_movement`, `test_combo_breaker`, `test_pickup`, `test_key_bindings`, `test_firearm`, all on the `test_case.gd` base (30 s watchdog). How to run them: see `CLAUDE.md` → Running Tests.
 
 ## Next Steps
 
-1. Build the agreed content (GAME_DESIGN.md → Content List), starting with ammo, spread and bullet speed; suggested first batch: shotgun, SMG, sniper; knife, bat; grenade, molotov. Build order not agreed yet.
+1. Build the agreed content (GAME_DESIGN.md → Content List); ammo, spread, bloom and crouching are done. Suggested first batch: shotgun, SMG, sniper; knife, bat; grenade, molotov. Build order not agreed yet.
 2. Later (order not agreed yet): game modes (capture the flag, deathmatch; score, time or 3-life endings), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
-Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, ammo pickups, spread growth on auto fire, grenade cooking controls, mode rules).
+Open questions for the user are listed in `GAME_DESIGN.md` (aim kept on turn, firearm holstered in the air, mode rules).
 
 ## Known Bugs
 
