@@ -28,6 +28,7 @@ func poll() -> void:
 	aim = Input.get_axis(prefix + "up", prefix + "down")
 	down = Input.is_action_just_pressed(prefix + "down")
 	jump = Input.is_action_just_pressed(prefix + "jump")
+	jump_held = Input.is_action_pressed(prefix + "jump")
 	attack = Input.is_action_just_pressed(prefix + "attack")
 	attack_held = Input.is_action_pressed(prefix + "attack")
 	# "Together" means one key goes down while the other is already held.

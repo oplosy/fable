@@ -14,6 +14,16 @@ extends Resource
 @export var run_speed := 200.0
 @export var crouch_speed := 50.0
 @export var jump_velocity := -300.0
+## Gravity multiplier while rising, and while falling; a heavier fall feels less floaty.
+@export var gravity_scale := 1.0
+@export var fall_gravity_scale := 1.0
+## Releasing jump while still rising multiplies the upward speed by this, so a tap is a
+## short hop and a held press a full jump. 1 turns it off.
+@export_range(0.0, 1.0) var jump_cut := 1.0
+## Seconds after walking off a ledge in which jump still works (coyote time).
+@export var coyote_time := 0.0
+## Seconds a jump pressed just before landing is remembered and done on landing.
+@export var jump_buffer := 0.0
 ## Speed change per second from A/D in the air, up to walk speed. Jumps keep their
 ## takeoff speed, so this only bends the arc; dives and jump kicks cannot be steered.
 @export var air_acceleration := 500.0

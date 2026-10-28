@@ -46,6 +46,12 @@ var _diving := false
 ## The fighter whose melee hit caused the current stun; the combo breaker pushes it back.
 var _stunned_by: Fighter
 var _breaker_cooldown := 0.0
+## Seconds since the fighter last stood on the floor (coyote time); INF once it jumped.
+var _since_floor := 0.0
+## Seconds a jump press is still remembered (jump buffer).
+var _jump_buffered := 0.0
+## Rising from a normal jump, so releasing jump can cut it short.
+var _jump_rising := false
 var _last_attacker: Fighter
 var _credit_left := 0.0
 var _crouching := false
@@ -403,11 +409,19 @@ func _physics_process(delta: float) -> void:
 	# slot changes until the attack ends or the item is thrown.
 	var unlocked := acting and not melee.is_attacking() and not thrower.is_cooking()
 
+	if is_on_floor():
+		_since_floor = 0.0
+	else:
+		_since_floor += delta
+	_jump_buffered = fighter_class.jump_buffer if controller.jump and not broke else maxf(_jump_buffered - delta, 0.0)
+
 	if is_climbing() and (not unlocked or controller.jump or controller.move != 0.0):
 		var jumped := unlocked and controller.jump
 		_let_go()
 		if jumped:
 			velocity.y = fighter_class.jump_velocity
+			_jump_buffered = 0.0
+			_since_floor = INF
 			# The jump is used up; is_on_floor() is stale from before the climb.
 			unlocked = false
 	elif unlocked and not is_climbing():
@@ -425,7 +439,12 @@ func _physics_process(delta: float) -> void:
 	_set_crouching(acting and is_on_floor() and controller.crouch and not controller.jump)
 
 	if not is_on_floor():
-		velocity.y += gravity * delta
+		velocity.y += gravity * (fighter_class.fall_gravity_scale if velocity.y > 0.0 else fighter_class.gravity_scale) * delta
+	if _jump_rising and (velocity.y >= 0.0 or is_on_floor()):
+		_jump_rising = false
+	elif _jump_rising and not controller.jump_held:
+		_jump_rising = false
+		velocity.y *= fighter_class.jump_cut
 
 	var direction := controller.move if unlocked else 0.0
 	if direction and is_on_floor():
@@ -447,13 +466,18 @@ func _physics_process(delta: float) -> void:
 	elif is_on_floor() and not is_rolling():
 		velocity.x = move_toward(velocity.x, 0.0, fighter_class.friction * delta)
 
-	if unlocked and controller.jump and is_on_floor():
+	var wants_jump := (controller.jump and not broke) or _jump_buffered > 0.0
+	var can_jump := is_on_floor() or _since_floor <= fighter_class.coyote_time
+	if unlocked and wants_jump and can_jump:
+		_jump_buffered = 0.0
+		_since_floor = INF
 		if is_running():
 			_diving = true
 			velocity = Vector2(facing * fighter_class.dive_velocity.x, fighter_class.dive_velocity.y)
 		else:
 			# A jump keeps the speed it was walking with, so it arcs forward.
 			velocity.y = fighter_class.jump_velocity
+			_jump_rising = true
 	elif unlocked and controller.down and is_running():
 		_roll_time = fighter_class.roll_time
 		velocity.x = facing * fighter_class.roll_speed
