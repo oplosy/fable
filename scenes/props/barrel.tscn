@@ -1,13 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
-
-[sub_resource type="Gradient" id="placeholder_color"]
-colors = PackedColorArray(0.5, 0.5, 0.55, 1, 0.5, 0.5, 0.55, 1)
-
-[sub_resource type="GradientTexture2D" id="1_texture"]
-gradient = SubResource("placeholder_color")
-width = 42
-height = 57
+[ext_resource type="Texture2D" path="res://assets/props/barrel.png" id="1_texture"]
 
 [sub_resource type="RectangleShape2D" id="shape"]
 size = Vector2(12, 18)
@@ -19,7 +12,7 @@ position = Vector2(0, -9)
 shape = SubResource("shape")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-7, -19)
+position = Vector2(-8, -19)
 scale = Vector2(0.333333, 0.333333)
-texture = SubResource("1_texture")
+texture = ExtResource("1_texture")
 centered = false
