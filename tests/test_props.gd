@@ -13,6 +13,11 @@ var arena: Node2D
 
 
 func run() -> void:
+	for path in ["res://scenes/props/barrel.tscn", "res://scenes/props/explosive_barrel.tscn"]:
+		var barrel: Node = load(path).instantiate()
+		var shape := barrel.find_children("*", "CollisionShape2D")[0] as CollisionShape2D
+		check((shape.shape as RectangleShape2D).size == FighterClass.DIVE_OVER, "%s is the size a dive skims over" % path.get_file())
+		barrel.free()
 	arena = load("res://scenes/arenas/test_arena.tscn").instantiate()
 	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)

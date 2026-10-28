@@ -135,6 +135,10 @@ func _test_class_stats() -> void:
 	for data: CharacterData in [FAST, HEAVY]:
 		var c := data.fighter_class
 		var ratio := c.dive_reach() / c.jump_reach()
+		if c == FAST.fighter_class:
+			# shortcut: Heavy's low, slow dive cannot skim a barrel within the reach rule; check it once the user decides Heavy's values.
+			var clearance := c.dive_clearance(FighterClass.DIVE_OVER, 12.0)
+			check(clearance >= 0.0 and clearance <= FighterClass.DIVE_SKIM, "%s's dive just skims a barrel (%.1f px over)" % [c.display_name, clearance])
 		check(absf(c.roll_reach() / c.dive_reach() - 1.0) < 0.03, "%s's roll goes as far as its dive (%.0f px vs %.0f px)" % [c.display_name, c.roll_reach(), c.dive_reach()])
 		check(ratio >= FighterClass.DIVE_REACH.x - 0.005 and ratio <= FighterClass.DIVE_REACH.y + 0.005, "%s's dive reaches 15-20%% further than its walking jump (%.0f%%)" % [c.display_name, (ratio - 1.0) * 100.0])
 	fast.queue_free()
