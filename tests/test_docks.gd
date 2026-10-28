@@ -3,7 +3,7 @@ extends "res://tests/test_case.gd"
 
 ## The Docks arena plays as laid out: every ladder leads from a floor to a platform a
 ## fighter can stand on, a quay gap drops into the sea and kills, and the gaps are
-## jumped edge to edge: a walking jump just clears a narrow gap, a dive the wide one.
+## jumped edge to edge: a walking jump just clears a narrow gap, a dive the wider one.
 
 const FIGHTER_SCENE := preload("res://scenes/fighter/fighter.tscn")
 const FAST := preload("res://data/characters/placeholder.tres")
@@ -41,7 +41,7 @@ func run() -> void:
 	var walk_gap := Vector2(928, 976) # the last gap, jumped from its right side
 	check(await _edge_jump(walk_gap, -1, 0.0, false), "a walking jump from the edge clears the last gap")
 	check(not await _edge_jump(walk_gap, -1, 12.0, false), "a walking jump 12 px early falls into the last gap")
-	var dive_gap := Vector2(592, 688) # the wide middle gap, dived from its right side
+	var dive_gap := Vector2(592, 672) # the wide middle gap, dived from its right side
 	check(await _edge_jump(dive_gap, -1, 0.0, true), "a running dive from the edge clears the wide gap")
 	check(not await _edge_jump(dive_gap, -1, 8.0, true), "a running dive half a tile early falls into the wide gap")
 
