@@ -89,3 +89,9 @@ func jump_reach() -> float:
 
 func dive_reach() -> float:
 	return dive_velocity.x * air_time(dive_velocity.y)
+
+
+## Distance (px) a roll covers with no input: at roll speed, then sliding to a stop.
+## Rule (user, session 4): it matches the dive's reach.
+func roll_reach() -> float:
+	return roll_speed * roll_time + roll_speed * roll_speed / (2.0 * friction)

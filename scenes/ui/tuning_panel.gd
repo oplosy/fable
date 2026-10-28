@@ -134,9 +134,9 @@ func _update_summary() -> void:
 	var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 	var c := _tuned
 	var height := c.jump_velocity * c.jump_velocity / (2.0 * gravity * c.gravity_scale)
-	_summary.text = "Jump %.0f px high (%.1f tiles), %.2f s in the air\nWalking jump reaches %.0f px, dive %.0f px (%.0f%% further; rule %.0f-%.0f%%)\nWalk speed in %.2f s, stop in %.2f s" % [
+	_summary.text = "Jump %.0f px high (%.1f tiles), %.2f s in the air\nWalking jump reaches %.0f px, dive %.0f px (%.0f%% further; rule %.0f-%.0f%%)\nRoll reaches %.0f px (rule: as far as the dive)\nWalk speed in %.2f s, stop in %.2f s" % [
 		height, height / 16.0, c.air_time(c.jump_velocity), c.jump_reach(), c.dive_reach(),
-		(c.dive_reach() / c.jump_reach() - 1.0) * 100.0, (FighterClass.DIVE_REACH.x - 1.0) * 100.0, (FighterClass.DIVE_REACH.y - 1.0) * 100.0,
+		(c.dive_reach() / c.jump_reach() - 1.0) * 100.0, (FighterClass.DIVE_REACH.x - 1.0) * 100.0, (FighterClass.DIVE_REACH.y - 1.0) * 100.0, c.roll_reach(),
 		c.walk_speed / c.acceleration, c.walk_speed / c.friction]
 
 
