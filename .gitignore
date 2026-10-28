@@ -4,3 +4,6 @@
 *.translation
 export_presets.cfg
 /build/
+
+# Stick figure frames drawn by tools/make_stickman.gd, turned into .aseprite by tools/stickman.lua
+/art/stickman/strips/
