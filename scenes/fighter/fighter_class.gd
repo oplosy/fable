@@ -27,7 +27,8 @@ extends Resource
 ## Speed change per second from A/D in the air, up to walk speed. Jumps keep their
 ## takeoff speed, so this only bends the arc; dives and jump kicks cannot be steered.
 @export var air_acceleration := 500.0
-## A running jump is a low, long forward dive.
+## A running jump is a low forward dive, a bit faster than running. Rule (user, session
+## 4): it reaches DIVE_REACH times as far as a walking jump; test_movement checks it.
 @export var dive_velocity := Vector2(260.0, -220.0)
 @export var roll_speed := 220.0
 ## Seconds a roll lasts; the fighter cannot be hit while rolling.
@@ -68,3 +69,23 @@ extends Resource
 @export var getup_invulnerability := 0.4
 ## If false, a downed fighter takes damage but cannot be knocked down again.
 @export var downed_invulnerable := true
+
+
+## How much further a dive reaches than a walking jump (user: 15-20% further).
+const DIVE_REACH := Vector2(1.15, 1.2)
+
+
+## Seconds in the air for a jump that starts at upward speed `speed` (negative).
+func air_time(speed: float) -> float:
+	var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
+	var height := speed * speed / (2.0 * gravity * gravity_scale)
+	return -speed / (gravity * gravity_scale) + sqrt(2.0 * height / (gravity * fall_gravity_scale))
+
+
+## Distance (px) a walking jump and a dive cover from takeoff to landing on flat floor.
+func jump_reach() -> float:
+	return walk_speed * air_time(jump_velocity)
+
+
+func dive_reach() -> float:
+	return dive_velocity.x * air_time(dive_velocity.y)
