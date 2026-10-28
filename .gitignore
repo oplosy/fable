@@ -7,3 +7,7 @@ export_presets.cfg
 
 # Stick figure frames drawn by tools/make_stickman.gd, turned into .aseprite by tools/stickman.lua
 /art/stickman/strips/
+
+# The user's own drawing folders, kept out of the game and out of git.
+/DONT-OPEN/characters/
+/DONT-OPEN/weapons/

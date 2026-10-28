@@ -1,0 +1,15 @@
+diff --git a/docs/PROGRESS.md b/docs/PROGRESS.md
+index ddf20dd..7ccaa02 100644
+--- a/docs/PROGRESS.md
++++ b/docs/PROGRESS.md
+@@ -2,6 +2,10 @@
+ 
+ Where development stands and what comes next. Update this at the end of every working session. Gameplay rules live in [GAME_DESIGN.md](GAME_DESIGN.md); this file tracks what is built.
+ 
++## Status (Session 5 - Brawler Frame-by-Frame Animation Overhaul)
++
++Replaced Claude's mathematical/mocap stickman generator with a Brawlhalla-inspired 2D pixel brawler frame-by-frame animation system. Completely solved perspective mismatch and jerky pops between idle, walk, run, and attacks by standardizing all 58 clips to a unified brawler side profile with rock-solid floor contact (Y=118). Built modular Python rendering tools (`tools/brawler_renderer.py`, `tools/generate_locomotion.py`, `tools/generate_combat.py`, `tools/generate_reactions_and_aim.py`). Generated and integrated all 58 clips (12 locomotion, 14 combat with white wind FX strips, 14 hit/reactions/knockdowns/deaths, 18 standing and crouched aim poses) into `assets/characters/stickman/`. All test suites pass (frame animator, locomotion, melee, melee items, firearms, knockdown, combat, main).
++
+ ## Status (2026-10-27, session 4)
+ 
+ Session 4 built the first real map, the Docks (a harbour at sunset), and the map elements it needs: ladders, one-way catwalks, plain and explosive barrels and gaps into the sea. All art is drawn by an Aseprite Lua script; the arena is generated from an ASCII layout. The main scene now loads the Docks. Then the camera was rebuilt around map-maker camera shots at crisp zooms (3, 1.5, 0.75). The user rejected Claude's procedural map art as low quality: art will be made from reference images the user provides (`images/refs/`), not drawn from scratch; the pipeline is still to be built. All 24 headless test suites pass.
