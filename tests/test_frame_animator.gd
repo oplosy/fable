@@ -83,3 +83,7 @@ func run() -> void:
 	fighter.controller.attack = false
 	await physics_frames(4)
 	check(frames.hand_anchor.position.distance_to(before) > 1.0, "the fist (and the item) moves with the attack frames")
+	check(frames.fx.visible and frames.fx.animation == StringName(String(frames.animation) + "_fx") and frames.fx.frame == frames.frame, "an attack draws its white wind in step with the body")
+	check(frames.fx.self_modulate == Color.WHITE and frames.self_modulate != Color.WHITE, "the wind stays white while the body takes the character colour")
+	await physics_frames(40)
+	check(not frames.fx.visible, "no wind while standing")

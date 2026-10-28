@@ -17,6 +17,8 @@ const SETTLING := ["land", "getup_back", "getup_front"]
 var fighter: Fighter
 ## On the front fist, turned along the forearm, so a held melee item follows the hand.
 var hand_anchor := Node2D.new()
+## The untinted white wind of attack clips (<clip>_fx), drawn behind the body frame by frame.
+var fx := AnimatedSprite2D.new()
 var _pixels_per_unit := 3.0
 var _feet := Vector2.ZERO
 ## Clip -> its reference_speed (world px/s at 1x); 0 for clips that do not follow speed.
@@ -55,6 +57,17 @@ func setup(target: Fighter, dir: String, pixels_per_unit: float) -> bool:
 			frame.atlas = strip
 			frame.region = Rect2(Vector2(size.x * i, 0), size)
 			library.add_frame(clip, frame)
+		var wind := dir.path_join(clip + "_fx.png")
+		if ResourceLoader.exists(wind):
+			var wind_strip := load(wind) as Texture2D
+			library.add_animation(clip + "_fx")
+			library.set_animation_loop(clip + "_fx", info.loop)
+			library.set_animation_speed(clip + "_fx", info.fps)
+			for i in int(info.frames):
+				var frame := AtlasTexture.new()
+				frame.atlas = wind_strip
+				frame.region = Rect2(Vector2(size.x * i, 0), size)
+				library.add_frame(clip + "_fx", frame)
 		_reference_speeds[clip] = float(info.get("reference_speed", 0.0))
 		_hands[clip] = info.hand_front
 	if library.get_animation_names().is_empty():
@@ -63,6 +76,14 @@ func setup(target: Fighter, dir: String, pixels_per_unit: float) -> bool:
 	centered = false
 	offset = -_feet
 	scale = Vector2.ONE / pixels_per_unit
+	fx.sprite_frames = library
+	fx.centered = false
+	fx.offset = offset
+	fx.show_behind_parent = true
+	add_child(fx)
+	# The body's frame advances in its own processing, after physics; follow it there.
+	frame_changed.connect(_show_wind)
+	animation_changed.connect(_show_wind)
 	fighter.hit_taken.connect(func() -> void: _new_hit = true)
 	return true
 
@@ -161,6 +182,16 @@ func _pick() -> String:
 	if fighter.is_crouching():
 		return "crouch_walk" if absf(fighter.velocity.x) > STILL_SPEED else "crouch_idle"
 	return "idle"
+
+
+## Shows this frame's wind when the clip has any. Self_modulate tints only the body, so
+## the wind stays white.
+func _show_wind() -> void:
+	var wind := String(animation) + "_fx"
+	fx.visible = sprite_frames.has_animation(wind)
+	if fx.visible:
+		fx.animation = wind
+		fx.frame = frame
 
 
 ## Puts the hand anchor on this frame's front fist, along the forearm, at world scale.
