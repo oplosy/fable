@@ -73,6 +73,10 @@ extends Resource
 
 ## How much further a dive reaches than a walking jump (user: 15-20% further).
 const DIVE_REACH := Vector2(1.15, 1.2)
+## Props a dive just skims over (user, session 4): barrels now, tables later. Map props
+## meant to be dived over are this size; the dive clears them by at most DIVE_SKIM px.
+const DIVE_OVER := Vector2(12, 18)
+const DIVE_SKIM := 3.0
 
 
 ## Seconds in the air for a jump that starts at upward speed `speed` (negative).
@@ -89,6 +93,16 @@ func jump_reach() -> float:
 
 func dive_reach() -> float:
 	return dive_velocity.x * air_time(dive_velocity.y)
+
+
+## Px the feet clear a prop of `size` by when the dive peaks right over it (negative:
+## it hits the prop), with a body `body_width` wide.
+func dive_clearance(size: Vector2, body_width: float) -> float:
+	var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
+	var peak := dive_velocity.y * dive_velocity.y / (2.0 * gravity * gravity_scale)
+	# Feet and prop overlap for (body + prop) / 2 on each side of the peak; it falls meanwhile.
+	var half_time := (body_width + size.x) / 2.0 / dive_velocity.x
+	return peak - 0.5 * gravity * fall_gravity_scale * half_time * half_time - size.y
 
 
 ## Distance (px) a roll covers with no input: at roll speed, then sliding to a stop.
