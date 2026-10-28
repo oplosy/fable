@@ -2,6 +2,7 @@
 	"name": "crouch_idle",
 	"loop": true,
 	"length": 1.2,
+	"turn": 1.0,
 	"keys": [
 		{
 			"t": 0.0,

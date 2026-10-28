@@ -59,17 +59,32 @@ func _initialize() -> void:
 	_write_attacks()
 	_write_reactions()
 	_write_knockdowns()
+	_write("dive", _dive())
+	_write("dive_roll", _dive_roll())
+	_write("roll", _roll())
+	_write("climb", _climb())
+	_write_aims()
 	quit()
 
 
 # --- Clips -------------------------------------------------------------------------
 
-## Fighting stance, breathing: the body sinks 1 px and the guard drops a little.
+## Fighting stance turned three quarters to the viewer (user, session 4: standing shows
+## both legs and both arms): feet apart, knees soft, both fists up. Breathing sinks the
+## body a pixel, drops the guard a little and rocks the weight.
 func _idle() -> Dictionary:
 	var keys := []
-	for i in 2:
-		keys.append(_key(i * 0.7, _stance(float(i))))
-	return {"name": "idle", "loop": true, "length": 1.4, "keys": keys}
+	for i in 4:
+		var breath := 0.5 - 0.5 * cos(PI * i / 2.0)
+		var rock := sin(PI * i / 2.0)
+		keys.append(_key(i * 0.35, {
+			"root": Vector2(rock * 0.5, 3 + breath),
+			"torso": 4 + breath, "head": -4 - breath,
+			"arm_front_upper": 15, "arm_front_lower": -135 - 4 * breath,
+			"arm_back_upper": -45, "arm_back_lower": -90 - 4 * breath,
+			"feet": {"front": _foot("front", -7, 0), "back": _foot("back", 8, 0)},
+		}))
+	return {"name": "idle", "loop": true, "length": 1.4, "turn": 1.0, "keys": keys}
 
 
 func _stance(breath: float) -> Dictionary:
@@ -254,25 +269,33 @@ func _mocap_arm(side: String, shoulder: Vector2, elbow: Vector2, hand: Vector2) 
 
 
 ## Leaning forward, longer strides with both feet off the floor between steps, arms pumping.
+## A cartoon sprint, two steps per cycle (user, session 4: legs kick back, arms swing,
+## the body bobs): each foot strikes ahead of the hip, pushes back, kicks up behind and
+## drives the knee forward again. The body drops on each strike and floats between steps,
+## leaning forward and rocking with the strides; bent arms pump opposite the legs.
+## Played at the fighter's own run speed; the feet slide a little for a readable cadence.
 func _run() -> Dictionary:
-	var speed := 200.0
-	# A stride as long as the leg, the swinging foot lifted a third of it.
-	var stride: float = _legs.front.l1 + _legs.front.l2
-	var stance := 0.35
-	var length := stride / (speed * 3.0 * stance)
+	var speed := 123.0
+	var length := 0.48
+	# Ankle path relative to the hip, through one stride (phase 0 = foot strike).
+	var path := [Vector2(9, 0), Vector2(2, 0), Vector2(-6, 0), Vector2(-13, -9), Vector2(-9, -19),
+		Vector2(1, -15), Vector2(9, -7)]
 	var keys := []
 	for i in CYCLE_KEYS:
 		var p := float(i) / CYCLE_KEYS
+		var step := 0.5 + 0.5 * cos(TAU * 2.0 * p)
+		var feet := {}
+		for side in ["front", "back"]:
+			var q := fposmod(p + (0.0 if side == "front" else 0.5), 1.0)
+			var leg: Dictionary = _legs[side]
+			var at := _loop_curve(path, q)
+			feet[side] = {"at": Vector2(leg.hip.x + 2 + at.x, leg.ankle.y + 2 + 3.0 * step + at.y)}
+		var swing := cos(TAU * p)
 		keys.append(_key(p * length, {
-			# Lowest mid-stance (p 0.175 and 0.675), highest in the flight between steps.
-			"root": Vector2(2, 5 + 2.0 * cos(TAU * (2.0 * p - stance))),
-			"torso": 15, "head": -10,
-			"arm_front_upper": 45 * cos(TAU * p), "arm_front_lower": -85,
-			"arm_back_upper": -45 * cos(TAU * p), "arm_back_lower": -85,
-			"feet": {
-				"front": _cycle_foot("front", p, stride, stance, stride / 3.0),
-				"back": _cycle_foot("back", p + 0.5, stride, stance, stride / 3.0),
-			},
+			"root": Vector2(2, 2 + 3.0 * step), "torso": 16 + 3.0 * (1.0 - step), "head": -12,
+			"arm_front_upper": -60 * swing, "arm_front_lower": -80 - 25 * maxf(swing, 0.0),
+			"arm_back_upper": 60 * swing, "arm_back_lower": -80 - 25 * maxf(-swing, 0.0),
+			"feet": feet,
 		}))
 	return {"name": "run", "loop": true, "length": snappedf(length, 0.001), "reference_speed": speed,
 		"events": [{"t": 0.0, "name": "step"}, {"t": snappedf(length / 2.0, 0.001), "name": "step"}], "keys": keys}
@@ -324,7 +347,7 @@ func _crouch_idle() -> Dictionary:
 		var pose := _squat()
 		pose.root.y += i
 		keys.append(_key(i * 0.6, pose))
-	return {"name": "crouch_idle", "loop": true, "length": 1.2, "keys": keys}
+	return {"name": "crouch_idle", "loop": true, "length": 1.2, "turn": 1.0, "keys": keys}
 
 
 func _squat() -> Dictionary:
@@ -514,6 +537,106 @@ func _ease_to_stance(pose: Dictionary, amount: float) -> Dictionary:
 	return eased
 
 
+# --- Dive, roll, climb, aim (the stick figure's frames, docs/GAME_DESIGN.md) -------
+
+## Tucked into a ball: knees to the chest, arms round the shins, chin down. Rolling, the
+## whole ball turns with the hips (`spin`, degrees forward).
+func _tuck(spin: float, root: Vector2) -> Dictionary:
+	return {"root": root, "pelvis": spin, "torso": 35, "head": 25,
+		"arm_front_upper": -50, "arm_front_lower": -100, "arm_back_upper": -35, "arm_back_lower": -110,
+		"feet": {"front": "rest", "back": "rest"}, "legs": {"front": Vector2(-120, 140), "back": Vector2(-105, 135)}}
+
+
+## Head first: arms reach past the head, legs trail; from the takeoff lean into a flat
+## flight that holds until landing.
+func _dive() -> Dictionary:
+	var takeoff := {"root": Vector2(-4, -2), "pelvis": 50, "torso": 5, "head": -30,
+		"arms": {"front": Vector2(-140, -125), "back": Vector2(-150, -135)},
+		"feet": {"front": "rest", "back": "rest"}, "legs": {"front": Vector2(20, 25), "back": Vector2(-15, 35)}}
+	var flight := {"root": Vector2(-10, -8), "pelvis": 82, "torso": 3, "head": -40,
+		"arms": {"front": Vector2(-97, -95), "back": Vector2(-102, -98)},
+		"feet": {"front": "rest", "back": "rest"}, "legs": {"front": Vector2(5, 15), "back": Vector2(-8, 25)}}
+	var glide := flight.duplicate(true)
+	glide.root = Vector2(-10, -7)
+	glide.legs = {"front": Vector2(0, 22), "back": Vector2(-12, 30)}
+	return {"name": "dive", "loop": false, "length": 0.4, "keys": [
+		_key(0.0, takeoff), _key(0.12, flight), _key(0.4, glide)]}
+
+
+## A dive lands into a forward roll: hands to the floor, tuck, over the shoulders and up.
+func _dive_roll() -> Dictionary:
+	var touch := {"root": Vector2(-6, 6), "pelvis": 100, "torso": 10, "head": -30,
+		"arms": {"front": Vector2(-60, -40), "back": Vector2(-70, -50)},
+		"feet": {"front": "rest", "back": "rest"}, "legs": {"front": Vector2(-10, 30), "back": Vector2(-25, 40)}}
+	return {"name": "dive_roll", "loop": false, "length": 0.45, "keys": [
+		_key(0.0, touch), _key(0.08, _tuck(160, Vector2(-3, 12))), _key(0.18, _tuck(250, Vector2(0, 13))),
+		_key(0.28, _tuck(330, Vector2(2, 12))), _spun(_key(0.36, _squat()), 360), _spun(_key(0.45, _stance(0.0)), 360)]}
+
+
+## S while running: down into a forward roll and back up, as long as the roll lasts.
+func _roll() -> Dictionary:
+	var dip := _squat()
+	dip.torso = 55
+	return {"name": "roll", "loop": false, "length": 0.4, "keys": [
+		_key(0.0, dip), _key(0.08, _tuck(90, Vector2(0, 12))), _key(0.17, _tuck(190, Vector2(0, 13))),
+		_key(0.26, _tuck(290, Vector2(0, 12))), _spun(_key(0.33, _squat()), 360), _spun(_key(0.4, _stance(0.0)), 360)]}
+
+
+## A smooth closed curve through `points`, at `q` (0..1) of the way round (Catmull-Rom).
+func _loop_curve(points: Array, q: float) -> Vector2:
+	var n := points.size()
+	var x := fposmod(q, 1.0) * n
+	var i := int(x)
+	var t := x - i
+	var p0: Vector2 = points[(i - 1 + n) % n]
+	var p1: Vector2 = points[i % n]
+	var p2: Vector2 = points[(i + 1) % n]
+	var p3: Vector2 = points[(i + 2) % n]
+	return 0.5 * ((2.0 * p1) + (-p0 + p2) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t + (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t * t * t)
+
+
+## A key turned a whole `spin` (degrees) further at the hips: the same pose, after a roll,
+## so the hips keep turning forward instead of unwinding.
+func _spun(key: Dictionary, spin: float) -> Dictionary:
+	key.angles.pelvis = key.angles.get("pelvis", 0.0) + spin
+	return key
+
+
+## Up a ladder in front of the body: hand over hand and foot over foot, opposite pairs.
+## Played at the climbing speed; it stands still on the ladder.
+func _climb() -> Dictionary:
+	var keys := []
+	for i in 3:
+		var up := "front" if i % 2 == 0 else "back"
+		var down := "back" if up == "front" else "front"
+		var pose := {"root": Vector2(2, -2 - (i % 2)), "torso": -4, "head": -10,
+			"arms": {up: {"at": Vector2(40, 14)}, down: {"at": Vector2(40, 36)}},
+			"feet": {up: {"at": Vector2(37, 74)}, down: {"at": Vector2(36, 87)}}}
+		keys.append(_key(i * 0.3, pose))
+	return {"name": "climb", "loop": true, "length": 0.6, "reference_speed": 1.0, "keys": keys}
+
+
+## Holding a firearm or a throwable: still poses, one per AIM_STEPS step from straight up
+## to straight down, standing and crouched. The front hand holds the grip at the
+## fighter's hand marker; the back hand steadies it further along the aim.
+const AIM_STEPS := 9
+const AIM_HAND := {"stand": Vector2(44, 51), "crouch": Vector2(44, 72)}
+
+func _write_aims() -> void:
+	for stance in ["stand", "crouch"]:
+		for i in AIM_STEPS:
+			var aim := lerpf(-90.0, 90.0, float(i) / (AIM_STEPS - 1))
+			var pose := _stance(0.0) if stance == "stand" else _squat()
+			var hand: Vector2 = AIM_HAND[stance]
+			if stance == "stand":
+				pose.feet = {"front": _foot("front", -7, 0), "back": _foot("back", 8, 0)}
+			pose.torso += aim * 0.12
+			pose.head = pose.get("head", 0.0) - aim * 0.12 + aim * 0.35
+			pose.arms = {"front": {"at": hand, "dir": aim}, "back": {"at": hand + Vector2.from_angle(deg_to_rad(aim)) * 5.0, "dir": aim}}
+			var name := "%s_aim_%d" % [stance, i]
+			_write(name, {"name": name, "loop": false, "length": 0.0, "turn": 1.0, "keys": [_key(0.0, pose)]})
+
+
 # --- Feet --------------------------------------------------------------------------
 
 ## A foot target: x of the ankle relative to its hip, and how far it is lifted off the
@@ -547,7 +670,7 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 	var pelvis := deg_to_rad(pose.get("pelvis", 0.0))
 	var angles := {}
 	for part: String in pose:
-		if part not in ["root", "feet", "arms", "pitch"]:
+		if part not in ["root", "feet", "arms", "pitch", "legs"]:
 			angles[part] = snappedf(pose[part], 0.1)
 	# Arms are posed in world turns (from hanging down), whatever the torso does.
 	var torso_turn: float = pose.get("pelvis", 0.0) + pose.get("torso", 0.0)
@@ -583,6 +706,10 @@ func _key(t: float, pose: Dictionary) -> Dictionary:
 		var grounded: bool = target is Vector2 and target.y > -500.0 or target is String and target != "rest"
 		var shin := pelvis + deg_to_rad(solved.x + solved.y)
 		angles["foot_" + side] = snappedf(rad_to_deg(wrapf(pitch - shin, -PI, PI)), 0.1) if grounded else 0.0
+		# Raw leg turns (thigh against the hips, shin against the thigh) for tucks and dives.
+		if pose.has("legs") and pose.legs.has(side):
+			angles["leg_%s_upper" % side] = snappedf(pose.legs[side].x, 0.1)
+			angles["leg_%s_lower" % side] = snappedf(pose.legs[side].y, 0.1)
 	# Coats hang straight down whatever the hips do, as far as the body lets them. The game
 	# bends them over the legs, sways them after the body and keeps them off the floor.
 	var hang := snappedf(clampf(-rad_to_deg(pelvis), -COAT_HANG_LIMIT, COAT_HANG_LIMIT), 0.1)

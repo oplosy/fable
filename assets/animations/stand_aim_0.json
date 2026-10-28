@@ -1,0 +1,31 @@
+{
+	"name": "stand_aim_0",
+	"loop": false,
+	"length": 0.0,
+	"turn": 1.0,
+	"keys": [
+		{
+			"t": 0.0,
+			"root": [
+				0.0,
+				2.0
+			],
+			"angles": {
+				"torso": -8.8,
+				"head": -22.7,
+				"arm_front_upper": -26.5,
+				"arm_front_lower": -140.0,
+				"arm_back_upper": -33.7,
+				"arm_back_lower": -132.7,
+				"leg_front_upper": 6.0,
+				"leg_front_lower": 24.5,
+				"foot_front": -30.4,
+				"leg_back_upper": -26.6,
+				"leg_back_lower": 19.4,
+				"foot_back": 7.2,
+				"coat_tail": 0.0,
+				"coat_back": 0.0
+			}
+		}
+	]
+}

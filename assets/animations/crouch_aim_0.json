@@ -1,0 +1,31 @@
+{
+	"name": "crouch_aim_0",
+	"loop": false,
+	"length": 0.0,
+	"turn": 1.0,
+	"keys": [
+		{
+			"t": 0.0,
+			"root": [
+				0.0,
+				17.5
+			],
+			"angles": {
+				"torso": 34.2,
+				"head": -43.2,
+				"arm_front_upper": -43.4,
+				"arm_front_lower": -166.0,
+				"arm_back_upper": -45.7,
+				"arm_back_lower": -163.8,
+				"leg_front_upper": -44.6,
+				"leg_front_lower": 141.0,
+				"foot_front": -91.1,
+				"leg_back_upper": -45.7,
+				"leg_back_lower": 140.6,
+				"foot_back": -105.6,
+				"coat_tail": 0.0,
+				"coat_back": 0.0
+			}
+		}
+	]
+}
