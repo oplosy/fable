@@ -13,6 +13,10 @@ The game is built in these steps, one at a time:
 5. Real assets: the final characters, sprite sheets, animations, ground, props, effects and sounds.
 6. Polish and content: hit effects, hit-stop, screen shake, UI, menus, more characters, arena detail and balance.
 
+## Status (session 6)
+
+The user moved map art away from pixel art toward the cartoon platformer look of their reference images. `tools/make_cartoon_sample.gd` draws an original 640x360 sample map in that style as SVG and renders it at 3x (`art/cartoon/sample_map.svg`, `.png`): floating rock islands with moss caps, two ground halves with a spiked pit, a hanging plank, five ladders, barrels, explosive barrels, crates, torches, signs, a moonlit sky with mountain and pine silhouettes, and two stand-in stick figures for scale. Not in the game yet: next is the user's review, then cutting it into tiles and prop scenes for a real arena.
+
 ## Status (session 5)
 
 Everything except the stick figure was set aside in `DONT-OPEN/` (ignored by Godot): the Docks map, its art and generator, the street brawler and trenchcoat agent with the cutout rig code and their tests (`test_animation`, `test_clip_anatomy`, `test_docks`), the item and prop art, reference images, the user's drawing folders, and Gemini's armoured robot redraw of the 58 clips with its Python tools (it was uncommitted; the committed stick figure was restored). Items and props are flat grey boxes the size of the old art. The game loads the Range with two stick figures. All 23 headless test suites pass.
