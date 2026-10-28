@@ -94,6 +94,7 @@ func _ready() -> void:
 	health.current = health.max_health
 	melee.fighter = self
 	melee.fighter_class = fighter_class
+	melee.hit_landed.connect(func(point: Vector2, heavy: bool) -> void: HitSpark.spawn(get_parent(), point, facing, heavy))
 	thrower.fighter = self
 	if controller == null:
 		controller = FighterController.new()
@@ -584,7 +585,8 @@ func _let_go() -> void:
 
 ## Shows the hit area while an attack can land. Replaced by attack animations later.
 func _update_attack_placeholder() -> void:
-	_attack_placeholder.visible = melee.is_hitting()
+	# The drawn stick figure shows its own strike; the box stands in only for placeholder art.
+	_attack_placeholder.visible = melee.is_hitting() and not has_node("Visuals/Frames")
 	var attack := melee.current_attack()
 	if attack:
 		# Visuals are mirrored by facing, so the facing-right offset is used as is.

@@ -6,6 +6,8 @@ extends Node
 
 ## Emitted when a held item has used up its durability and is gone.
 signal item_broke
+## Emitted when a hit lands, at the point it struck (global), heavy for a knockdown hit.
+signal hit_landed(point: Vector2, heavy: bool)
 
 var fighter: Fighter
 var fighter_class: FighterClass
@@ -144,12 +146,15 @@ func _apply_hits(attack: MeleeAttack) -> void:
 		_already_hit.append(body)
 		# Landed after every fighter's physics step, so two attacks connecting on the same
 		# frame both land instead of the first-processed fighter cancelling the other.
-		_land_hit.call_deferred(body, attack, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), item != null and not _air)
+		_land_hit.call_deferred(body, attack, Vector2(attack.knockback.x * fighter.facing, attack.knockback.y), item != null and not _air, at.origin.y)
 
 
 ## `with_item`: the hit comes from the held item's combo (not the jump kick) and wears it.
-func _land_hit(body: Node, attack: MeleeAttack, knockback: Vector2, with_item: bool) -> void:
+## `height`: the hitbox's middle (global y), where the strike meets the body.
+func _land_hit(body: Node, attack: MeleeAttack, knockback: Vector2, with_item: bool, height: float) -> void:
 	if is_instance_valid(body) and is_instance_valid(fighter):
 		body.take_hit(attack.damage, knockback, attack.stun_time, attack.knocks_down, fighter, true)
+		# On the side of the body facing the attacker.
+		hit_landed.emit(Vector2(body.center().x - fighter.facing * 4.0, height), attack.knocks_down)
 		if with_item:
 			item_hits_left -= 1

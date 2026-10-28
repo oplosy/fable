@@ -18,6 +18,8 @@ func run() -> void:
 	var hits_on_heavy: Array[int] = []
 	heavy.health.damaged.connect(func(amount: int) -> void: hits_on_heavy.append(amount))
 	var fast_combo := FAST.fighter_class.melee_combo
+	var sparks: Array[HitSpark] = []
+	arena.child_entered_tree.connect(func(node: Node) -> void: if node is HitSpark: sparks.append(node))
 
 	# Single attack.
 	await _press_attack(fast)
@@ -26,6 +28,9 @@ func run() -> void:
 	check(hits_on_heavy == [fast_combo[0].damage], "jab hits the target once")
 	check(heavy.velocity.x > 0.0 or heavy.global_position.x > 214.0, "jab pushes the target away")
 	check(fast.health.current == fast.health.max_health, "attacker does not hit itself")
+	check(sparks.size() == 1 and sparks[0].global_position.x < heavy.center().x and sparks[0].global_position.x > fast.center().x, "the hit bursts a spark on the target's side facing the attacker")
+	await physics_frames(15)
+	check(sparks.all(func(spark) -> bool: return not is_instance_valid(spark)), "the spark is gone a moment later")
 	await physics_frames(10)
 	check(not fast.melee.is_attacking() and fast.melee.is_cooling_down(), "a short chain ends with a short pause")
 	await _press_attack(fast)
