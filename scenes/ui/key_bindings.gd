@@ -5,7 +5,7 @@ extends RefCounted
 ## input map; changes are saved to `save_path` and applied on startup.
 
 const PLAYERS := 2
-const ACTIONS: Array[String] = ["left", "right", "up", "down", "run", "crouch", "jump", "attack", "slot_1", "slot_2", "slot_3", "slot_4"]
+const ACTIONS: Array[String] = ["left", "right", "up", "down", "crouch", "jump", "attack", "slot_1", "slot_2", "slot_3", "slot_4"]
 
 static var save_path := "user://keybindings.cfg"
 

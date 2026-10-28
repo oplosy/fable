@@ -1,7 +1,7 @@
 class_name LocalController
 extends FighterController
 
-## Input action prefix; "p1_" reads p1_left, p1_right, p1_up, p1_down, p1_run, p1_jump, p1_attack, p1_slot_1..4.
+## Input action prefix; "p1_" reads p1_left, p1_right, p1_up, p1_down, p1_jump, p1_attack, p1_slot_1..4.
 @export var prefix := "p1_"
 ## Max seconds between two taps of the same direction that start a run.
 @export var double_tap_time := 0.25
@@ -23,7 +23,7 @@ func poll() -> void:
 			_last_tap_dir = dir
 			_since_tap = 0.0
 		_held_dir = dir
-	run = _tap_run or Input.is_action_pressed(prefix + "run")
+	run = _tap_run
 	crouch = Input.is_action_pressed(prefix + "crouch")
 	aim = Input.get_axis(prefix + "up", prefix + "down")
 	down = Input.is_action_just_pressed(prefix + "down")

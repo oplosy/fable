@@ -9,7 +9,7 @@ const UI_SCALE := 3.0
 
 const LABELS := {
 	"left": "Move left", "right": "Move right", "up": "Aim up", "down": "Aim down / roll / swap",
-	"run": "Run", "crouch": "Crouch", "jump": "Jump", "attack": "Attack",
+	"crouch": "Crouch", "jump": "Jump", "attack": "Attack",
 	"slot_1": "Slot 1", "slot_2": "Slot 2", "slot_3": "Slot 3", "slot_4": "Slot 4",
 }
 
