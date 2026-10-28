@@ -37,10 +37,10 @@ func run() -> void:
 		await physics_frames(1)
 
 	# Edge to edge (user, session 4): a jump from the very edge just makes it across;
-	# taking off half a tile early falls short.
+	# taking off well before it falls short (walking: 12 px, user wanted some slack).
 	var walk_gap := Vector2(928, 976) # the last gap, jumped from its right side
 	check(await _edge_jump(walk_gap, -1, 0.0, false), "a walking jump from the edge clears the last gap")
-	check(not await _edge_jump(walk_gap, -1, 8.0, false), "a walking jump half a tile early falls into the last gap")
+	check(not await _edge_jump(walk_gap, -1, 12.0, false), "a walking jump 12 px early falls into the last gap")
 	var dive_gap := Vector2(592, 688) # the wide middle gap, dived from its right side
 	check(await _edge_jump(dive_gap, -1, 0.0, true), "a running dive from the edge clears the wide gap")
 	check(not await _edge_jump(dive_gap, -1, 8.0, true), "a running dive half a tile early falls into the wide gap")

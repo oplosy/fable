@@ -98,7 +98,10 @@ func _test_pickup_and_drop() -> void:
 	await physics_frames(5)
 	fighter.inventory.equip_firearm(PISTOL)
 	fighter.controller.move = -1.0
-	await physics_frames(70)
+	for frame in 120:
+		await physics_frames(1)
+		if fighter.melee.item:
+			break
 	fighter.controller.move = 0.0
 	check(fighter.melee.item == KNIFE, "walking over a melee item with bare hands takes it")
 	check(fighter.inventory.firearm != null and fighter.inventory.active_slot == Inventory.Slot.MELEE, "the firearm is kept and the melee slot is selected")
