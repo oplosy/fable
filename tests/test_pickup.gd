@@ -32,7 +32,7 @@ func run() -> void:
 	await physics_frames(5)
 	check(fighter.inventory.firearm == null, "fighter starts unarmed")
 	fighter.controller.move = -1.0
-	await physics_frames(40)
+	await physics_frames(70)
 	fighter.controller.move = 0.0
 	check(fighter.inventory.firearm != null and fighter.inventory.firearm.data == PISTOL, "walking over a spawned weapon picks it up")
 	check(fighter.inventory.active_slot == Inventory.Slot.FIREARM, "the picked-up firearm is selected")

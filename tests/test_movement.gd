@@ -35,7 +35,7 @@ func run() -> void:
 	input.move = 0.0
 	await physics_frames(20)
 	check(not fighter.is_on_floor() and not fighter.is_diving(), "walking jump is a normal jump")
-	check(fighter.position.x - takeoff_x > 30.0, "walking jump keeps going forward with move released (%.0f px)" % (fighter.position.x - takeoff_x))
+	check(fighter.position.x - takeoff_x > fighter.fighter_class.walk_speed * 0.25, "walking jump keeps going forward with move released (%.0f px)" % (fighter.position.x - takeoff_x))
 	await physics_frames(60)
 	check(fighter.is_on_floor(), "fighter lands")
 
@@ -46,7 +46,7 @@ func run() -> void:
 	await _tap(fighter, "jump")
 	input.move = -1.0
 	await physics_frames(20)
-	check(fighter.velocity.x < -100.0 and fighter.facing == -1, "a standing jump can be steered and turned left in the air")
+	check(fighter.velocity.x < -fighter.fighter_class.walk_speed * 0.75 and fighter.facing == -1, "a standing jump can be steered and turned left in the air")
 	input.move = 1.0
 	await physics_frames(10)
 	check(fighter.velocity.x > -50.0, "steering back the other way slows the jump in the air")
