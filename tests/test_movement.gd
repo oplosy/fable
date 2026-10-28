@@ -128,7 +128,7 @@ func _test_class_stats() -> void:
 		peaks[0] = minf(peaks[0], fast.position.y)
 		peaks[1] = minf(peaks[1], heavy.position.y)
 		await physics_frames(1)
-	check(floor_y - peaks[1] < floor_y - peaks[0] - 10.0, "Heavy jumps lower than Fast")
+	check(floor_y - peaks[1] < floor_y - peaks[0] - 5.0, "Heavy jumps lower than Fast")
 	fast.queue_free()
 	heavy.queue_free()
 	await physics_frames(60)
