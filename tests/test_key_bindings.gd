@@ -9,8 +9,7 @@ func run() -> void:
 
 	check(KeyBindings.key_of("p1_jump").physical_keycode == KEY_SPACE, "player 1 jumps with Space by default")
 	check(KeyBindings.key_of("p2_left").physical_keycode == KEY_LEFT, "player 2 moves with the arrows by default")
-	check(KeyBindings.key_text("p1_run") == "Left Shift" and KeyBindings.key_text("p2_run") == "Right Shift", "the two Shift keys are told apart")
-	check(not _triggers("p1_run", _key(KEY_SHIFT, KEY_LOCATION_RIGHT)), "player 2's Shift does not run player 1")
+	check(not InputMap.has_action("p1_run") and not InputMap.has_action("p2_run"), "there is no run key: a double tap runs")
 	var all_keys := {}
 	for action in KeyBindings.all_actions():
 		var key := KeyBindings.key_of(action)

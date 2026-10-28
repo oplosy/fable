@@ -142,7 +142,7 @@ func _test_class_stats() -> void:
 	await physics_frames(60)
 
 
-## Shift or a double tap of a direction runs.
+## A double tap of a direction runs (there is no run key).
 func _test_local_controller() -> void:
 	var local := LocalController.new()
 	var fighter := _spawn(Vector2(300, 328), local)
@@ -173,10 +173,6 @@ func _test_local_controller() -> void:
 	Input.action_press("p1_right")
 	await physics_frames(2)
 	check(not local.run, "tapping opposite directions does not run")
-	Input.action_press("p1_run")
-	await physics_frames(2)
-	check(local.run, "holding Shift runs")
-	Input.action_release("p1_run")
 	Input.action_release("p1_right")
 
 
