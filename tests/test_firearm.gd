@@ -17,6 +17,7 @@ func run() -> void:
 	await _test_spread_and_bloom()
 	await _test_crouch()
 	await _test_crosshair_stops_at_fighters()
+	await _test_crosshair_range()
 
 
 ## Every shot uses ammo; the empty weapon drops by itself and cannot be picked up.
@@ -181,8 +182,26 @@ func _spawn(at: Vector2) -> Fighter:
 	return fighter
 
 
+## With nothing in the way, the crosshair sits at the weapon's range; the sniper reaches
+## furthest (user rule, session 4).
+func _test_crosshair_range() -> void:
+	check(load("res://data/weapons/sniper.tres").projectile_range >= FollowCamera.MAX_MAP_SIZE.length(), "the sniper reaches across the biggest map")
+	for path in ["res://data/weapons/pistol.tres", "res://data/weapons/shotgun.tres", "res://data/weapons/smg.tres"]:
+		check(is_equal_approx(load(path).projectile_range, 970.0), "%s reaches 55%% of a rifle's 60%% of the sniper" % path.get_file())
+	var shooter := _spawn(Vector2(300, 328))
+	await physics_frames(5)
+	var short: WeaponData = PISTOL.duplicate()
+	short.projectile_range = 60.0
+	shooter.inventory.equip_firearm(short)
+	await physics_frames(2)
+	var crosshair: Crosshair = shooter._crosshair
+	check(crosshair.visible and absf(crosshair.global_position.distance_to(shooter._hand.global_position) - 60.0) < 1.0, "with nothing in the way the crosshair stops at the weapon's range")
+	shooter.queue_free()
+	await physics_frames(2)
+
+
 func _crosshair_on_aim(shooter: Fighter) -> bool:
 	var crosshair: Crosshair = shooter._crosshair
-	var aimed := Crosshair.aimed_at(shooter.get_world_2d().direct_space_state, shooter._hand.global_position, shooter.aim_direction(), shooter.get_rid())
+	var aimed := Crosshair.aimed_at(shooter.get_world_2d().direct_space_state, shooter._hand.global_position, shooter.aim_direction(), shooter.get_rid(), shooter.inventory.firearm.data.projectile_range)
 	# The test arena's walls stop the aim, so the cross sits on one.
-	return crosshair.visible and crosshair.global_position.is_equal_approx(aimed) and aimed.distance_to(shooter._hand.global_position) < FollowCamera.MAX_MAP_SIZE.length()
+	return crosshair.visible and crosshair.global_position.is_equal_approx(aimed) and aimed.distance_to(shooter._hand.global_position) < shooter.inventory.firearm.data.projectile_range - 1.0
