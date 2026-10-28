@@ -1,13 +1,20 @@
 [gd_resource type="Resource" script_class="ThrowableData" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/throwables/throwable_data.gd" id="1_data"]
-[ext_resource type="Texture2D" path="res://assets/throwables/grenade.png" id="2_texture"]
 [ext_resource type="PackedScene" path="res://scenes/throwables/explosion.tscn" id="3_effect"]
+
+[sub_resource type="Gradient" id="placeholder_color"]
+colors = PackedColorArray(0.35, 0.45, 0.3, 1, 0.35, 0.45, 0.3, 1)
+
+[sub_resource type="GradientTexture2D" id="2_texture"]
+gradient = SubResource("placeholder_color")
+width = 14
+height = 20
 
 [resource]
 script = ExtResource("1_data")
 display_name = "Grenade"
-texture = ExtResource("2_texture")
+texture = SubResource("2_texture")
 grip = Vector2(7, 11)
 spawn_weight = 2.0
 count = 3

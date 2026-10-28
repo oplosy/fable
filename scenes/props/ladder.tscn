@@ -1,8 +1,15 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scenes/props/ladder.gd" id="1_ladder"]
-[ext_resource type="Texture2D" path="res://assets/arenas/docks/ladder.png" id="2_texture"]
+
+[sub_resource type="Gradient" id="placeholder_color"]
+colors = PackedColorArray(0.55, 0.5, 0.42, 0.7, 0.55, 0.5, 0.42, 0.7)
+
+[sub_resource type="GradientTexture2D" id="2_texture"]
+gradient = SubResource("placeholder_color")
+width = 36
+height = 48
 
 [node name="Ladder" type="Node2D"]
 script = ExtResource("1_ladder")
-texture = ExtResource("2_texture")
+texture = SubResource("2_texture")
