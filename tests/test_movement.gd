@@ -60,7 +60,7 @@ func run() -> void:
 	await physics_frames(20)
 	await _tap(fighter, "jump")
 	takeoff_x = fighter.position.x
-	check(fighter.is_diving() and fighter.velocity.x > fighter.fighter_class.run_speed, "running jump starts a forward dive")
+	check(fighter.is_diving() and fighter.velocity.x > fighter.fighter_class.run_speed * fighter.fighter_class.air_tempo, "running jump starts a forward dive (faster than running, at air tempo)")
 	input.move = -1.0
 	await _tap(fighter, "attack")
 	check(not fighter.melee.is_attacking(), "no attacking during a dive")

@@ -51,6 +51,7 @@ max_health = 130
 walk_speed = 83.0
 run_speed = 116.0
 jump_velocity = -218.0
+air_tempo = 0.8
 dive_velocity = Vector2(96, -226)
 roll_speed = 99.0
 melee_combo = Array[ExtResource("2_attack")]([SubResource("punch"), SubResource("punch"), SubResource("kick")])
