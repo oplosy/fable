@@ -50,7 +50,7 @@ const LAYOUT: Array[String] = [
 	"WW  H                              H         H   HGGGGGG                  H   WW",
 	"WW  H                     w        H         H   HGGGGGG        o         H   WW",
 	"WW  H                   RRRRRR     H         H   HGGGGGG       BBBBB      H X WW",
-	"WW  H  1   L    b     b RRRRRRX  o!H        LH w HGGGGGG!o    bBBBBB L 2  HXX WW",
+	"WW  H  1   L    b     b RRRRRRX  o!H        LH w HGGGGGG!o    bBBBBBXL 2  HXX WW",
 	"WW################   ################      ###############   #################WW",
 	"WW################   ################      ###############   #################WW",
 	"WW################   ################      ###############   #################WW",
