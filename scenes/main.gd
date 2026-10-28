@@ -19,6 +19,10 @@ var players: Array[Fighter] = []
 func _ready() -> void:
 	KeyBindings.load_saved()
 	add_child(SettingsMenu.new())
+	if OS.is_debug_build():
+		var tuning := TuningPanel.new()
+		tuning.source = func() -> FighterClass: return players[0].fighter_class if not players.is_empty() and is_instance_valid(players[0]) else null
+		add_child(tuning)
 	arena = arena_scene.instantiate()
 	add_child(arena)
 	players.resize(characters.size())
