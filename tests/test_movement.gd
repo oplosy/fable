@@ -93,11 +93,14 @@ func run() -> void:
 	fighter.take_hit(10)
 	check(fighter.health.current == health_before, "a rolling fighter cannot be hit")
 	await physics_frames(int(fighter.fighter_class.roll_time * 60) - 2)
-	check(fighter.is_rolling() and fighter.position.x - roll_x > 60.0, "roll keeps moving forward without input")
+	check(fighter.is_rolling() and fighter.position.x - roll_x > fighter.fighter_class.roll_speed * fighter.fighter_class.roll_time * 0.8, "roll keeps moving forward without input")
 	await physics_frames(4)
 	check(not fighter.is_rolling() and fighter.collision_layer == Fighter.FIGHTERS_LAYER, "roll ends and the fighter is hittable again")
 	fighter.take_hit(10)
 	check(fighter.health.current == health_before - 10, "hits land after the roll")
+	await physics_frames(20)
+	var rolled := fighter.position.x - roll_x
+	check(absf(rolled - fighter.fighter_class.roll_reach()) < 3.0, "a roll covers its roll_reach (%.0f px vs %.0f px)" % [rolled, fighter.fighter_class.roll_reach()])
 	fighter.queue_free()
 
 	await _test_class_stats()
@@ -132,6 +135,7 @@ func _test_class_stats() -> void:
 	for data: CharacterData in [FAST, HEAVY]:
 		var c := data.fighter_class
 		var ratio := c.dive_reach() / c.jump_reach()
+		check(absf(c.roll_reach() / c.dive_reach() - 1.0) < 0.03, "%s's roll goes as far as its dive (%.0f px vs %.0f px)" % [c.display_name, c.roll_reach(), c.dive_reach()])
 		check(ratio >= FighterClass.DIVE_REACH.x - 0.005 and ratio <= FighterClass.DIVE_REACH.y + 0.005, "%s's dive reaches 15-20%% further than its walking jump (%.0f%%)" % [c.display_name, (ratio - 1.0) * 100.0])
 	fast.queue_free()
 	heavy.queue_free()
