@@ -10,6 +10,7 @@ Living list of agreed gameplay requirements. Add new items as they are decided; 
 ## Visual Direction
 
 - Stick figures (user, session 4): the players are stick figures for now; the drawn characters are set aside. Animations are frame by frame and dense (24 fps, every frame its own picture). Standing still is a three-quarter stance showing both legs and both arms; moving (walk, run) is in profile. Running is a cartoon sprint: arms swing, legs kick back, the body bobs and rocks. A dive looks head-first and lands into a forward roll; the roll (S while running) is a tucked forward roll.
+- Cartoon poses (user, session 5): poses follow the reference video's pixel mannequin (ZeggyGames style): a low, wide fighting stance with fists up, lunging punches, a strongly leaning run, and the gun arm held out along the aim.
 - Strike effects (user, session 4): a punch reaches out at full stretch; a fast strike leaves white wind behind the fist or foot (a trail plus speed lines, white whatever the character colour), and a landed melee hit bursts a small white spark (flash, rays leaning along the hit, a ring) where it lands, bigger for a knockdown hit.
 - Readable pixel art; side-view camera. Characters do not have to be drawn in strict profile: a 3/4 standing pose is fine (user decision, session 3).
 - Stylized characters with clear silhouettes; limited palettes; simple industrial arenas.
