@@ -84,8 +84,6 @@ func _ready() -> void:
 		_placeholder.color = character.placeholder_color
 		if character.frames_dir:
 			_show_frames(character)
-		elif character.rig_file:
-			_show_rig(character)
 		elif character.texture:
 			_show_art(character)
 	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
@@ -118,9 +116,6 @@ func _ready() -> void:
 	_crouching = true
 	_set_crouching(false)
 	inventory.setup(self, _hand)
-	var rig := _visuals.get_node_or_null("Rig") as CharacterRig
-	if rig and rig.hand_anchor:
-		inventory.show_melee_item_on(rig.hand_anchor)
 	var frames := _visuals.get_node_or_null("Frames") as FrameAnimator
 	if frames:
 		inventory.show_melee_item_on(frames.hand_anchor)
@@ -219,23 +214,6 @@ func _show_art(data: CharacterData) -> void:
 	_visuals.add_child(sprite)
 	_visuals.move_child(sprite, 0)
 	_placeholder.visible = false
-
-
-## Builds the character's cutout rig and its animator in place of the placeholder box;
-## a broken rig logs an error and leaves the placeholder.
-func _show_rig(data: CharacterData) -> void:
-	var rig := CharacterRig.new()
-	rig.name = "Rig"
-	if not rig.build(data.rig_file, data.pixels_per_unit):
-		rig.free()
-		return
-	_visuals.add_child(rig)
-	_visuals.move_child(rig, 0)
-	_placeholder.visible = false
-	var animator := RigAnimator.new()
-	animator.name = "Animator"
-	add_child(animator)
-	animator.setup(self, rig)
 
 
 ## Plays the character's frame-by-frame animations in place of the placeholder box; a
@@ -342,13 +320,13 @@ func _update_hittable() -> void:
 	collision_layer = 0 if is_dead() or is_invulnerable() else FIGHTERS_LAYER
 
 
-## Placeholder poses where no clip exists yet: lying backwards when down or dead (only
-## without a rig, whose animator lays it down), head-first while diving, squashed while rolling.
+## Placeholder poses where no clip exists yet: lying backwards when down or dead,
+## head-first while diving, squashed while rolling.
 func _update_pose() -> void:
 	var now := state()
 	# Frame-by-frame characters have their own lying, dive and roll frames.
 	var drawn := has_node("Visuals/Frames")
-	var lying := (now == State.DEAD or now == State.DOWN) and not has_node("Animator") and not drawn
+	var lying := (now == State.DEAD or now == State.DOWN) and not drawn
 	var diving := now == State.DIVE and not drawn
 	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if diving else 0.0)
 	_visuals.position.y = -6.0 if lying or diving else 0.0

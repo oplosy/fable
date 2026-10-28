@@ -166,20 +166,6 @@ func run() -> void:
 	check(art.scale == Vector2.ONE / 3.0 and not drawn.get_node("Visuals/Placeholder").visible, "character art is drawn at 1/3 scale in place of the placeholder")
 	check(feet_at.is_equal_approx(drawn.global_position), "the art's feet pixel stands on the fighter's origin")
 
-	var agent: Fighter = load("res://scenes/fighter/fighter.tscn").instantiate()
-	agent.character = load("res://data/characters/trenchcoat_agent.tres")
-	main.arena.add_child(agent)
-	agent.global_position = Vector2(400, 300)
-	var rig: CharacterRig = agent.get_node_or_null("Visuals/Rig")
-	check(rig != null and rig.joints.size() == 13 and not agent.get_node("Visuals/Placeholder").visible, "a rigged character builds its 13 parts in place of the placeholder")
-	if rig:
-		var neck := agent.global_position + (Vector2(33, 22) - Vector2(32, 93)) / 3.0
-		check(rig.joints.head.global_position.is_equal_approx(neck), "each part's joint sits on its rig.json pivot (head at %s, want %s)" % [rig.joints.head.global_position, neck])
-		var head_before: Vector2 = rig.joints.head.global_position
-		rig.joints.torso.rotation = PI / 2.0
-		check(not rig.joints.head.global_position.is_equal_approx(head_before), "turning the torso carries the head with it")
-		check(rig.points.hand_front == Vector2(24, 49), "the rig keeps its hand and head points")
-
 
 func _press(action: String) -> void:
 	Input.action_press(action)
