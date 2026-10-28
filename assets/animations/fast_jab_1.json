@@ -64,8 +64,8 @@
 			"angles": {
 				"torso": 15.0,
 				"head": -12.0,
-				"arm_front_upper": -71.5,
-				"arm_front_lower": -90.6,
+				"arm_front_upper": -109.0,
+				"arm_front_lower": 4.8,
 				"arm_back_upper": -35.0,
 				"arm_back_lower": -90.0,
 				"leg_front_upper": -2.2,
@@ -87,8 +87,8 @@
 			"angles": {
 				"torso": 15.0,
 				"head": -12.0,
-				"arm_front_upper": -71.5,
-				"arm_front_lower": -90.6,
+				"arm_front_upper": -109.0,
+				"arm_front_lower": 4.8,
 				"arm_back_upper": -35.0,
 				"arm_back_lower": -90.0,
 				"leg_front_upper": -2.2,

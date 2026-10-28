@@ -380,9 +380,9 @@ func _write_attacks() -> void:
 	var knife: MeleeItemData = load("res://data/weapons/knife.tres")
 	var bat: MeleeItemData = load("res://data/weapons/bat.tres")
 	var front_jab := {"root": Vector2(6, 3), "torso": 15, "head": -12,
-		"arms": {"front": {"at": Vector2(56, 38)}, "back": Vector2(-20, -110)}, "feet": PLANTED}
+		"arms": {"front": {"straight": -4}, "back": Vector2(-20, -110)}, "feet": PLANTED}
 	var back_jab := {"root": Vector2(4, 3), "torso": 10, "head": -8,
-		"arms": {"front": Vector2(-15, -120), "back": {"at": Vector2(64, 36)}}, "feet": PLANTED}
+		"arms": {"front": Vector2(-15, -120), "back": {"straight": -4}}, "feet": PLANTED}
 	var cock_front := {"root": Vector2(-1, 3), "torso": 0, "head": -2,
 		"arms": {"front": Vector2(-10, -125), "back": Vector2(-20, -105)}, "feet": PLANTED}
 	var cock_back := {"root": Vector2(-1, 3), "torso": 2, "head": -2,
@@ -392,13 +392,13 @@ func _write_attacks() -> void:
 	_write_attack("fast_jab_3", fast.melee_combo[2], cock_front, front_jab, front_jab, "hand_front")
 	_write_attack("fast_hook", fast.melee_combo[3],
 		{"root": Vector2(-3, 4), "torso": -12, "head": 4, "arms": {"front": Vector2(35, -40), "back": Vector2(-30, -110)}, "feet": PLANTED},
-		{"root": Vector2(7, 4), "torso": 20, "head": -15, "arms": {"front": {"at": Vector2(54, 34)}, "back": Vector2(10, -60)}, "feet": PLANTED},
-		{"root": Vector2(8, 4), "torso": 24, "head": -18, "arms": {"front": {"at": Vector2(58, 38)}, "back": Vector2(15, -50)}, "feet": PLANTED},
+		{"root": Vector2(7, 4), "torso": 20, "head": -15, "arms": {"front": {"straight": -12}, "back": Vector2(10, -60)}, "feet": PLANTED},
+		{"root": Vector2(8, 4), "torso": 24, "head": -18, "arms": {"front": {"straight": 0}, "back": Vector2(15, -50)}, "feet": PLANTED},
 		"hand_front")
 	var heavy_front := {"root": Vector2(8, 4), "torso": 18, "head": -14,
-		"arms": {"front": {"at": Vector2(58, 38)}, "back": Vector2(5, -100)}, "feet": PLANTED}
+		"arms": {"front": {"straight": -2}, "back": Vector2(5, -100)}, "feet": PLANTED}
 	var heavy_back := {"root": Vector2(6, 4), "torso": 14, "head": -10,
-		"arms": {"front": Vector2(-10, -110), "back": {"at": Vector2(66, 36)}}, "feet": PLANTED}
+		"arms": {"front": Vector2(-10, -110), "back": {"straight": -2}}, "feet": PLANTED}
 	_write_attack("heavy_punch_1", heavy.melee_combo[0],
 		{"root": Vector2(-4, 4), "torso": -8, "head": 4, "arms": {"front": Vector2(30, -110), "back": Vector2(-25, -110)}, "feet": PLANTED},
 		heavy_front, heavy_front, "hand_front")
@@ -801,6 +801,7 @@ func _shoulder(side: String, root: Vector2, pelvis: float, torso: float) -> Vect
 ## World turns (degrees) of an arm whose hand reaches `aim.at` from `shoulder`. With
 ## `aim.dir` (degrees, 0 = forward) the forearm points that way, as a held item lies
 ## along it, and the upper arm aims at the elbow; without it the elbow bends downwards.
+## `aim.straight` (degrees) stretches the whole arm that way instead, ignoring `at`.
 func _arm_turns(side: String, shoulder: Vector2, aim: Dictionary) -> Vector2:
 	var elbow_rest: Vector2 = _pivots["arm_%s_lower" % side]
 	var upper_rest: Vector2 = elbow_rest - _pivots["arm_%s_upper" % side]
@@ -809,7 +810,11 @@ func _arm_turns(side: String, shoulder: Vector2, aim: Dictionary) -> Vector2:
 	var l2 := lower_rest.length()
 	var upper: float
 	var lower: float
-	if aim.has("dir"):
+	if aim.has("straight"):
+		# A punch at full stretch: the whole arm along `straight` (degrees, 0 = forward).
+		upper = deg_to_rad(aim.straight)
+		lower = upper
+	elif aim.has("dir"):
 		lower = deg_to_rad(aim.dir)
 		upper = (aim.at - Vector2.from_angle(lower) * l2 - shoulder).angle()
 	else:
