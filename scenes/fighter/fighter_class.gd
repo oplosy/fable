@@ -71,6 +71,8 @@ extends Resource
 @export var downed_invulnerable := true
 
 
+## Run speed over walk speed (user, session 4: running is 20% faster).
+const RUN_OVER_WALK := 1.2
 ## How much further a dive reaches than a walking jump (user: 15-20% further).
 const DIVE_REACH := Vector2(1.15, 1.2)
 ## Props a dive just skims over (user, session 4): barrels now, tables later. Map props
