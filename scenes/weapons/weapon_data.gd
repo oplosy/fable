@@ -21,8 +21,7 @@ extends ItemData
 ## Projectiles per shot, each with its own random deviation (shotgun pellets).
 @export var pellets := 1
 ## Distance in px a projectile flies before it disappears; the crosshair stops there too.
-## Rule (user, session 4): the pistol, shotgun and SMG reach 150 (set by the user; first from their
-## sketch), a rifle is 1/0.55 of that (273) and the sniper 1/0.6 of a rifle (455).
+## Ranges (user, session 4): pistol, shotgun and SMG 150, rifle 250, sniper 500.
 @export var projectile_range := 1200.0
 ## Extra fighters a projectile passes through after the first one it hits.
 @export var pierce := 0

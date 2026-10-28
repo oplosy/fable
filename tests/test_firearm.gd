@@ -182,12 +182,11 @@ func _spawn(at: Vector2) -> Fighter:
 	return fighter
 
 
-## With nothing in the way, the crosshair sits at the weapon's range; the sniper reaches
-## furthest (user rule, session 4).
+## With nothing in the way, the crosshair sits at the weapon's range (user values, session 4).
 func _test_crosshair_range() -> void:
-	var sniper: float = load("res://data/weapons/sniper.tres").projectile_range
+	check(load("res://data/weapons/sniper.tres").projectile_range == 500.0, "the sniper reaches 500 px")
 	for path in ["res://data/weapons/pistol.tres", "res://data/weapons/shotgun.tres", "res://data/weapons/smg.tres"]:
-		check(absf(load(path).projectile_range - sniper * 0.6 * 0.55) < 1.0, "%s reaches 55%% of a rifle's 60%% of the sniper" % path.get_file())
+		check(load(path).projectile_range == 150.0, "%s reaches 150 px" % path.get_file())
 	var shooter := _spawn(Vector2(300, 328))
 	await physics_frames(5)
 	var short: WeaponData = PISTOL.duplicate()
