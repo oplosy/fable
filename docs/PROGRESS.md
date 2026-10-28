@@ -2,6 +2,21 @@
 
 Where development stands and what comes next. Update this at the end of every working session. Gameplay rules live in [GAME_DESIGN.md](GAME_DESIGN.md); this file tracks what is built.
 
+## Development Order (user, session 5)
+
+The game is built in these steps, one at a time:
+
+1. Core gameplay and logic: movement, punches, shooting, damage, health, cooldowns, collisions. Done.
+2. Temporary character visuals and an animation prototype: one character's idle, movement, punch and hit animations, so the visual loop works first. Current step, with the stick figure.
+3. Combat and animation integration: the right clip plays on a punch, damage lands on the hit frame, the target reacts; visuals and logic in sync.
+4. Arena blockout: temporary floor, walls, bounds, spawn points and camera, tested with grey boxes; no detailed map.
+5. Real assets: the final characters, sprite sheets, animations, ground, props, effects and sounds.
+6. Polish and content: hit effects, hit-stop, screen shake, UI, menus, more characters, arena detail and balance.
+
+## Status (session 5)
+
+Everything except the stick figure was set aside in `DONT-OPEN/` (ignored by Godot): the Docks map, its art and generator, the street brawler and trenchcoat agent with the cutout rig code and their tests (`test_animation`, `test_clip_anatomy`, `test_docks`), the item and prop art, reference images, the user's drawing folders, and Gemini's armoured robot redraw of the 58 clips with its Python tools (it was uncommitted; the committed stick figure was restored). Items and props are flat grey boxes the size of the old art. The game loads the Range with two stick figures. All 23 headless test suites pass.
+
 ## Status (2026-10-27, session 4)
 
 Session 4 built the first real map, the Docks (a harbour at sunset), and the map elements it needs: ladders, one-way catwalks, plain and explosive barrels and gaps into the sea. All art is drawn by an Aseprite Lua script; the arena is generated from an ASCII layout. The main scene now loads the Docks. Then the camera was rebuilt around map-maker camera shots at crisp zooms (3, 1.5, 0.75). The user rejected Claude's procedural map art as low quality: art will be made from reference images the user provides (`images/refs/`), not drawn from scratch; the pipeline is still to be built. All 24 headless test suites pass.
