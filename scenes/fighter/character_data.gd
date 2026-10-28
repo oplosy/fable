@@ -13,6 +13,9 @@ const DEFAULT_BODY_SIZE := Vector2(12, 28)
 @export var body_size := DEFAULT_BODY_SIZE
 
 @export_group("Art")
+## Folder of frame-by-frame clips (a strip and a .json each, from tools/make_stickman.gd);
+## used instead of `rig_file` and `texture`.
+@export_dir var frames_dir := ""
 ## The cutout rig (rig.json with its part PNGs beside it); used instead of `texture`.
 @export_file("*.json") var rig_file := ""
 ## Standing frame; without a rig or this, a placeholder box in placeholder_color is drawn.

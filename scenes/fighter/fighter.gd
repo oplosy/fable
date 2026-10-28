@@ -82,7 +82,9 @@ var _world_mask := 0
 func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
-		if character.rig_file:
+		if character.frames_dir:
+			_show_frames(character)
+		elif character.rig_file:
 			_show_rig(character)
 		elif character.texture:
 			_show_art(character)
@@ -118,6 +120,9 @@ func _ready() -> void:
 	var rig := _visuals.get_node_or_null("Rig") as CharacterRig
 	if rig and rig.hand_anchor:
 		inventory.show_melee_item_on(rig.hand_anchor)
+	var frames := _visuals.get_node_or_null("Frames") as FrameAnimator
+	if frames:
+		inventory.show_melee_item_on(frames.hand_anchor)
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
 	_hand.add_child(_throwable_sprite)
@@ -232,6 +237,22 @@ func _show_rig(data: CharacterData) -> void:
 	animator.setup(self, rig)
 
 
+## Plays the character's frame-by-frame animations in place of the placeholder box; a
+## folder without clips logs an error and leaves the placeholder.
+func _show_frames(data: CharacterData) -> void:
+	var frames := FrameAnimator.new()
+	frames.name = "Frames"
+	if not frames.setup(self, data.frames_dir, data.pixels_per_unit):
+		push_error("%s: no frame clips" % data.frames_dir)
+		frames.free()
+		return
+	frames.self_modulate = data.placeholder_color
+	_visuals.add_child(frames)
+	_visuals.move_child(frames, 0)
+	_visuals.add_child(frames.hand_anchor)
+	_placeholder.visible = false
+
+
 ## Middle of the body's hit shape (standing or crouched).
 func center() -> Vector2:
 	return _body_shape.global_position
@@ -324,10 +345,13 @@ func _update_hittable() -> void:
 ## without a rig, whose animator lays it down), head-first while diving, squashed while rolling.
 func _update_pose() -> void:
 	var now := state()
-	var lying := (now == State.DEAD or now == State.DOWN) and not has_node("Animator")
-	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if now == State.DIVE else 0.0)
-	_visuals.position.y = -6.0 if lying or now == State.DIVE else 0.0
-	_visuals.scale.y = 0.5 if now == State.ROLL else 1.0
+	# Frame-by-frame characters have their own lying, dive and roll frames.
+	var drawn := has_node("Visuals/Frames")
+	var lying := (now == State.DEAD or now == State.DOWN) and not has_node("Animator") and not drawn
+	var diving := now == State.DIVE and not drawn
+	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if diving else 0.0)
+	_visuals.position.y = -6.0 if lying or diving else 0.0
+	_visuals.scale.y = 0.5 if now == State.ROLL and not drawn else 1.0
 	if now != _state:
 		_state = now
 		state_changed.emit(now)
