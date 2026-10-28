@@ -1,0 +1,250 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/arenas/arena.gd" id="1_arena"]
+[ext_resource type="Script" path="res://scenes/arenas/follow_camera.gd" id="2_camera"]
+[ext_resource type="Texture2D" path="res://assets/arenas/isles/background.png" id="3_background"]
+[ext_resource type="Texture2D" path="res://assets/arenas/isles/terrain.png" id="4_terrain"]
+[ext_resource type="PackedScene" path="res://scenes/props/barrel.tscn" id="5_barrel"]
+[ext_resource type="PackedScene" path="res://scenes/props/explosive_barrel.tscn" id="6_explosive"]
+[ext_resource type="PackedScene" path="res://scenes/props/ladder.tscn" id="7_ladder"]
+[ext_resource type="Script" path="res://scenes/items/item_spawner.gd" id="8_spawner"]
+[ext_resource type="Script" path="res://scenes/items/item_data.gd" id="9_data"]
+[ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="10_pistol"]
+[ext_resource type="Resource" path="res://data/weapons/shotgun.tres" id="11_shotgun"]
+[ext_resource type="Resource" path="res://data/weapons/smg.tres" id="12_smg"]
+[ext_resource type="Resource" path="res://data/weapons/sniper.tres" id="13_sniper"]
+[ext_resource type="Resource" path="res://data/weapons/knife.tres" id="14_knife"]
+[ext_resource type="Resource" path="res://data/weapons/bat.tres" id="15_bat"]
+[ext_resource type="Resource" path="res://data/throwables/grenade.tres" id="16_grenade"]
+[ext_resource type="Resource" path="res://data/throwables/molotov.tres" id="17_molotov"]
+
+[sub_resource type="RectangleShape2D" id="ground_shape"]
+size = Vector2(362, 140)
+
+[sub_resource type="RectangleShape2D" id="wall_shape"]
+size = Vector2(16, 600)
+
+[sub_resource type="RectangleShape2D" id="IslandWest_shape"]
+size = Vector2(154, 4)
+
+[sub_resource type="RectangleShape2D" id="IslandMiddle_shape"]
+size = Vector2(164, 4)
+
+[sub_resource type="RectangleShape2D" id="IslandEast_shape"]
+size = Vector2(154, 4)
+
+[sub_resource type="RectangleShape2D" id="IslandTopWest_shape"]
+size = Vector2(104, 4)
+
+[sub_resource type="RectangleShape2D" id="IslandTopEast_shape"]
+size = Vector2(104, 4)
+
+[sub_resource type="RectangleShape2D" id="Bridge_shape"]
+size = Vector2(52, 4)
+
+[sub_resource type="RectangleShape2D" id="crate14_shape"]
+size = Vector2(14, 14)
+
+[sub_resource type="RectangleShape2D" id="crate16_shape"]
+size = Vector2(16, 16)
+
+[sub_resource type="RectangleShape2D" id="crate18_shape"]
+size = Vector2(18, 18)
+
+[node name="Isles" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Background" type="Sprite2D" parent="."]
+scale = Vector2(0.333333, 0.333333)
+texture = ExtResource("3_background")
+centered = false
+
+[node name="Terrain" type="Sprite2D" parent="."]
+scale = Vector2(0.333333, 0.333333)
+texture = ExtResource("4_terrain")
+centered = false
+
+[node name="GroundWest" type="StaticBody2D" parent="."]
+position = Vector2(121, 370)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GroundWest"]
+shape = SubResource("ground_shape")
+
+[node name="GroundEast" type="StaticBody2D" parent="."]
+position = Vector2(519, 370)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GroundEast"]
+shape = SubResource("ground_shape")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(-8, 100)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("wall_shape")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(648, 100)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("wall_shape")
+
+[node name="Platforms" type="Node2D" parent="."]
+
+[node name="IslandWest" type="StaticBody2D" parent="Platforms"]
+position = Vector2(115, 228)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/IslandWest"]
+shape = SubResource("IslandWest_shape")
+one_way_collision = true
+
+[node name="IslandMiddle" type="StaticBody2D" parent="Platforms"]
+position = Vector2(320, 162)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/IslandMiddle"]
+shape = SubResource("IslandMiddle_shape")
+one_way_collision = true
+
+[node name="IslandEast" type="StaticBody2D" parent="Platforms"]
+position = Vector2(525, 228)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/IslandEast"]
+shape = SubResource("IslandEast_shape")
+one_way_collision = true
+
+[node name="IslandTopWest" type="StaticBody2D" parent="Platforms"]
+position = Vector2(120, 108)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/IslandTopWest"]
+shape = SubResource("IslandTopWest_shape")
+one_way_collision = true
+
+[node name="IslandTopEast" type="StaticBody2D" parent="Platforms"]
+position = Vector2(520, 102)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/IslandTopEast"]
+shape = SubResource("IslandTopEast_shape")
+one_way_collision = true
+
+[node name="Bridge" type="StaticBody2D" parent="Platforms"]
+position = Vector2(320, 284)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/Bridge"]
+shape = SubResource("Bridge_shape")
+one_way_collision = true
+
+[node name="Crates" type="Node2D" parent="."]
+
+[node name="Crate" type="StaticBody2D" parent="Crates"]
+position = Vector2(228, 291)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crates/Crate"]
+shape = SubResource("crate18_shape")
+
+[node name="Crate2" type="StaticBody2D" parent="Crates"]
+position = Vector2(246, 292)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crates/Crate2"]
+shape = SubResource("crate16_shape")
+
+[node name="Crate3" type="StaticBody2D" parent="Crates"]
+position = Vector2(236, 274)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crates/Crate3"]
+shape = SubResource("crate16_shape")
+
+[node name="Crate4" type="StaticBody2D" parent="Crates"]
+position = Vector2(612, 291)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crates/Crate4"]
+shape = SubResource("crate18_shape")
+
+[node name="Crate5" type="StaticBody2D" parent="Crates"]
+position = Vector2(372, 152)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crates/Crate5"]
+shape = SubResource("crate16_shape")
+
+[node name="Crate6" type="StaticBody2D" parent="Crates"]
+position = Vector2(70, 219)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Crates/Crate6"]
+shape = SubResource("crate14_shape")
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="Ladder" parent="Props" instance=ExtResource("7_ladder")]
+position = Vector2(176, 300)
+height = 74.0
+
+[node name="Ladder2" parent="Props" instance=ExtResource("7_ladder")]
+position = Vector2(100, 226)
+height = 120.0
+
+[node name="Ladder3" parent="Props" instance=ExtResource("7_ladder")]
+position = Vector2(464, 300)
+height = 74.0
+
+[node name="Ladder4" parent="Props" instance=ExtResource("7_ladder")]
+position = Vector2(540, 226)
+height = 126.0
+
+[node name="Ladder5" parent="Props" instance=ExtResource("7_ladder")]
+position = Vector2(320, 282)
+height = 122.0
+
+[node name="Barrel" parent="Props" instance=ExtResource("5_barrel")]
+position = Vector2(40, 300)
+
+[node name="Barrel2" parent="Props" instance=ExtResource("5_barrel")]
+position = Vector2(54, 300)
+
+[node name="Barrel3" parent="Props" instance=ExtResource("5_barrel")]
+position = Vector2(47, 282)
+
+[node name="Barrel4" parent="Props" instance=ExtResource("5_barrel")]
+position = Vector2(146, 106)
+
+[node name="ExplosiveBarrel" parent="Props" instance=ExtResource("6_explosive")]
+position = Vector2(410, 300)
+
+[node name="ExplosiveBarrel2" parent="Props" instance=ExtResource("6_explosive")]
+position = Vector2(494, 100)
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="P1" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(96, 300)
+
+[node name="P2" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(560, 300)
+
+[node name="ItemSpawns" type="Node2D" parent="."]
+
+[node name="GroundWest" type="Marker2D" parent="ItemSpawns"]
+position = Vector2(200, 292)
+script = ExtResource("8_spawner")
+items = Array[ExtResource("9_data")]([ExtResource("10_pistol"), ExtResource("14_knife"), ExtResource("15_bat")])
+
+[node name="GroundEast" type="Marker2D" parent="ItemSpawns"]
+position = Vector2(440, 292)
+script = ExtResource("8_spawner")
+items = Array[ExtResource("9_data")]([ExtResource("11_shotgun"), ExtResource("12_smg"), ExtResource("15_bat")])
+
+[node name="IslandWest" type="Marker2D" parent="ItemSpawns"]
+position = Vector2(130, 218)
+script = ExtResource("8_spawner")
+items = Array[ExtResource("9_data")]([ExtResource("16_grenade"), ExtResource("17_molotov")])
+
+[node name="IslandEast" type="Marker2D" parent="ItemSpawns"]
+position = Vector2(500, 218)
+script = ExtResource("8_spawner")
+items = Array[ExtResource("9_data")]([ExtResource("12_smg"), ExtResource("11_shotgun"), ExtResource("14_knife")])
+
+[node name="IslandMiddle" type="Marker2D" parent="ItemSpawns"]
+position = Vector2(290, 152)
+script = ExtResource("8_spawner")
+items = Array[ExtResource("9_data")]([ExtResource("13_sniper")])
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 180)
+script = ExtResource("2_camera")
