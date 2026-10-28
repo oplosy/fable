@@ -9,6 +9,7 @@ Living list of agreed gameplay requirements. Add new items as they are decided; 
 
 ## Visual Direction
 
+- Stick figures (user, session 4): the players are stick figures for now; the drawn characters are set aside. Animations are frame by frame and dense (24 fps, every frame its own picture). Standing still is a three-quarter stance showing both legs and both arms; moving (walk, run) is in profile. Running is a cartoon sprint: arms swing, legs kick back, the body bobs and rocks. A dive looks head-first and lands into a forward roll; the roll (S while running) is a tucked forward roll.
 - Readable pixel art; side-view camera. Characters do not have to be drawn in strict profile: a 3/4 standing pose is fine (user decision, session 3).
 - Stylized characters with clear silhouettes; limited palettes; simple industrial arenas.
 - The user's detailed 64x96 character designs (`characters/`, 1 px outline, cel shading, 5 body-part layers) set the character look. No 3D models or photorealistic textures. Animation readability beats visual complexity.
