@@ -1,11 +1,11 @@
 extends SceneTree
 
-## Draws a style sample for the cartoon map look (user, session 6: flat colours, thick dark
-## outlines, rounded stones, moss caps with drips) as one 640x360 world-px SVG, and renders
-## it at the art zoom (3x) to a PNG preview. Not loaded by the game.
-## Run: <godot> --headless --path . -s res://tools/make_cartoon_sample.gd
+## Draws the Isles arena (scenes/arenas/isles.tscn) and the shared prop art in the cartoon
+## map look (user, session 6: flat colours, thick dark outlines, rounded stones, moss caps
+## with drips). Each picture is an SVG under art/ (world px), rendered at the art zoom (3x)
+## to a PNG under assets/. Platform positions here must match the arena scene.
+## Run: <godot> --headless --path . -s res://tools/draw_isles.gd
 
-const OUT_DIR := "res://art/cartoon"
 const W := 640.0
 const H := 360.0
 const ART_SCALE := 3.0
@@ -31,25 +31,22 @@ var clip_count := 0
 func _init() -> void:
 	rng.seed = 6
 	draw_background()
-	draw_pit(286.0, 354.0, 300.0)
-	# Hanging plank (a one-way platform) under the centre island.
-	draw_chain(294.0, 192.0, 244.0)
-	draw_chain(346.0, 192.0, 244.0)
-	draw_ground([Vector2(-60, 300), Vector2(288, 300), Vector2(291, 314), Vector2(286, 330),
-			Vector2(290, 346), Vector2(287, H + 20), Vector2(-60, H + 20)], 300.0)
-	draw_ground([Vector2(352, 300), Vector2(W + 60, 300), Vector2(W + 60, H + 20),
-			Vector2(353, H + 20), Vector2(350, 346), Vector2(355, 330), Vector2(349, 314)], 300.0)
+	save("arenas/isles/background", W, H)
+
+	draw_pit(300.0, 340.0, 300.0)
+	# The hanging bridge (a one-way platform) over the pit, low enough to jump onto.
+	draw_chain(300.0, 192.0, 282.0)
+	draw_chain(340.0, 192.0, 282.0)
+	draw_ground([Vector2(-60, 300), Vector2(302, 300), Vector2(305, 314), Vector2(300, 330),
+			Vector2(304, 346), Vector2(301, H + 20), Vector2(-60, H + 20)], 300.0)
+	draw_ground([Vector2(338, 300), Vector2(W + 60, 300), Vector2(W + 60, H + 20),
+			Vector2(339, H + 20), Vector2(336, 346), Vector2(341, 330), Vector2(335, 314)], 300.0)
 	draw_island(40, 190, 226, 34)
 	draw_island(240, 400, 160, 42)
 	draw_island(450, 600, 226, 34)
 	draw_island(70, 170, 106, 26)
 	draw_island(470, 570, 100, 26)
-	draw_plank(284.0, 356.0, 244.0)
-	draw_ladder(176.0, 226.0, 300.0)
-	draw_ladder(100.0, 106.0, 226.0)
-	draw_ladder(464.0, 226.0, 300.0)
-	draw_ladder(540.0, 100.0, 226.0)
-	draw_ladder(320.0, 160.0, 244.0)
+	draw_plank(294.0, 346.0, 282.0)
 	draw_bush(20, 300, 14)
 	draw_bush(250, 300, 10)
 	draw_bush(600, 300, 13)
@@ -58,12 +55,6 @@ func _init() -> void:
 	draw_torch(500, 300)
 	draw_torch(262, 160)
 	draw_torch(586, 226)
-	draw_barrel(40, 300, false)
-	draw_barrel(54, 300, false)
-	draw_barrel(47, 282, false)
-	draw_barrel(410, 300, true)
-	draw_barrel(146, 106, false)
-	draw_barrel(552, 100, true)
 	draw_crate(228, 300, 18)
 	draw_crate(246, 300, 16)
 	draw_crate(236, 282, 16)
@@ -72,24 +63,36 @@ func _init() -> void:
 	draw_crate(70, 226, 14)
 	draw_sign(272, 300, 1)
 	draw_sign(368, 300, -1)
-	draw_fighter(96, 300, "#6fb6ff")
-	draw_fighter(520, 226, "#ff6b6b")
+	save("arenas/isles/terrain", W, H)
 
-	var svg := "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">\n" % [W, H, W, H]
+	# Props are drawn with their floor point at (8, 19), the scenes' sprite offset (-8, -19).
+	draw_barrel(8, 19, false)
+	save("props/barrel", 16, 20)
+	draw_barrel(8, 19, true)
+	save("props/explosive_barrel", 16, 20)
+	draw_ladder_section(8)
+	save("props/ladder", 16, 7)
+	quit()
+
+
+## Writes the drawing so far to art/<path>.svg and assets/<path>.png, then starts a new one.
+func save(path: String, w: float, h: float) -> void:
+	var svg := "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"%d\" height=\"%d\" viewBox=\"0 0 %d %d\">\n" % [w, h, w, h]
 	svg += "<defs>\n%s\n</defs>\n%s\n</svg>\n" % ["\n".join(defs), "\n".join(body)]
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUT_DIR))
-	var file := FileAccess.open(OUT_DIR + "/sample_map.svg", FileAccess.WRITE)
+	body.clear()
+	for dir in ["res://art/", "res://assets/"]:
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir + path.get_base_dir()))
+	var file := FileAccess.open("res://art/%s.svg" % path, FileAccess.WRITE)
 	file.store_string(svg)
 	file.close()
 	var image := Image.new()
 	var err := image.load_svg_from_string(svg, ART_SCALE)
 	if err != OK:
-		push_error("SVG did not render: %s" % error_string(err))
+		push_error("%s did not render: %s" % [path, error_string(err)])
 		quit(1)
 		return
-	image.save_png(OUT_DIR + "/sample_map.png")
-	print("Wrote %s/sample_map.svg and .png (%dx%d)" % [OUT_DIR, image.get_width(), image.get_height()])
-	quit()
+	image.save_png("res://assets/%s.png" % path)
+	print("Wrote %s (%dx%d)" % [path, image.get_width(), image.get_height()])
 
 
 func f(v: float) -> String:
@@ -244,14 +247,14 @@ func draw_plank(x0: float, x1: float, y: float) -> void:
 		x += 9.0
 
 
-## A wooden ladder from the walkable top `top` down to `bottom`, poking a little above it.
-func draw_ladder(x: float, top: float, bottom: float) -> void:
-	var y := top + 4.0
-	while y < bottom - 2:
-		body.append(outlined("M %s,%s L %s,%s L %s,%s L %s,%s Z" % [f(x - 6), f(y), f(x + 6), f(y), f(x + 6), f(y + 2), f(x - 6), f(y + 2)], WOOD_LIGHT, 0.9))
-		y += 7.0
+## One tile of a wooden ladder centred on `x`: a rung and the rails, 7 px tall, open at
+## the top and bottom so the `Ladder` scene can repeat it any height.
+func draw_ladder_section(x: float) -> void:
+	body.append(outlined("M %s,2.5 L %s,2.5 L %s,4.5 L %s,4.5 Z" % [f(x - 6), f(x + 6), f(x + 6), f(x - 6)], WOOD_LIGHT, 0.9))
 	for side in [-7.0, 5.0]:
-		body.append(outlined("M %s,%s L %s,%s L %s,%s L %s,%s Z" % [f(x + side), f(top - 6), f(x + side + 2.2), f(top - 6), f(x + side + 2.2), f(bottom), f(x + side), f(bottom)], WOOD, 1.0))
+		body.append("<rect x=\"%s\" y=\"0\" width=\"2.2\" height=\"7\" fill=\"%s\"/>" % [f(x + side), WOOD])
+		for edge in [x + side, x + side + 2.2]:
+			body.append("<path d=\"M %s,0 L %s,7\" stroke=\"%s\" stroke-width=\"1\"/>" % [f(edge), f(edge), LINE])
 
 
 func draw_bush(x: float, y: float, r: float) -> void:
@@ -313,12 +316,3 @@ func draw_sign(x: float, y: float, dir: int) -> void:
 			f(back), f(y - 19), f(neck), f(y - 19), f(tip), f(y - 15), f(neck), f(y - 11), f(back), f(y - 11)], WOOD))
 	body.append("<path d=\"M %s,%s L %s,%s\" stroke=\"%s\" stroke-width=\"0.9\"/>" % [f(back + 1.5 * dir), f(y - 15), f(neck - 1.0 * dir), f(y - 15), WOOD_DARK])
 
-
-## A stand-in stick figure 28 world px tall, only to show the scale.
-func draw_fighter(x: float, y: float, colour: String) -> void:
-	var limbs := "M %s,%s L %s,%s M %s,%s L %s,%s M %s,%s L %s,%s M %s,%s L %s,%s L %s,%s" % [
-			f(x), f(y - 20), f(x), f(y - 10), f(x), f(y - 10), f(x - 4), f(y), f(x), f(y - 10), f(x + 4), f(y),
-			f(x - 5), f(y - 13), f(x), f(y - 18), f(x + 5), f(y - 15)]
-	body.append("<path d=\"%s\" fill=\"none\" stroke=\"%s\" stroke-width=\"3.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" % [limbs, LINE])
-	body.append("<path d=\"%s\" fill=\"none\" stroke=\"%s\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>" % [limbs, colour])
-	body.append("<circle cx=\"%s\" cy=\"%s\" r=\"3.8\" fill=\"%s\" stroke=\"%s\" stroke-width=\"%s\"/>" % [f(x), f(y - 24), colour, LINE, f(STROKE)])
