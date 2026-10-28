@@ -3,7 +3,8 @@ extends "res://tests/test_case.gd"
 
 ## Every arena scene follows the map rules, so a new map cannot break the game:
 ## an Arena root with spawn points, item spawns and a follow camera, and a camera area
-## no bigger than FollowCamera.MAX_MAP_SIZE, so every fighter is always on screen.
+## exactly the view at one of the camera's zooms, so every fighter is always on screen,
+## and camera shots at those zooms that lie inside it.
 
 const ARENAS := "res://scenes/arenas/"
 
@@ -14,6 +15,8 @@ func run() -> void:
 	var oversized := Arena.new()
 	oversized.camera_limits = Rect2(Vector2.ZERO, FollowCamera.MAX_MAP_SIZE + Vector2(16, 0))
 	check(not oversized.fits_camera(), "a map one tile wider than the limit is rejected")
+	oversized.camera_limits = Rect2(Vector2.ZERO, Vector2(1000, 720))
+	check(not oversized.fits_camera(), "a map that is not a whole view at a camera zoom is rejected")
 	oversized.free()
 
 	var found := 0
@@ -25,7 +28,12 @@ func run() -> void:
 		check(arena != null, "%s: the root is an Arena" % file)
 		if arena == null:
 			continue
-		check(arena.fits_camera(), "%s: camera_limits %s fit in %s" % [file, arena.camera_limits.size, FollowCamera.MAX_MAP_SIZE])
+		# In the tree, so shots know where they are.
+		root.add_child(arena)
+		check(arena.fits_camera(), "%s: camera_limits %s are the view at a camera zoom" % [file, arena.camera_limits.size])
+		for shot: CameraShot in arena.find_children("*", "CameraShot", true, false):
+			check(shot.zoom in FollowCamera.ZOOMS, "%s: shot %s uses a camera zoom" % [file, shot.name])
+			check(arena.camera_limits.encloses(shot.area(view)), "%s: shot %s lies inside the camera limits" % [file, shot.name])
 		check(arena.bounds.encloses(arena.camera_limits), "%s: the whole visible map lies inside the arena bounds" % file)
 		check(arena.get_node_or_null("SpawnPoints") != null and arena.get_node("SpawnPoints").get_child_count() >= 2, "%s: has at least two spawn points" % file)
 		check(arena.get_node_or_null("ItemSpawns") != null, "%s: has ItemSpawns" % file)

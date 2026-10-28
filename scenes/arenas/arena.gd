@@ -9,8 +9,9 @@ const BOUNDED := &"bounded"
 ## Playable area in the arena's own coordinates; leave room above for jumps.
 @export var bounds := Rect2(-64, -360, 768, 784)
 ## The part of the map the camera may show, in the arena's own coordinates. Everywhere
-## a fighter can stand or jump must lie inside it, and it may be at most
-## FollowCamera.MAX_MAP_SIZE (2560x1440), or fighters could end up off screen.
+## a fighter can stand or jump must lie inside it. Its size is exactly the view at one of
+## FollowCamera.ZOOMS (640x360, 1280x720 or 2560x1440), so the whole-map shot fills the
+## screen at a crisp zoom and every fighter always fits on it.
 @export var camera_limits := Rect2(0, 0, 640, 360)
 
 ## The match's single source of randomness (spawn picks, bullet spread), so seeding it
@@ -29,15 +30,18 @@ static func rng_of(node: Node) -> RandomNumberGenerator:
 
 func _ready() -> void:
 	if not fits_camera():
-		push_error("%s: camera_limits %s is bigger than the %s maximum; fighters could end up off screen." % [scene_file_path, camera_limits.size, FollowCamera.MAX_MAP_SIZE])
+		push_error("%s: camera_limits %s is not the view at a camera zoom (640x360, 1280x720 or 2560x1440)." % [scene_file_path, camera_limits.size])
 	# The camera only ever shrinks the 3x art (never past 1:1), so mipmaps keep it from
 	# dropping pixels and shimmering while zooming. At the art zoom it draws pixel for pixel.
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 
-## Whether the whole map fits the furthest camera zoom.
+## Whether the map is exactly the view at one of the camera's zooms.
 func fits_camera() -> bool:
-	return camera_limits.size.x <= FollowCamera.MAX_MAP_SIZE.x and camera_limits.size.y <= FollowCamera.MAX_MAP_SIZE.y
+	for zoom in FollowCamera.ZOOMS:
+		if camera_limits.size == FollowCamera.VIEW / zoom:
+			return true
+	return false
 
 
 func _physics_process(_delta: float) -> void:
