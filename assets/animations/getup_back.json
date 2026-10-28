@@ -77,22 +77,22 @@
 		{
 			"t": 0.4,
 			"root": [
-				0.0,
-				2.0
+				2.0,
+				9.0
 			],
 			"angles": {
-				"torso": 2.0,
-				"head": -2.0,
-				"arm_front_upper": -25.0,
-				"arm_front_lower": -70.0,
-				"arm_back_upper": -20.0,
-				"arm_back_lower": -60.0,
-				"leg_front_upper": -26.3,
-				"leg_front_lower": 26.3,
-				"foot_front": 0.0,
-				"leg_back_upper": -26.3,
-				"leg_back_lower": 26.3,
-				"foot_back": 0.0,
+				"torso": 12.0,
+				"head": -12.0,
+				"arm_front_upper": -45.9,
+				"arm_front_lower": -96.2,
+				"arm_back_upper": -53.7,
+				"arm_back_lower": -117.4,
+				"leg_front_upper": 4.3,
+				"leg_front_lower": 70.2,
+				"foot_front": -74.5,
+				"leg_back_upper": -62.3,
+				"leg_back_lower": 66.2,
+				"foot_back": -3.9,
 				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}

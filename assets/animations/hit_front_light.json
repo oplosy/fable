@@ -6,22 +6,22 @@
 		{
 			"t": 0.0,
 			"root": [
-				0.0,
-				2.0
+				2.0,
+				9.0
 			],
 			"angles": {
-				"torso": 2.0,
-				"head": -2.0,
-				"arm_front_upper": -25.0,
-				"arm_front_lower": -70.0,
-				"arm_back_upper": -20.0,
-				"arm_back_lower": -60.0,
-				"leg_front_upper": -26.3,
-				"leg_front_lower": 26.3,
-				"foot_front": 0.0,
-				"leg_back_upper": -26.3,
-				"leg_back_lower": 26.3,
-				"foot_back": 0.0,
+				"torso": 12.0,
+				"head": -12.0,
+				"arm_front_upper": -45.9,
+				"arm_front_lower": -96.2,
+				"arm_back_upper": -53.7,
+				"arm_back_lower": -117.4,
+				"leg_front_upper": 4.3,
+				"leg_front_lower": 70.2,
+				"foot_front": -74.5,
+				"leg_back_upper": -62.3,
+				"leg_back_lower": 66.2,
+				"foot_back": -3.9,
 				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
@@ -39,12 +39,12 @@
 				"arm_front_lower": -80.0,
 				"arm_back_upper": -8.0,
 				"arm_back_lower": -90.0,
-				"leg_front_upper": -24.6,
-				"leg_front_lower": 47.1,
-				"foot_front": -22.6,
-				"leg_back_upper": -24.6,
-				"leg_back_lower": 47.1,
-				"foot_back": -22.6,
+				"leg_front_upper": 1.4,
+				"leg_front_lower": 37.2,
+				"foot_front": -38.5,
+				"leg_back_upper": -31.4,
+				"leg_back_lower": -8.1,
+				"foot_back": 39.5,
 				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}
@@ -52,23 +52,23 @@
 		{
 			"t": 0.2,
 			"root": [
-				-0.6,
-				2.3
+				0.8,
+				7.2
 			],
 			"angles": {
-				"torso": -2.2,
-				"head": -5.6,
+				"torso": 4.8,
+				"head": -12.6,
 				"pelvis": 0.0,
-				"arm_front_upper": -37.8,
+				"arm_front_upper": -44.8,
 				"arm_front_lower": -80.0,
-				"arm_back_upper": -17.8,
+				"arm_back_upper": -24.8,
 				"arm_back_lower": -90.0,
-				"leg_front_upper": -18.5,
-				"leg_front_lower": 40.9,
-				"foot_front": -22.4,
-				"leg_back_upper": -18.5,
-				"leg_back_lower": 40.9,
-				"foot_back": -22.4,
+				"leg_front_upper": 1.6,
+				"leg_front_lower": 63.2,
+				"foot_front": -64.8,
+				"leg_back_upper": -55.1,
+				"leg_back_lower": 48.2,
+				"foot_back": 6.9,
 				"coat_tail": 0.0,
 				"coat_back": 0.0
 			}

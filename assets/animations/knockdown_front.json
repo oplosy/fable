@@ -6,16 +6,16 @@
 		{
 			"t": 0.0,
 			"root": [
-				2.4,
-				6.0
+				3.6,
+				10.2
 			],
 			"angles": {
 				"pelvis": 18.0,
-				"torso": 5.2,
-				"head": 4.8,
-				"arm_front_upper": -143.2,
+				"torso": 11.2,
+				"head": -1.2,
+				"arm_front_upper": -149.2,
 				"arm_front_lower": -40.0,
-				"arm_back_upper": -113.2,
+				"arm_back_upper": -119.2,
 				"arm_back_lower": -50.0,
 				"leg_front_upper": 0.0,
 				"leg_front_lower": 0.0,
