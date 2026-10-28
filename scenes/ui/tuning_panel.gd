@@ -16,6 +16,7 @@ const PARAMS := [
 	["friction", 200.0, 5000.0, 50.0],
 	["air_acceleration", 0.0, 3000.0, 50.0],
 	["jump_velocity", -600.0, -120.0, 5.0],
+	["air_tempo", 0.3, 1.5, 0.05],
 	["gravity_scale", 0.3, 3.0, 0.05],
 	["fall_gravity_scale", 0.3, 4.0, 0.05],
 	["jump_cut", 0.0, 1.0, 0.05],

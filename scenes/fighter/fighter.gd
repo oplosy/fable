@@ -419,7 +419,7 @@ func _physics_process(delta: float) -> void:
 		var jumped := unlocked and controller.jump
 		_let_go()
 		if jumped:
-			velocity.y = fighter_class.jump_velocity
+			velocity.y = fighter_class.jump_velocity * fighter_class.air_tempo
 			_jump_buffered = 0.0
 			_since_floor = INF
 			# The jump is used up; is_on_floor() is stale from before the climb.
@@ -439,7 +439,7 @@ func _physics_process(delta: float) -> void:
 	_set_crouching(acting and is_on_floor() and controller.crouch and not controller.jump)
 
 	if not is_on_floor():
-		velocity.y += gravity * (fighter_class.fall_gravity_scale if velocity.y > 0.0 else fighter_class.gravity_scale) * delta
+		velocity.y += gravity * fighter_class.air_tempo * fighter_class.air_tempo * (fighter_class.fall_gravity_scale if velocity.y > 0.0 else fighter_class.gravity_scale) * delta
 	if _jump_rising and (velocity.y >= 0.0 or is_on_floor()):
 		_jump_rising = false
 	elif _jump_rising and not controller.jump_held:
@@ -459,8 +459,9 @@ func _physics_process(delta: float) -> void:
 	elif direction:
 		# Steering in the air bends the jump up to walk speed; it never slows down
 		# faster momentum in the held direction (a running takeoff, a knockback).
-		if direction * velocity.x < fighter_class.walk_speed:
-			velocity.x = move_toward(velocity.x, direction * fighter_class.walk_speed, fighter_class.air_acceleration * delta)
+		var tempo := fighter_class.air_tempo
+		if direction * velocity.x < fighter_class.walk_speed * tempo:
+			velocity.x = move_toward(velocity.x, direction * fighter_class.walk_speed * tempo, fighter_class.air_acceleration * tempo * tempo * delta)
 		facing = 1 if direction > 0 else -1
 		_visuals.scale.x = facing
 	elif is_on_floor() and not is_rolling():
@@ -473,10 +474,10 @@ func _physics_process(delta: float) -> void:
 		_since_floor = INF
 		if is_running():
 			_diving = true
-			velocity = Vector2(facing * fighter_class.dive_velocity.x, fighter_class.dive_velocity.y)
+			velocity = Vector2(facing * fighter_class.dive_velocity.x, fighter_class.dive_velocity.y) * fighter_class.air_tempo
 		else:
-			# A jump keeps the speed it was walking with, so it arcs forward.
-			velocity.y = fighter_class.jump_velocity
+			# A jump keeps the speed it was walking with (at air tempo), so it arcs forward.
+			velocity = Vector2(velocity.x, fighter_class.jump_velocity) * fighter_class.air_tempo
 			_jump_rising = true
 	elif unlocked and controller.down and is_running():
 		_roll_time = fighter_class.roll_time
@@ -504,7 +505,7 @@ func _physics_process(delta: float) -> void:
 			firearm.try_fire(aim_direction(), get_parent(), self, fighter_class.crouch_spread_scale if _crouching else 1.0)
 			if firearm.is_empty():
 				inventory.drop_firearm()
-	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction(), get_rid())
+	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction(), get_rid(), firearm.data.projectile_range if firearm else 0.0)
 
 	if acting and inventory.active_slot == Inventory.Slot.MELEE and controller.attack:
 		melee.request_attack(not is_on_floor())

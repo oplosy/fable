@@ -24,6 +24,10 @@ extends Resource
 @export var coyote_time := 0.0
 ## Seconds a jump pressed just before landing is remembered and done on landing.
 @export var jump_buffer := 0.0
+## How fast everything in the air plays (user, session 4: jumps felt too fast). Below 1
+## the same arcs (height and reach) take longer: gravity scales by its square, and jump,
+## dive and air speeds by it, so the gap, barrel and reach rules hold for any value.
+@export_range(0.3, 1.5) var air_tempo := 1.0
 ## Speed change per second from A/D in the air, up to walk speed. Jumps keep their
 ## takeoff speed, so this only bends the arc; dives and jump kicks cannot be steered.
 @export var air_acceleration := 500.0
@@ -81,30 +85,33 @@ const DIVE_OVER := Vector2(12, 18)
 const DIVE_SKIM := 3.0
 
 
-## Seconds in the air for a jump that starts at upward speed `speed` (negative).
+## Seconds in the air for a jump that starts at upward speed `speed` (negative, before
+## air_tempo).
 func air_time(speed: float) -> float:
 	var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
 	var height := speed * speed / (2.0 * gravity * gravity_scale)
-	return -speed / (gravity * gravity_scale) + sqrt(2.0 * height / (gravity * fall_gravity_scale))
+	return (-speed / (gravity * gravity_scale) + sqrt(2.0 * height / (gravity * fall_gravity_scale))) / air_tempo
 
 
 ## Distance (px) a walking jump and a dive cover from takeoff to landing on flat floor.
 func jump_reach() -> float:
-	return walk_speed * air_time(jump_velocity)
+	return walk_speed * air_tempo * air_time(jump_velocity)
 
 
 func dive_reach() -> float:
-	return dive_velocity.x * air_time(dive_velocity.y)
+	return dive_velocity.x * air_tempo * air_time(dive_velocity.y)
 
 
 ## Px the feet clear a prop of `size` by when the dive peaks right over it (negative:
 ## it hits the prop), with a body `body_width` wide.
 func dive_clearance(size: Vector2, body_width: float) -> float:
 	var gravity: float = ProjectSettings.get_setting("physics/2d/default_gravity")
-	var peak := dive_velocity.y * dive_velocity.y / (2.0 * gravity * gravity_scale)
+	var g := gravity * air_tempo * air_tempo
+	var speed := dive_velocity * air_tempo
+	var peak := speed.y * speed.y / (2.0 * g * gravity_scale)
 	# Feet and prop overlap for (body + prop) / 2 on each side of the peak; it falls meanwhile.
-	var half_time := (body_width + size.x) / 2.0 / dive_velocity.x
-	return peak - 0.5 * gravity * fall_gravity_scale * half_time * half_time - size.y
+	var half_time := (body_width + size.x) / 2.0 / speed.x
+	return peak - 0.5 * g * fall_gravity_scale * half_time * half_time - size.y
 
 
 ## Distance (px) a roll covers with no input: at roll speed, then sliding to a stop.
