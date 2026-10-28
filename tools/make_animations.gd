@@ -6,7 +6,7 @@ extends SceneTree
 ## the floor. Planted feet move back at exactly the clip's reference speed, so they never
 ## slide. Run: <godot> --headless --path . -s res://tools/make_animations.gd
 
-const RIG_DIR := "res://assets/characters/street_brawler"
+const RIG_DIR := "res://art/stickman/rig"
 const OUT_DIR := "res://assets/animations"
 ## Floor line in art px: the bottom edge of sole row 92.
 const FLOOR := 93.0

@@ -9,7 +9,7 @@ extends SceneTree
 ## and exports the PNGs the game loads.
 ## Run: <godot> --headless --path . -s res://tools/make_stickman.gd
 
-const RIG := "res://assets/characters/street_brawler/rig.json"
+const RIG := "res://art/stickman/rig/rig.json"
 const CLIPS_DIR := "res://assets/animations"
 const STRIPS_DIR := "res://art/stickman/strips"
 const OUT_DIR := "res://assets/characters/stickman"
