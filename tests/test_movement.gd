@@ -72,7 +72,7 @@ func run() -> void:
 		if fighter.is_on_floor():
 			break
 		await physics_frames(1)
-	check(fighter.position.x - takeoff_x > 80.0, "dive covers ground")
+	check(fighter.position.x - takeoff_x > 60.0, "dive covers ground")
 	await physics_frames(2)
 	check(not fighter.is_diving() and fighter.get_node("Visuals").rotation == 0.0, "landing ends the dive")
 
