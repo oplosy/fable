@@ -305,15 +305,16 @@ func _run() -> Dictionary:
 		"events": [{"t": 0.0, "name": "step"}, {"t": snappedf(length / 2.0, 0.001), "name": "step"}], "keys": keys}
 
 
-## Instant push-off (legs straight, arms thrown up), then the legs tuck on the way up. Holds.
+## Push-off with the near arm thrown up and forward and the far one swept back, then one
+## knee driven high while the other leg trails (the reference video's jump). Holds.
 func _jump_rise() -> Dictionary:
 	return {"name": "jump_rise", "loop": false, "length": 0.25, "keys": [
-		_key(0.0, {"root": Vector2.ZERO, "torso": 2, "head": -4,
-			"arm_front_upper": -60, "arm_front_lower": -40, "arm_back_upper": -45, "arm_back_lower": -40,
-			"feet": {"front": _foot("front", 0, 0, true), "back": _foot("back", 0, 0, true)}}),
-		_key(0.25, {"root": Vector2.ZERO, "torso": 6, "head": -4,
-			"arm_front_upper": -35, "arm_front_lower": -70, "arm_back_upper": -25, "arm_back_lower": -60,
-			"feet": {"front": _foot("front", 9, 14, true), "back": _foot("back", 2, 9, true)}}),
+		_key(0.0, {"root": Vector2(0, 2), "torso": 10, "head": -8,
+			"arms": {"front": Vector2(-150, -120), "back": Vector2(50, 20)},
+			"feet": {"front": _foot("front", 2, 0, true), "back": _foot("back", -4, 0, true)}}),
+		_key(0.25, {"root": Vector2(0, 2), "torso": 8, "head": -6,
+			"arms": {"front": Vector2(-130, -90), "back": Vector2(35, -20)},
+			"feet": {"front": _foot("front", 12, 20, true), "back": _foot("back", -7, 4, true)}}),
 	]}
 
 
@@ -322,10 +323,9 @@ func _fall() -> Dictionary:
 	var keys := []
 	for i in 2:
 		var w := float(i)
-		keys.append(_key(i * 0.2, {"root": Vector2.ZERO, "torso": 0, "head": -2,
-			"arm_front_upper": -80 - 10 * w, "arm_front_lower": -20 + 10 * w,
-			"arm_back_upper": 70 + 10 * w, "arm_back_lower": -25,
-			"feet": {"front": _foot("front", 6, 6 - 2 * w, true), "back": _foot("back", -3, 3 + 2 * w, true)}}))
+		keys.append(_key(i * 0.2, {"root": Vector2.ZERO, "torso": -6, "head": 4,
+			"arms": {"front": Vector2(-120 - 15 * w, -150 - 10 * w), "back": Vector2(110 + 10 * w, 140)},
+			"feet": {"front": _foot("front", 9, 3 - 2 * w, true), "back": _foot("back", -6, 10 + 2 * w, true)}}))
 	return {"name": "fall", "loop": true, "length": 0.4, "keys": keys}
 
 
@@ -482,17 +482,17 @@ func _write_reactions() -> void:
 	for side in ["front", "back"]:
 		# Hit in front: thrown back (negative lean). Hit from behind: lurch forward.
 		var sign := -1.0 if side == "front" else 1.0
-		var light := {"root": Vector2(sign * 2, 3), "torso": sign * 12, "head": sign * 14,
-			"arms": {"front": Vector2(-60 - sign * 20, -120), "back": Vector2(-40 - sign * 20, -110)}, "feet": PLANTED}
+		var light := {"root": Vector2(2 + sign * 3, CROUCH), "torso": 12 + sign * 26, "head": sign * 20,
+			"arms": {"front": Vector2(-60 - sign * 40, -130), "back": Vector2(-40 - sign * 40, -120)}, "feet": PLANTED}
 		_write("hit_%s_light" % side, {"name": "hit_%s_light" % side, "loop": false, "length": 0.2,
 			"keys": [_key(0.0, _stance(0.0)), _key(0.05, light), _key(0.2, _ease_to_stance(light, 0.3))]})
-		var heavy := {"root": Vector2(sign * 6, 6), "torso": sign * 22, "head": sign * 18,
-			"arms": {"front": Vector2(-90 - sign * 40, -150), "back": Vector2(-60 - sign * 40, -130)}, "feet": PLANTED}
+		var heavy := {"root": Vector2(2 + sign * 7, CROUCH + 3), "torso": 12 + sign * 42, "head": sign * 28,
+			"arms": {"front": Vector2(-100 - sign * 60, -160), "back": Vector2(-70 - sign * 60, -140)}, "feet": PLANTED}
 		_write("hit_%s_heavy" % side, {"name": "hit_%s_heavy" % side, "loop": false, "length": 0.35,
 			"keys": [_key(0.0, _stance(0.0)), _key(0.07, heavy), _key(0.35, _ease_to_stance(heavy, 0.35))]})
-	var flung := {"root": Vector2.ZERO, "torso": -15, "head": 12,
-		"arms": {"front": Vector2(-150, -170), "back": Vector2(-130, -150)},
-		"feet": {"front": {"at": Vector2(22, 84)}, "back": {"at": Vector2(52, 80)}}}
+	var flung := {"root": Vector2.ZERO, "torso": -30, "head": 20,
+		"arms": {"front": Vector2(-170, -200), "back": Vector2(-140, -110)},
+		"feet": {"front": {"at": Vector2(18, 82)}, "back": {"at": Vector2(54, 76)}}}
 	_write("hit_air", {"name": "hit_air", "loop": false, "length": 0.25, "keys": [_key(0.0, flung), _key(0.25, flung)]})
 
 
@@ -502,8 +502,8 @@ func _write_knockdowns() -> void:
 	for side in ["back", "front"]:
 		var sign := -1.0 if side == "back" else 1.0
 		var lying := _lying(side, 0.0)
-		var flying := {"root": Vector2(sign * 6, 12), "pelvis": sign * 45, "torso": sign * 10, "head": sign * 15,
-			"arms": {"front": Vector2(sign * 30 - 150, -160), "back": Vector2(sign * 30 - 120, -140)},
+		var flying := {"root": Vector2(sign * 8, 12), "pelvis": sign * 55, "torso": sign * 15, "head": sign * 25,
+			"arms": {"front": Vector2(sign * 30 - 170, -200), "back": Vector2(sign * 30 - 130, -110)},
 			"feet": {"front": "rest", "back": "rest"}}
 		_write("knockdown_" + side, {"name": "knockdown_" + side, "loop": false, "length": 0.35,
 			"keys": [_key(0.0, _ease_to_stance(flying, 0.4)), _key(0.15, flying), _key(0.35, lying)]})
@@ -517,7 +517,7 @@ func _write_knockdowns() -> void:
 			"keys": [_key(0.0, lying), _key(0.1, push), _key(0.22, _squat()), _key(0.4, _stance(0.0))]})
 		var slump := {"root": Vector2(sign * 4, 14), "pelvis": sign * 30, "torso": sign * 15, "head": sign * 30,
 			"arms": {"front": Vector2(sign * 40, sign * 20), "back": Vector2(sign * 50, sign * 30)},
-			"feet": {"front": "planted", "back": "planted"}}
+			"feet": PLANTED}
 		var dead := _lying(side, 0.0)
 		dead.head = sign * 20
 		dead.arms = {"front": Vector2(sign * 90 + 40, sign * 90 + 70), "back": Vector2(sign * 90 - 20, sign * 90 - 40)}
