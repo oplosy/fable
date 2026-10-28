@@ -39,7 +39,7 @@ Tests (`tests/`): `test_health`, `test_fighter`, `test_combat`, `test_main`, `te
 
 ## Next Steps
 
-0. Next (user, session 4): tune movement feel until it is flawless: walk/run speeds, jump height, how A/D and the other keys respond (acceleration, air control, timing).
+0. In progress (user, session 4): tune movement feel until it is flawless. The tools are built: F1 in a debug run opens `TuningPanel` (sliders for player 1's class, live; Save writes the class `.tres`, Reset reloads it; a summary shows jump height, air time and reach in tiles), and `FighterClass` has `gravity_scale`, `fall_gravity_scale`, `jump_cut` (release jump to cut it short), `coyote_time` and `jump_buffer`, all off by default (`test_jump_feel`). Next: the user plays and tunes; Claude reviews the saved values (and gap widths in the Docks against the new jump reach).
 1. Build the agreed content (GAME_DESIGN.md → Content List); ammo, spread, bloom, crouching, shotgun, SMG, sniper, knife, bat, grenade and molotov are done. Remaining content (revolver, machine gun, bazooka, flamethrower; pipe, machete, sledgehammer; mine, C4) has no agreed order yet.
 2. Later (order not agreed yet): game modes (first five agreed in GAME_DESIGN: capture the flag, deathmatch to 20, zone control to 1000, hostage rescue, bomb; kill credit is built, a mode/score layer is next), HUD, sprites and animation states, bots (versus-computer), online play, maps (small/medium/large), user map import (data-only format).
 
