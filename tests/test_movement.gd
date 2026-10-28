@@ -135,7 +135,7 @@ func _test_class_stats() -> void:
 	for data: CharacterData in [FAST, HEAVY]:
 		var c := data.fighter_class
 		var ratio := c.dive_reach() / c.jump_reach()
-		check(absf(c.run_speed - c.walk_speed * FighterClass.RUN_OVER_WALK) <= 1.0, "%s runs 20%% faster than it walks (%.0f vs %.0f)" % [c.display_name, c.run_speed, c.walk_speed])
+		check(absf(c.run_speed - c.walk_speed * FighterClass.RUN_OVER_WALK) <= 1.0, "%s runs 40%% faster than it walks (%.0f vs %.0f)" % [c.display_name, c.run_speed, c.walk_speed])
 		var clearance := c.dive_clearance(FighterClass.DIVE_OVER, 12.0)
 		check(clearance >= 0.0 and clearance <= FighterClass.DIVE_SKIM, "%s's dive just skims a barrel (%.1f px over)" % [c.display_name, clearance])
 		check(absf(c.roll_reach() / c.dive_reach() - 1.0) < 0.03, "%s's roll goes as far as its dive (%.0f px vs %.0f px)" % [c.display_name, c.roll_reach(), c.dive_reach()])
