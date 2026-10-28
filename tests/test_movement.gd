@@ -72,7 +72,7 @@ func run() -> void:
 		if fighter.is_on_floor():
 			break
 		await physics_frames(1)
-	check(fighter.position.x - takeoff_x > 60.0, "dive covers ground")
+	check(fighter.position.x - takeoff_x > fighter.fighter_class.jump_reach(), "a dive covers more ground than a walking jump")
 	await physics_frames(2)
 	check(not fighter.is_diving() and fighter.get_node("Visuals").rotation == 0.0, "landing ends the dive")
 
@@ -129,6 +129,10 @@ func _test_class_stats() -> void:
 		peaks[1] = minf(peaks[1], heavy.position.y)
 		await physics_frames(1)
 	check(floor_y - peaks[1] < floor_y - peaks[0] - 5.0, "Heavy jumps lower than Fast")
+	for data: CharacterData in [FAST, HEAVY]:
+		var c := data.fighter_class
+		var ratio := c.dive_reach() / c.jump_reach()
+		check(ratio >= FighterClass.DIVE_REACH.x - 0.005 and ratio <= FighterClass.DIVE_REACH.y + 0.005, "%s's dive reaches 15-20%% further than its walking jump (%.0f%%)" % [c.display_name, (ratio - 1.0) * 100.0])
 	fast.queue_free()
 	heavy.queue_free()
 	await physics_frames(60)
