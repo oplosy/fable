@@ -74,6 +74,17 @@ const SEA_Y := 656.0
 ## Atlas rows of the materials laid out as 3x2 blocks: top-left, top, top-right, left, middle, right.
 const BLOCKS := {"#": 0, "R": 2, "B": 3, "G": 4}
 const SOLID := "#WXRBG"
+## Close camera shots at zoom 3 (640x360 each): the centre of each, by name. The whole
+## map (1280x720 at zoom 1.5) is a shot of its own. Ground shots frame the quay with the
+## first catwalks above it; upper shots frame the catwalks, the gantries and the perch.
+const SHOTS := {
+	"GroundWest": Vector2(320, 540),
+	"GroundMiddle": Vector2(640, 540),
+	"GroundEast": Vector2(960, 540),
+	"UpperWest": Vector2(320, 360),
+	"UpperMiddle": Vector2(640, 330),
+	"UpperEast": Vector2(960, 360),
+}
 const WEAPONS := ["pistol", "shotgun", "smg", "knife", "bat"]
 const THROWABLES := ["grenade", "molotov"]
 
@@ -101,6 +112,11 @@ func _initialize() -> void:
 	for y in LAYOUT.size():
 		for x in LAYOUT[y].length():
 			_add_prop(LAYOUT[y][x], x, y, props, spawns, items)
+	var shots := _add(Node2D.new(), "Shots")
+	for shot_name: String in SHOTS:
+		var shot := CameraShot.new()
+		shot.position = SHOTS[shot_name]
+		_add(shot, shot_name, shots)
 	var camera := FollowCamera.new()
 	camera.position = size / 2.0
 	_add(camera, "Camera2D")
