@@ -114,6 +114,9 @@ func _test_art_scale() -> void:
 		var area := Rect2(Vector2.ZERO, item.texture.get_size())
 		inside = inside and area.has_point(item.grip) and (not item is WeaponData or area.has_point(item.muzzle))
 	check(inside, "every grip and muzzle pixel lies inside its texture")
+	var no_art: ItemData = PISTOL.duplicate()
+	no_art.art = "res://assets/items/missing.png"
+	check(no_art.look() == PISTOL.texture, "an item whose art was not imported shows its placeholder")
 	var shooter := _spawn(Vector2(300, 328))
 	shooter.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
