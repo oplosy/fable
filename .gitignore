@@ -11,3 +11,6 @@ export_presets.cfg
 # The user's own drawing folders, kept out of the game and out of git.
 /DONT-OPEN/characters/
 /DONT-OPEN/weapons/
+
+# Mucho Pixels clips: the pack's licence forbids redistribution; tools/import_mucho.gd makes them.
+/assets/characters/mucho_*/
