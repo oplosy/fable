@@ -3,9 +3,9 @@
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/arenas/isles.tscn" id="2_arena"]
 [ext_resource type="PackedScene" path="res://scenes/fighter/fighter.tscn" id="3_fighter"]
-[ext_resource type="Resource" path="res://data/characters/stickman.tres" id="4_character"]
+[ext_resource type="Resource" path="res://data/characters/mucho_male1.tres" id="4_character"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="5_pistol"]
-[ext_resource type="Resource" path="res://data/characters/stickman_heavy.tres" id="6_dummy"]
+[ext_resource type="Resource" path="res://data/characters/mucho_female2.tres" id="6_dummy"]
 [ext_resource type="Script" path="res://scenes/fighter/character_data.gd" id="7_data"]
 [ext_resource type="Resource" path="res://data/throwables/grenade.tres" id="8_grenade"]
 
