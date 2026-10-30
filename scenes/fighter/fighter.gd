@@ -59,6 +59,7 @@ var _flash_tween: Tween
 var _stand_shape: RectangleShape2D
 var _crouch_shape: RectangleShape2D
 var _stand_hand_y: float
+var _aim_arm: Sprite2D
 ## Shows the held throwable; hit detection never uses it.
 var _throwable_sprite: Sprite2D
 var _crosshair := Crosshair.new()
@@ -111,7 +112,7 @@ func _ready() -> void:
 	_crouch_shape.size = Vector2(_stand_shape.size.x, _stand_shape.size.y / 2.0)
 	_placeholder.offset_left = -_stand_shape.size.x / 2.0
 	_placeholder.offset_right = _stand_shape.size.x / 2.0
-	_stand_hand_y = -_stand_shape.size.y / 2.0
+	_stand_hand_y = -_stand_shape.size.y * (character.hand_height if character else 0.5)
 	# Starts "crouched" so the call below applies the standing shape, hand and look.
 	_crouching = true
 	_set_crouching(false)
@@ -121,6 +122,7 @@ func _ready() -> void:
 		inventory.show_melee_item_on(frames.hand_anchor)
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
+	_throwable_sprite.position.x = inventory.hand_reach
 	_hand.add_child(_throwable_sprite)
 	add_child(_crosshair)
 
@@ -230,6 +232,21 @@ func _show_frames(data: CharacterData) -> void:
 	_visuals.move_child(frames, 0)
 	_visuals.add_child(frames.hand_anchor)
 	_placeholder.visible = false
+	var arm_path := data.frames_dir.path_join("aim_arm.png")
+	if ResourceLoader.exists(arm_path):
+		_show_aim_arm(load(arm_path), data.pixels_per_unit)
+
+
+## An arm turning with the aim from the hand point; held items sit at its far end.
+func _show_aim_arm(texture: Texture2D, pixels_per_unit: float) -> void:
+	_aim_arm = Sprite2D.new()
+	_aim_arm.texture = texture
+	_aim_arm.centered = false
+	_aim_arm.offset.y = -texture.get_height() / 2.0
+	_aim_arm.scale = Vector2.ONE / pixels_per_unit
+	_aim_arm.visible = false
+	_hand.add_child(_aim_arm)
+	inventory.hand_reach = texture.get_width() / pixels_per_unit
 
 
 ## Middle of the body's hit shape (standing or crouched).
@@ -494,6 +511,8 @@ func _physics_process(delta: float) -> void:
 		aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
+	if _aim_arm:
+		_aim_arm.visible = is_firearm_drawn() or throwable_ready
 	ItemData.show_on(_throwable_sprite, thrower.item)
 	_throwable_sprite.visible = throwable_ready
 	thrower.physics_update(delta, is_throwable_drawn(), controller.attack, controller.attack_held, _hand.global_position, aim_direction())

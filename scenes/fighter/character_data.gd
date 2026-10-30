@@ -11,6 +11,8 @@ const DEFAULT_BODY_SIZE := Vector2(12, 28)
 ## Width and height of the standing hit body in world pixels; match it to the art
 ## (64x96 art drawn at 1/3 scale is about 12x28).
 @export var body_size := DEFAULT_BODY_SIZE
+## Height of the point a held firearm turns around, as a share of the body's height.
+@export var hand_height := 0.5
 
 @export_group("Art")
 ## Folder of frame-by-frame clips (a strip and a .json each, from tools/make_stickman.gd);
