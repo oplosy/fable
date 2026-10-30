@@ -8,4 +8,5 @@ script = ExtResource("1_data")
 display_name = "Mucho_Male"
 placeholder_color = Color(1, 1, 1, 1)
 fighter_class = ExtResource("2_class")
+hand_height = 0.7
 frames_dir = "res://assets/characters/mucho_male1"
