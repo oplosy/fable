@@ -8,11 +8,13 @@ extends SceneTree
 ##
 ## Clips the pack lacks are built from its frames: kicks, the dive and the roll. Timings come
 ## from the stick figure's clip of the same name, which also lists every clip the game needs.
+## Aiming bodies have no far arm: aim_arm.png, turned by the fighter, stands in for it.
 
 const ROOT := "mp_character_animation_asset_pack_v1.0/Exported PNGs/"
+## Look -> [pack folder, skin colours from light to dark].
 const LOOKS := {
-	"mucho_male1": "Male/Character 1/Clothes 1/",
-	"mucho_female2": "Female/Character 2/Clothes 2/",
+	"mucho_male1": ["Male/Character 1/Clothes 1/", ["e69c69", "bf6f4a", "8a4836"]],
+	"mucho_female2": ["Female/Character 2/Clothes 2/", ["bf6f4a", "8a4836", "5d2c28"]],
 }
 const REFERENCE := "res://assets/characters/stickman/"
 const ANIMS := ["idle", "walk", "run", "jump", "fall", "land", "damage", "death", "punch", "climb", "pickup_ground"]
@@ -38,6 +40,9 @@ const OUTLINE := Color8(14, 7, 27)
 const LEG := 15
 const SHOE := 3
 const LEG_SLOPE := 5
+## The aiming arm's length, and how much of it is sleeve.
+const ARM := 11
+const SLEEVE := 2
 
 
 func _initialize() -> void:
@@ -49,12 +54,12 @@ func _initialize() -> void:
 		return
 	var ok := true
 	for look: String in LOOKS:
-		ok = _build(zip, ROOT + LOOKS[look], "res://assets/characters/" + look) and ok
+		ok = _build(zip, ROOT + LOOKS[look][0], LOOKS[look][1], "res://assets/characters/" + look) and ok
 	zip.close()
 	quit(0 if ok else 1)
 
 
-func _build(zip: ZIPReader, prefix: String, out: String) -> bool:
+func _build(zip: ZIPReader, prefix: String, skin: Array, out: String) -> bool:
 	var src := {}
 	for anim: String in ANIMS:
 		src[anim] = _frames(zip, prefix, anim)
@@ -65,8 +70,9 @@ func _build(zip: ZIPReader, prefix: String, out: String) -> bool:
 	for frame: Image in src.idle:
 		box = box.merge(frame.get_used_rect())
 	var feet := Vector2(box.position.x + box.size.x / 2.0, box.end.y)
-	var clips := _clips(src, feet)
+	var clips := _clips(src, feet, skin)
 	DirAccess.make_dir_recursive_absolute(out)
+	_aim_arm(src.idle[0], feet, skin).save_png(out.path_join("aim_arm.png"))
 	for file in DirAccess.get_files_at(REFERENCE):
 		if file.get_extension() != "json":
 			continue
@@ -100,7 +106,7 @@ func _frames(zip: ZIPReader, prefix: String, anim: String) -> Array:
 	return frames
 
 
-func _clips(src: Dictionary, feet: Vector2) -> Dictionary:
+func _clips(src: Dictionary, feet: Vector2, skin: Array) -> Dictionary:
 	var crouch: Image = src.pickup_ground[src.pickup_ground.size() / 2]
 	var dead: Array = src.death
 	var tuck := _on_ground(src.jump[0], feet)
@@ -126,11 +132,11 @@ func _clips(src: Dictionary, feet: Vector2) -> Dictionary:
 		clips[clip] = src.damage
 	for clip: String in PUNCHES:
 		clips[clip] = PUNCHES[clip].map(func(index: int) -> Image: return src.punch[index])
-	# shortcut: the fixed Hand pivot means no arm follows the aim; the gun sits at the far
-	# hand, turning alone. Upgrade if an aim-arm pose is drawn for the pack.
+	var stand_aim := _armless(src.idle[0], feet, skin, -20, -8)
+	var crouch_aim := _armless(crouch, feet, skin, -10, -5)
 	for step in FrameAnimator.AIM_STEPS:
-		clips["stand_aim_%d" % step] = [src.idle[0]]
-		clips["crouch_aim_%d" % step] = [crouch]
+		clips["stand_aim_%d" % step] = [stand_aim]
+		clips["crouch_aim_%d" % step] = [crouch_aim]
 	return clips
 
 
@@ -169,6 +175,40 @@ func _kick(tuck: Image, stance: Image, feet: Vector2) -> Image:
 	var toe := hip.y - (LEG - 1) / LEG_SLOPE
 	kick.fill_rect(Rect2i(hip.x - 1 + LEG, toe + 1, 1, 4), OUTLINE)
 	return kick
+
+
+## A copy without the far arm: skin at the right edge of the rows from `top` to `bottom`
+## (above the feet) is peeled off and the outline closed on what is left.
+func _armless(frame: Image, feet: Vector2, skin: Array, top: int, bottom: int) -> Image:
+	var body := frame.duplicate() as Image
+	var peeled := skin + [OUTLINE.to_html(false)]
+	for y in range(int(feet.y) + top, int(feet.y) + bottom):
+		var x := body.get_width() - 1
+		while x >= 0 and body.get_pixel(x, y).a == 0.0:
+			x -= 1
+		var edge := x
+		while x >= 0 and body.get_pixel(x, y).to_html(false) in peeled:
+			body.set_pixel(x, y, Color.TRANSPARENT)
+			x -= 1
+		if x >= 0 and x < edge:
+			body.set_pixel(x + 1, y, OUTLINE)
+	return body
+
+
+## A straight arm pointing right from the shoulder at its left edge's middle, at 3x.
+func _aim_arm(stance: Image, feet: Vector2, skin: Array) -> Image:
+	var arm := Image.create_empty(ARM, 5, false, Image.FORMAT_RGBA8)
+	var sleeve := stance.get_pixelv(Vector2i(feet) + Vector2i(0, -18))
+	var light := Color.html(skin[0])
+	var shade := Color.html(skin[1])
+	for x in ARM - 1:
+		arm.set_pixel(x, 0, OUTLINE)
+		arm.fill_rect(Rect2i(x, 1, 1, 2), sleeve if x < SLEEVE else light)
+		arm.set_pixel(x, 3, sleeve.darkened(0.2) if x < SLEEVE else shade)
+		arm.set_pixel(x, 4, OUTLINE)
+	arm.fill_rect(Rect2i(ARM - 1, 1, 1, 3), OUTLINE)
+	arm.resize(ARM * SCALE, 5 * SCALE, Image.INTERPOLATE_NEAREST)
+	return arm
 
 
 func _save(frames: Array, reference: Dictionary, feet: Vector2, path: String) -> void:
