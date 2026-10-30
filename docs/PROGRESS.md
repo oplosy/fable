@@ -7,11 +7,17 @@ Where development stands and what comes next. Update this at the end of every wo
 The game is built in these steps, one at a time:
 
 1. Core gameplay and logic: movement, punches, shooting, damage, health, cooldowns, collisions. Done.
-2. Temporary character visuals and an animation prototype: one character's idle, movement, punch and hit animations, so the visual loop works first. Current step, with the stick figure.
+2. Temporary character visuals and an animation prototype: one character's idle, movement, punch and hit animations, so the visual loop works first. Current step, with the Mucho Pixels pack.
 3. Combat and animation integration: the right clip plays on a punch, damage lands on the hit frame, the target reacts; visuals and logic in sync.
 4. Arena blockout: temporary floor, walls, bounds, spawn points and camera, tested with grey boxes; no detailed map.
 5. Real assets: the final characters, sprite sheets, animations, ground, props, effects and sounds.
 6. Polish and content: hit effects, hit-stop, screen shake, UI, menus, more characters, arena detail and balance.
+
+## Status (session 7)
+
+The user compared animation packs (Zegley, Dead Revolver, RafBatSan, Ozzbit, PixelLab) and chose to continue with the free Mucho Pixels pack, which now replaces the stick figures in the game: `mucho_male1` (Fast class) and `mucho_female2` (Heavy class). Its licence allows use and changes but not redistribution and this repo is public, so the zip stays outside the repo (`Downloads/mp_character_animation_asset_pack_v1.0.zip`) and `assets/characters/mucho_*/` is git-ignored; `tools/import_mucho.gd` rebuilds the 58 clips per checkout, at 3x so the pixels stay sharp at the camera's art zoom. Timings and the clip list come from the stick figure. Real pack clips: idle, walk, run, jump, fall, land, climb, damage, death (also knockdown, lying and, reversed, get-up), punch (recut per attack). Built by the importer: kicks (a drawn straight leg on the jump frame), dive (fall frame turned), roll (crouch frame turned in quarters), crouch (one pickup frame). Checked in the running game: punch, knockdown, get-up, death, ladder, jump, fall, crouch; kick, dive and roll only as frames, not in play. All 24 suites pass.
+
+Known limits: no arm follows the aim (the gun turns alone at the fixed `Hand` pivot, by the far hand), both the crouch and the aim are one still frame, jabs share one arm, no white wind on attacks, and walk and run speeds were not matched to the pack's stride. Melee items use the stick figure's hand angles and were not checked. Next: the user plays it; then decide whether the derived clips are good enough or a pack with limbs on layers replaces them.
 
 ## Status (session 6)
 
@@ -85,7 +91,7 @@ Risks for later content (from code): wake-up combo loops after knockdown; no spa
 
 - The user writes in Turkish; code, comments, docs and commits are in English.
 - Split each task into 4-5 atomic commits; push to `main` when done.
-- Record architectural decisions in the `system-design` MCP, design id `fable` (25 steps so far; the user reviews them there).
+- Record architectural decisions in the `system-design` MCP, design id `fable` (the user reviews the steps there).
 - Verify gameplay changes visually: run the game non-headless with a capture script (`SceneTree` script that drives `Input.action_press` and saves `root.get_texture().get_image()`), then crop and zoom the PNG.
 - In tests, the fighter reads a press one physics frame later; wait 2 frames before checking. Nodes added in `_initialize` get `_ready` only after the first frame, so read `fighter.controller` after an await.
 - `test_case.gd` registers a `Logger`, so any engine or script error fails the suite. Run everything with `tests/run_all.sh` (fixed 60 fps, ~11 s). Tests that load `main.tscn` also get player 2 at the second spawn point, which can absorb bullets.
