@@ -17,6 +17,8 @@ var hand: Node2D
 var active_slot := Slot.MELEE
 var firearm: Weapon
 
+## How far past the hand point held items sit (the length of an aiming arm).
+var hand_reach := 0.0
 ## Shows the held melee item; hit detection never uses it.
 var _melee_sprite: Sprite2D
 
@@ -41,6 +43,7 @@ func equip_firearm(data: WeaponData) -> void:
 		firearm.queue_free()
 	firearm = WEAPON_SCENE.instantiate()
 	firearm.data = data
+	firearm.position.x = hand_reach
 	hand.add_child(firearm)
 	active_slot = Slot.FIREARM
 

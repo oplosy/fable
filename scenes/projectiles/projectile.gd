@@ -21,6 +21,9 @@ var pierce := 0
 ## Hits within this distance from the muzzle knock the target down.
 var knockdown_range := 0.0
 
+## Where the first sweep starts, so a target between the hand and the muzzle is hit too.
+var breech := Vector2.INF
+
 var _traveled := 0.0
 var _hits := 0
 var _exclude: Array[RID] = []
@@ -36,7 +39,7 @@ func _physics_process(delta: float) -> void:
 	var remaining := minf(step.length(), max_range - _traveled)
 	var to := global_position + velocity.normalized() * remaining
 	var space := get_world_2d().direct_space_state
-	var from := global_position
+	var from := breech if _traveled == 0.0 and breech != Vector2.INF else global_position
 	while true:
 		var query := PhysicsRayQueryParameters2D.create(from, to, HIT_MASK, _exclude)
 		# Point-blank shots start inside the target's body.

@@ -41,7 +41,8 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D, spread_scale := 
 	bloom = minf(bloom + data.spread_per_shot, data.max_bloom_degrees)
 	var muzzle := to_global((data.muzzle - data.grip) / data.pixels_per_unit)
 	# The muzzle sticks out past the body; a wall between hand and muzzle still stops the shot.
-	var wall := HitQuery.world_hit(get_world_2d().direct_space_state, global_position, muzzle)
+	var hand := (get_parent() as Node2D).global_position
+	var wall := HitQuery.world_hit(get_world_2d().direct_space_state, hand, muzzle)
 	if not wall.is_empty():
 		muzzle = wall.position
 	for i in data.pellets:
@@ -56,6 +57,7 @@ func try_fire(direction: Vector2, world: Node, shooter: Node2D, spread_scale := 
 		projectile.pierce = data.pierce
 		projectile.knockdown_range = data.knockdown_range
 		projectile.shooter = shooter
+		projectile.breech = hand
 		world.add_child(projectile)
 		projectile.global_position = muzzle
 	return true

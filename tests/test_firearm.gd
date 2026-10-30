@@ -13,11 +13,28 @@ func run() -> void:
 	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 
+	await _test_target_behind_muzzle()
 	await _test_ammo()
 	await _test_spread_and_bloom()
 	await _test_crouch()
 	await _test_crosshair_stops_at_fighters()
 	await _test_crosshair_range()
+
+
+## An aiming arm puts the muzzle far from the body; a target closer than that is still hit.
+func _test_target_behind_muzzle() -> void:
+	var shooter := _spawn(Vector2(100, 328))
+	var target := _spawn(Vector2(114, 328))
+	await physics_frames(5)
+	shooter.inventory.hand_reach = 12.0
+	shooter.inventory.equip_firearm(PISTOL)
+	await physics_frames(2)
+	var health: int = target.health.current
+	await _fire(shooter)
+	check(target.health.current < health, "a target between the hand and the muzzle takes the shot")
+	shooter.queue_free()
+	target.queue_free()
+	await physics_frames(5)
 
 
 ## Every shot uses ammo; the empty weapon drops by itself and cannot be picked up.
