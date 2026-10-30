@@ -8,15 +8,16 @@ colors = PackedColorArray(0.3, 0.3, 0.33, 1, 0.3, 0.3, 0.33, 1)
 
 [sub_resource type="GradientTexture2D" id="2_texture"]
 gradient = SubResource("placeholder_color")
-width = 22
-height = 16
+width = 36
+height = 24
 
 [resource]
 script = ExtResource("1_data")
 display_name = "Pistol"
 texture = SubResource("2_texture")
-grip = Vector2(4, 10)
-muzzle = Vector2(21, 3)
+art = "res://assets/items/pistol.png"
+grip = Vector2(10, 16)
+muzzle = Vector2(35, 7)
 fire_interval = 0.3
 damage = 10
 knockback = 100.0

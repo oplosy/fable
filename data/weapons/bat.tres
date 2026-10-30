@@ -8,8 +8,8 @@ colors = PackedColorArray(0.3, 0.3, 0.33, 1, 0.3, 0.3, 0.33, 1)
 
 [sub_resource type="GradientTexture2D" id="3_texture"]
 gradient = SubResource("placeholder_color")
-width = 46
-height = 12
+width = 38
+height = 9
 
 [sub_resource type="Resource" id="swing"]
 script = ExtResource("2_attack")
@@ -42,7 +42,8 @@ hitbox_size = Vector2(22, 14)
 script = ExtResource("1_data")
 display_name = "Baseball Bat"
 texture = SubResource("3_texture")
-grip = Vector2(6, 5)
+art = "res://assets/items/bat.png"
+grip = Vector2(5, 4)
 spawn_weight = 2.0
 combo = Array[ExtResource("2_attack")]([SubResource("swing"), SubResource("swing"), SubResource("home_run")])
 combo_cooldown = 0.8

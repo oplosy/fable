@@ -8,14 +8,15 @@ colors = PackedColorArray(0.35, 0.45, 0.3, 1, 0.35, 0.45, 0.3, 1)
 
 [sub_resource type="GradientTexture2D" id="2_texture"]
 gradient = SubResource("placeholder_color")
-width = 14
-height = 20
+width = 13
+height = 15
 
 [resource]
 script = ExtResource("1_data")
 display_name = "Grenade"
 texture = SubResource("2_texture")
-grip = Vector2(7, 11)
+art = "res://assets/items/grenade.png"
+grip = Vector2(6, 9)
 spawn_weight = 2.0
 count = 3
 fuse_time = 3.0

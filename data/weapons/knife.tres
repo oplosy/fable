@@ -8,8 +8,8 @@ colors = PackedColorArray(0.3, 0.3, 0.33, 1, 0.3, 0.3, 0.33, 1)
 
 [sub_resource type="GradientTexture2D" id="3_texture"]
 gradient = SubResource("placeholder_color")
-width = 22
-height = 7
+width = 31
+height = 9
 
 [sub_resource type="Resource" id="stab"]
 script = ExtResource("2_attack")
@@ -41,7 +41,8 @@ hitbox_size = Vector2(16, 12)
 script = ExtResource("1_data")
 display_name = "Knife"
 texture = SubResource("3_texture")
-grip = Vector2(4, 3)
+art = "res://assets/items/knife.png"
+grip = Vector2(4, 4)
 spawn_weight = 3.0
 combo = Array[ExtResource("2_attack")]([SubResource("stab"), SubResource("stab"), SubResource("slash")])
 combo_cooldown = 0.5
