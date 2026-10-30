@@ -14,3 +14,6 @@ export_presets.cfg
 
 # Mucho Pixels clips: the pack's licence forbids redistribution; tools/import_mucho.gd makes them.
 /assets/characters/mucho_*/
+
+# Item art from downloaded packs (public repos forbidden or licence unknown); tools/import_items.gd makes it.
+/assets/items/
