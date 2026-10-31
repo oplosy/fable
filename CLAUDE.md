@@ -39,7 +39,7 @@ Godot is not on PATH; the binary is `C:\Users\mesut\AppData\Local\Microsoft\WinG
 - Run every suite (Git Bash): `tests/run_all.sh`; one or more: `tests/run_all.sh test_melee test_pickup`. Exit code 0 = all passed.
 - A single suite by hand: `<godot> --headless --fixed-fps 60 --path . -s res://tests/<test_name>.gd`. `--fixed-fps 60` runs physics as fast as possible instead of in real time (about 12x faster).
 - Suites extend `tests/test_case.gd`, which fails the suite on any engine or script error, not only on failed checks.
-- Suites that load `main.tscn` need the Mucho clips: on a fresh clone run `tools/import_mucho.gd` first, or they fail with "no frame clips".
+- Suites that load `main.tscn`, and `test_combat_sync`, need the Mucho clips: on a fresh clone run `tools/import_mucho.gd` first, or they fail with "no frame clips".
 
 # Commit Conventions
 
