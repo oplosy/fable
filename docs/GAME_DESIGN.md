@@ -179,6 +179,7 @@ Prototype values (not yet tuned or confirmed): pistol 10 damage and 100 px/s kno
 
 - Multiplayer is a core requirement.
 - A versus-computer mode (bots) is also required.
+- Bots (built, session 8; values not yet confirmed by the user): a bot hunts the nearest living fighter across the map (jumps, drops, ladders), shoots when it has a clear line within 90% of the weapon's range and at least 32 px away, and punches up close. It waits 0.3 s after getting a target in reach, then 0.12-0.32 s between punches and 0.35-0.8 s between shots, and sometimes breaks a combo. Bots do not throw grenades, use melee items on purpose, seek out spawned weapons, roll or dodge yet. There is one strength, set by the constants in `BotController`. Player 2 is a bot in the game; choosing this in a menu waits for a menu.
 - Multiplayer is both local (several players on one machine) and online.
 - Implication: fighters must not read `Input` directly; a controller (local player, bot, remote player) drives each fighter, and local players need separate key bindings.
 
@@ -273,7 +274,7 @@ Build order is open; shotgun, SMG, sniper rifle, knife, baseball bat, grenade an
 
 - Only the knife and baseball bat exist as melee items, and only the grenade and molotov as throwables; power-ups are not implemented yet. Blasts and fire are placeholder shapes. Melee items are held level in the hand like a firearm until swing animations exist.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
-- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol and 3 grenades) and goes straight into a deathmatch; there is no mode or map menu yet.
+- The main scene spawns player 1 (Fast, keys) and a bot (Heavy), both with a pistol and 3 grenades, and goes straight into a deathmatch; there is no mode or map menu yet.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
 - Animations will be driven by `Fighter.state()` / `state_changed` (IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD, highest priority first); stance details such as crouching, aim angle, held item and combo index are read separately.
 - Weapon range (user, session 4): bullets disappear and the crosshair stops at `WeaponData.projectile_range` when nothing is in the way. Pistol, shotgun and SMG 150 px, rifle (not built) 250 px, sniper 500 px (user; 970 was far too long, then 220 from their sketch). The shotgun was 180.
