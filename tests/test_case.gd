@@ -17,6 +17,8 @@ class ErrorCatcher extends Logger:
 		_lock.unlock()
 
 
+## Seconds of game time before the suite fails; set it in _init for a long suite.
+var time_limit := 30.0
 var _failed := false
 var _errors := ErrorCatcher.new()
 
@@ -24,7 +26,7 @@ var _errors := ErrorCatcher.new()
 func _initialize() -> void:
 	OS.add_logger(_errors)
 	# Godot does not exit on script errors, so fail instead of hanging.
-	create_timer(30.0).timeout.connect(func() -> void:
+	create_timer(time_limit).timeout.connect(func() -> void:
 		print("FAIL timed out")
 		quit(1))
 	await run()
