@@ -122,7 +122,7 @@ func _clips(src: Dictionary, feet: Vector2, skin: Array) -> Dictionary:
 		"roll": tumble, "dive_roll": tumble,
 		"crouch_idle": [crouch], "crouch_walk": [crouch],
 		"heavy_kick": [tuck, kick, kick, tuck],
-		"fast_jump_kick": [kick], "heavy_jump_kick": [tuck, kick, kick],
+		"fast_jump_kick": [kick], "heavy_jump_kick": [tuck, kick, kick, kick],
 		"death_back": dead, "death_front": dead, "knockdown_back": dead, "knockdown_front": dead,
 		"lying_back": [dead[-1]], "lying_front": [dead[-1]],
 		"getup_back": dead.duplicate(), "getup_front": dead.duplicate(),
