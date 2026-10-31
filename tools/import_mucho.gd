@@ -18,19 +18,20 @@ const LOOKS := {
 }
 const REFERENCE := "res://assets/characters/stickman/"
 const ANIMS := ["idle", "walk", "run", "jump", "fall", "land", "damage", "death", "punch", "climb", "pickup_ground"]
-## The pack's six punch frames, cut differently per attack (it has no other strikes).
+## The pack's six punch frames, cut differently per attack (it has no other strikes). Frames 1
+## and 2 are the full reach: an attack's cut shows one when its hit lands (test_combat_sync).
 const PUNCHES := {
 	"fast_jab_1": [1, 2, 3, 5],
-	"fast_jab_2": [3, 4, 3, 5],
+	"fast_jab_2": [3, 2, 4, 5],
 	"fast_jab_3": [0, 1, 2, 2, 5],
-	"fast_hook": [0, 0, 1, 4, 5],
+	"fast_hook": [0, 1, 2, 4, 5],
 	"heavy_punch_1": [0, 1, 2, 3, 4, 5],
 	"heavy_punch_2": [0, 0, 1, 2, 2, 3, 4, 5],
 	"knife_stab_1": [1, 2, 3, 5],
-	"knife_stab_2": [3, 4, 3, 5],
+	"knife_stab_2": [3, 2, 4, 5],
 	"knife_slash": [0, 1, 2, 3, 4, 5],
 	"bat_swing_1": [0, 1, 2, 3, 4, 5],
-	"bat_swing_2": [5, 4, 3, 2, 1, 0],
+	"bat_swing_2": [5, 4, 2, 1, 3, 5],
 	"bat_home_run": [0, 0, 1, 2, 2, 3, 4, 5],
 }
 ## Art is drawn at the game's 3x so pack pixels stay sharp at the camera's art zoom.
