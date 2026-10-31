@@ -191,10 +191,11 @@ Game modes (the first five, decided in session 3, none built yet; more modes com
 - Kill credit (built, session 3): every hit carries its attacker (melee, bullets, blasts and fire credit whoever threw them). A death, including a fall out of the map, is credited to the last fighter that hit the victim within 5 s (prototype value, `Fighter.KILL_CREDIT_TIME`); a self-kill credits the fighter itself; otherwise nobody. Modes read it from `Fighter.died(killer)`. Open: whether a self-kill or a fall with no credit costs a point.
 - Lives mode (every player has 3 lives, out of the match when none are left) was agreed earlier but is not among the first five; it comes later with the other modes.
 - Open, capture the flag: what the object is, whether the enemy object must sit in their base or your own object must be home to score, what happens when the carrier dies (drop, return timer), and whether the carrier can use firearms.
-- Open, deathmatch: free-for-all or teams, and whether there is a time limit.
+- Deathmatch (built, session 8; the defaults here are not yet confirmed by the user): free-for-all, no time limit. A self-kill or a fall with no credit changes no score. A dead player respawns after 1.5 s at their own spawn point, so the death plays out. At 20 kills the fighters stop, the arena freezes 0.8 s later, and 1 s after that any player's attack key starts a rematch. A kill by a fighter that has already respawned earns nothing (a grenade thrown just before dying), because its old body is gone. Team play is still open.
+- HUD (built, session 8): each player's name, kills and health bar in the top corners, the kill goal in the middle, a winner panel at the end. No time, ammo or inventory display yet.
 - Open, zone control: how a zone is taken (standing in it for some seconds, contested when both teams are inside), the exact tick (1 s or 2 s), respawns.
 - Open, hostage rescue and bomb: rounds or one continuous match, respawns, the win and round-end rules (time, all rescued, bomb defused or exploded, team wiped).
-- Open: maximum players per match outside 3v3, and whether a HUD shows health, score and time.
+- Open: maximum players per match outside 3v3.
 
 ## Maps
 
@@ -272,7 +273,7 @@ Build order is open; shotgun, SMG, sniper rifle, knife, baseball bat, grenade an
 
 - Only the knife and baseball bat exist as melee items, and only the grenade and molotov as throwables; power-ups are not implemented yet. Blasts and fire are placeholder shapes. Melee items are held level in the hand like a firearm until swing animations exist.
 - The punch is shown as a placeholder box over the hit area until attack animations exist.
-- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol and 3 grenades) and respawns a dead player after 1.5 s of unpaused time; this is a testing aid until rounds and a match flow exist.
+- The main scene spawns two local players (P1 Fast, P2 Heavy, both with a pistol and 3 grenades) and goes straight into a deathmatch; there is no mode or map menu yet.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
 - Animations will be driven by `Fighter.state()` / `state_changed` (IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD, highest priority first); stance details such as crouching, aim angle, held item and combo index are read separately.
 - Weapon range (user, session 4): bullets disappear and the crosshair stops at `WeaponData.projectile_range` when nothing is in the way. Pistol, shotgun and SMG 150 px, rifle (not built) 250 px, sniper 500 px (user; 970 was far too long, then 220 from their sketch). The shotgun was 180.
