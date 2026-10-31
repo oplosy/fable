@@ -6,6 +6,7 @@ func run() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	# The checks rely on the test arena's flat floor, walls and open line of fire.
 	main.arena_scene = load("res://scenes/arenas/test_arena.tscn")
+	main.bot_players.clear()
 	root.add_child(main)
 	await physics_frames(30)
 	var p1: Fighter = main.players[0]

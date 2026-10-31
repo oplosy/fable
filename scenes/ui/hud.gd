@@ -17,10 +17,13 @@ var _kills: Array[Label] = []
 var _goal: Label
 var _result: PanelContainer
 var _winner: Label
+var _names: Array[String] = []
 
 
-## Builds the screen for `mode`'s players. Call it once, before following any fighter.
-func setup(mode: Deathmatch) -> void:
+## Builds the screen for `mode`'s players, one name each. Call it once, before following
+## any fighter.
+func setup(mode: Deathmatch, names: Array[String]) -> void:
+	_names = names
 	layer = 5
 	scale = Vector2.ONE * UI_SCALE
 	var screen := Control.new()
@@ -77,7 +80,7 @@ func _player_panel(player: int) -> Control:
 	panel.add_theme_constant_override("separation", 1)
 	var head := HBoxContainer.new()
 	panel.add_child(head)
-	var name_label := _label("Player %d" % (player + 1))
+	var name_label := _label(_names[player])
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.add_theme_color_override("font_color", PLAYER_COLOURS[player])
 	head.add_child(name_label)
@@ -136,6 +139,6 @@ func _show_kills(player: int, kills: int) -> void:
 
 
 func _show_winner(winner: int) -> void:
-	_winner.text = "Player %d wins!" % (winner + 1)
+	_winner.text = "%s wins!" % _names[winner]
 	_winner.add_theme_color_override("font_color", PLAYER_COLOURS[winner])
 	_result.visible = true

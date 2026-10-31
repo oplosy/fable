@@ -4,6 +4,8 @@ extends Node2D
 @export var fighter_scene: PackedScene
 ## One character per local player; player N uses the pN_ actions and the Nth spawn point.
 @export var characters: Array[CharacterData] = []
+## Indexes into `characters` played by the computer; the rest read their keys.
+@export var bot_players: Array[int] = []
 ## Every fighter starts the match with this firearm.
 @export var starting_weapon: WeaponData
 ## Every fighter starts the match with this throwable, as many as its `count`.
@@ -37,7 +39,7 @@ func _ready() -> void:
 	mode.match_ended.connect(_on_match_ended)
 	hud = Hud.new()
 	add_child(hud)
-	hud.setup(mode)
+	hud.setup(mode, _player_names())
 	for index in characters.size():
 		_spawn_player(index)
 
@@ -58,10 +60,23 @@ func _fit_window() -> void:
 	window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_INTEGER if fits else Window.CONTENT_SCALE_STRETCH_FRACTIONAL
 
 
+func _player_names() -> Array[String]:
+	var names: Array[String] = []
+	for index in characters.size():
+		names.append("Bot" if index in bot_players else "Player %d" % (index + 1))
+	return names
+
+
+func _new_controller(index: int) -> FighterController:
+	if index in bot_players:
+		return BotController.new()
+	var local := LocalController.new()
+	local.prefix = "p%d_" % (index + 1)
+	return local
+
+
 func _spawn_player(index: int) -> void:
-	var controller := LocalController.new()
-	controller.prefix = "p%d_" % (index + 1)
-	var spawned := _spawn_fighter(characters[index], controller, index)
+	var spawned := _spawn_fighter(characters[index], _new_controller(index), index)
 	if starting_weapon:
 		spawned.inventory.equip_firearm(starting_weapon)
 	if starting_throwable:

@@ -11,6 +11,7 @@ func run() -> void:
 	_check_rules()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	main.arena_scene = load("res://scenes/arenas/test_arena.tscn")
+	main.bot_players.clear()
 	root.add_child(main)
 	current_scene = main
 	await physics_frames(10)
