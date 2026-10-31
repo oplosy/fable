@@ -8,12 +8,19 @@ extends Node2D
 @export var starting_weapon: WeaponData
 ## Every fighter starts the match with this throwable, as many as its `count`.
 @export var starting_throwable: ThrowableData
-## Temporary until rounds exist: a dead player comes back at its spawn point.
+## A dead player comes back at its spawn point after this long.
 @export var respawn_time := 1.5
+## After the winning kill the arena runs this long, so the last death plays out.
+@export var end_settle_time := 0.8
+## The result stays up this long before attack starts a rematch, so mashing cannot skip it.
+@export var rematch_delay := 1.0
 
 var arena: Node2D
 ## Index 0 is player 1.
 var players: Array[Fighter] = []
+var mode: Deathmatch
+var hud: Hud
+var _rematch_ready := false
 
 
 func _ready() -> void:
@@ -26,6 +33,11 @@ func _ready() -> void:
 	arena = arena_scene.instantiate()
 	add_child(arena)
 	players.resize(characters.size())
+	mode = Deathmatch.new(characters.size())
+	mode.match_ended.connect(_on_match_ended)
+	hud = Hud.new()
+	add_child(hud)
+	hud.setup(mode)
 	for index in characters.size():
 		_spawn_player(index)
 
@@ -33,6 +45,9 @@ func _ready() -> void:
 # The render size is fixed, so the viewport sends no resize signal; check the window instead.
 func _process(_delta: float) -> void:
 	_fit_window()
+	if _rematch_ready and _attack_pressed():
+		_rematch_ready = false
+		get_tree().reload_current_scene()
 
 
 ## Whole-pixel scaling while the window holds the full 1920x1080 render; a smaller
@@ -52,7 +67,9 @@ func _spawn_player(index: int) -> void:
 	if starting_throwable:
 		spawned.inventory.equip_throwable(starting_throwable, starting_throwable.count)
 	spawned.health.died.connect(_on_player_died.bind(spawned, index))
+	spawned.died.connect(func(killer: Fighter) -> void: mode.record_kill(index, players.find(killer)))
 	players[index] = spawned
+	hud.follow(index, spawned)
 
 
 func _spawn_fighter(data: CharacterData, controller: FighterController, spawn_index: int) -> Fighter:
@@ -68,5 +85,25 @@ func _spawn_fighter(data: CharacterData, controller: FighterController, spawn_in
 func _on_player_died(dead: Fighter, index: int) -> void:
 	# process_always = false: the countdown stops while the game is paused.
 	await get_tree().create_timer(respawn_time, false).timeout
+	if mode.is_over():
+		return
 	dead.queue_free()
 	_spawn_player(index)
+
+
+## Fighters stop at once; the arena freezes a moment later and the result waits for a rematch.
+func _on_match_ended(_winner: int) -> void:
+	for player in players:
+		player.controller = FighterController.new()
+		player.add_child(player.controller)
+	await get_tree().create_timer(end_settle_time, false).timeout
+	arena.process_mode = Node.PROCESS_MODE_DISABLED
+	await get_tree().create_timer(rematch_delay, false).timeout
+	_rematch_ready = true
+
+
+func _attack_pressed() -> bool:
+	for index in characters.size():
+		if Input.is_action_just_pressed("p%d_attack" % (index + 1)):
+			return true
+	return false
