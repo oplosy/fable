@@ -116,7 +116,7 @@ func _test_weighted_spawn() -> void:
 	check(runs[0] == runs[1] and runs[0].size() == 20, "seeding the arena rng repeats the same spawn picks")
 
 
-## 3x item art is drawn at 1/3 scale: the held sprite, the muzzle and the pickup body
+## Item art is drawn at its own pixels_per_unit: the held sprite, the muzzle and the pickup body
 ## all stay at world size, and every grip and muzzle pixel lies inside its texture.
 func _test_art_scale() -> void:
 	var items := [PISTOL, SHOTGUN, SMG, SNIPER, load("res://data/weapons/knife.tres"), load("res://data/weapons/bat.tres"), load("res://data/throwables/grenade.tres"), load("res://data/throwables/molotov.tres")]
@@ -129,7 +129,7 @@ func _test_art_scale() -> void:
 	shooter.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
 	var sprite: Sprite2D = shooter.inventory.firearm.get_node("Sprite2D")
-	check(sprite.scale == Vector2.ONE / 3.0, "the held pistol is drawn at 1/3 scale")
+	check(sprite.scale.is_equal_approx(Vector2.ONE / PISTOL.pixels_per_unit), "the held pistol is drawn at its art scale")
 	await _fire(shooter)
 	var bullet: Node2D = get_nodes_in_group("projectiles")[0] if not get_nodes_in_group("projectiles").is_empty() else null
 	var reach := (PISTOL.muzzle.x - PISTOL.grip.x) / 3.0
@@ -138,7 +138,7 @@ func _test_art_scale() -> void:
 	pickup.data = PISTOL
 	arena.add_child(pickup)
 	var body: RectangleShape2D = pickup.get_node("CollisionShape2D").shape
-	check(body.size == PISTOL.texture.get_size() / 3.0, "the pickup's body is the art's world size")
+	check(body.size.is_equal_approx(PISTOL.texture.get_size() / PISTOL.pixels_per_unit), "the pickup's body is the art's world size")
 
 
 func _fire(shooter: Fighter) -> void:

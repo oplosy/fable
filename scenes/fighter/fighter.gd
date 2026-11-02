@@ -583,7 +583,11 @@ func _let_go() -> void:
 func pose_held_items(rig: CharacterRig, aim_over_clip: bool) -> void:
 	var aiming := is_firearm_drawn() or is_throwable_drawn() or thrower.is_cooking()
 	if aiming and aim_over_clip:
-		rig.apply_aim(aim_angle, rig.transform.affine_inverse() * _hand.position, _crouching)
+		var lead := Vector2(CharacterRig.BACK_HAND_LEAD, 0.0)
+		if is_firearm_drawn():
+			var gun := inventory.firearm.data
+			lead = (gun.fore_grip - gun.grip) / gun.pixels_per_unit * character.pixels_per_unit
+		rig.apply_aim(aim_angle, rig.transform.affine_inverse() * _hand.position, _crouching, lead)
 	if rig.hand_anchor:
 		_draw_items_at(rig.hand_anchor, aiming)
 

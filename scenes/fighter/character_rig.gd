@@ -35,7 +35,7 @@ const AIM_TORSO_SHARE := 0.18
 const AIM_HEAD_SHARE := 0.42
 ## Radians the torso bows forward while crouching and aiming.
 const CROUCH_LEAN := 0.28
-## How far along the barrel the back hand holds the gun, art px.
+## How far ahead of the fist the back hand holds an aimed item, art px.
 const BACK_HAND_LEAD := 6.0
 
 ## Part name -> the node it rotates around its joint.
@@ -120,14 +120,14 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 
 
 ## Lays the aim over the current clip: both arms reach for the gun, the front fist on
-## `fist` (rig space, art px) and the back hand further along the barrel. The legs keep
-## playing the clip.
-func apply_aim(aim_angle: float, fist: Vector2, is_crouching := false) -> void:
+## `fist` (rig space, art px) and the back hand `back_hand_lead` art px from it along the item.
+## The legs keep playing the clip.
+func apply_aim(aim_angle: float, fist: Vector2, is_crouching := false, back_hand_lead := Vector2(BACK_HAND_LEAD, 0.0)) -> void:
 	var lean := CROUCH_LEAN if is_crouching else 0.0
 	joints.torso.rotation = aim_angle * AIM_TORSO_SHARE + lean
 	joints.head.rotation = aim_angle * AIM_HEAD_SHARE - lean
 	_reach("front", fist)
-	_reach("back", fist + Vector2.from_angle(aim_angle) * BACK_HAND_LEAD)
+	_reach("back", fist + back_hand_lead.rotated(aim_angle))
 
 
 ## Bends one arm so its hand point lands on `target` (rig space, art px), or as near as the
