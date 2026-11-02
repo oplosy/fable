@@ -12,7 +12,7 @@ const COLOR := Color(1, 1, 1, 0.85)
 func _init() -> void:
 	# Placed in world space, so the fighter's facing mirror never flips it.
 	top_level = true
-	z_index = 10
+	z_index = 20
 	visible = false
 
 

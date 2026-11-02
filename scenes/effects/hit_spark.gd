@@ -30,7 +30,7 @@ static func spawn(parent: Node, point: Vector2, hit_direction: float, heavy: boo
 
 
 func _ready() -> void:
-	z_index = 10
+	z_index = 20
 	var rng := Arena.rng_of(self)
 	for i in RAYS:
 		var angle := TAU * i / RAYS + rng.randf_range(-0.2, 0.2)

@@ -42,6 +42,8 @@ var _hit_stun := 0.0
 var _down_time := 0.0
 var _getup_invulnerable := 0.0
 var _roll_time := 0.0
+var _landing_time := 0.0
+var _throw_time := 0.0
 var _diving := false
 ## The fighter whose melee hit caused the current stun; the combo breaker pushes it back.
 var _stunned_by: Fighter
@@ -82,6 +84,8 @@ var _world_mask := 0
 func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
+		if character.rig_file:
+			_show_rig(character)
 	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
 	# Health's own _ready already ran with its default, so start it at the class's maximum.
 	health.max_health = fighter_class.max_health
@@ -279,19 +283,44 @@ func _get_up() -> void:
 
 
 ## Out of the fighters layer, projectiles and melee pass over the fighter; it still collides with the world.
+
+## Builds the character's cutout rig in place of the placeholder box.
+func _show_rig(data: CharacterData) -> void:
+	var rig := CharacterRig.new()
+	rig.name = "Rig"
+	if not rig.build(data.rig_file, data.pixels_per_unit):
+		rig.free()
+		return
+	_visuals.add_child(rig)
+	_visuals.move_child(rig, 0)
+	# The rig's parts sit at negative z; this lifts them over the map, held items over them.
+	_visuals.z_index = CharacterRig.PARTS.size()
+	_placeholder.visible = false
+	var animator := RigAnimator.new()
+	animator.name = "Animator"
+	add_child(animator)
+	animator.setup(self, rig)
+
+
 func _update_hittable() -> void:
 	collision_layer = 0 if is_dead() or is_invulnerable() else FIGHTERS_LAYER
 
 
 ## Placeholder poses: lying backwards when down or dead, head-first while diving,
-## squashed while rolling.
+## squashed while rolling. Characters with a cutout rig handle poses through animation.
 func _update_pose() -> void:
 	var now := state()
-	var lying := now == State.DEAD or now == State.DOWN
-	var diving := now == State.DIVE
-	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if diving else 0.0)
-	_visuals.position.y = -6.0 if lying or diving else 0.0
-	_visuals.scale.y = 0.5 if now == State.ROLL else 1.0
+	var has_rig := _visuals.has_node("Rig")
+	if not has_rig:
+		var lying := now == State.DEAD or now == State.DOWN
+		var diving := now == State.DIVE
+		_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if diving else 0.0)
+		_visuals.position.y = -6.0 if lying or diving else 0.0
+		_visuals.scale.y = 0.5 if now == State.ROLL else 1.0
+	else:
+		_visuals.rotation = 0.0
+		_visuals.position.y = 0.0
+		_visuals.scale.y = 1.0
 	if now != _state:
 		_state = now
 		state_changed.emit(now)
@@ -349,6 +378,8 @@ func _physics_process(delta: float) -> void:
 	controller.poll()
 	_hit_stun = maxf(_hit_stun - delta, 0.0)
 	_credit_left = maxf(_credit_left - delta, 0.0)
+	_landing_time = maxf(_landing_time - delta, 0.0)
+	_throw_time = maxf(_throw_time - delta, 0.0)
 	if is_knocked_down() and not is_dead():
 		_down_time -= delta
 		if _down_time <= 0.0:
@@ -374,6 +405,8 @@ func _physics_process(delta: float) -> void:
 	var unlocked := acting and not melee.is_attacking() and not thrower.is_cooking()
 
 	if is_on_floor():
+		if _since_floor > 0.05 and velocity.y >= 0.0 and not is_rolling() and not _diving:
+			_landing_time = 0.12
 		_since_floor = 0.0
 	else:
 		_since_floor += delta
@@ -448,9 +481,10 @@ func _physics_process(delta: float) -> void:
 		velocity.x = facing * fighter_class.roll_speed
 		_update_hittable()
 
-	_hand.rotation = 0.0
 	# A cooking item stays in hand even if a hit knocks the fighter out of the ready stance.
 	var throwable_ready := is_throwable_drawn() or thrower.is_cooking()
+	var was_cooking := thrower.is_cooking()
+	var rig := _visuals.get_node_or_null("Rig") as CharacterRig
 	if is_firearm_drawn() or throwable_ready:
 		if controller.aim_at_point:
 			_aim_at(controller.aim_point)
@@ -458,9 +492,24 @@ func _physics_process(delta: float) -> void:
 			aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
+		if rig:
+			rig.apply_aim(aim_angle, _crouching)
+	elif rig and can_act():
+		rig.reset_pose()
+
+	if rig and rig.hand_anchor:
+		_hand.global_position = rig.hand_anchor.global_position
+		if not is_firearm_drawn() and not throwable_ready:
+			_hand.global_rotation = rig.hand_anchor.global_rotation
+	else:
+		if not is_firearm_drawn() and not throwable_ready:
+			_hand.rotation = 0.0
+
 	ItemData.show_on(_throwable_sprite, thrower.item)
 	_throwable_sprite.visible = throwable_ready
 	thrower.physics_update(delta, is_throwable_drawn(), controller.attack, controller.attack_held, _hand.global_position, aim_direction())
+	if was_cooking and not thrower.is_cooking() and can_act():
+		_throw_time = 0.22
 	inventory.physics_update()
 	var firearm := inventory.firearm
 	if firearm:
@@ -541,7 +590,9 @@ func _aim_at(point: Vector2) -> void:
 
 ## Shows the hit area while an attack can land. Replaced by attack animations later.
 func _update_attack_placeholder() -> void:
-	_attack_placeholder.visible = melee.is_hitting()
+	_attack_placeholder.visible = _placeholder.visible and melee.is_hitting()
+	if not _attack_placeholder.visible:
+		return
 	var attack := melee.current_attack()
 	if attack:
 		# Visuals are mirrored by facing, so the facing-right offset is used as is.

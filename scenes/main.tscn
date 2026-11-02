@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scenes/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/arenas/range.tscn" id="2_arena"]
 [ext_resource type="PackedScene" path="res://scenes/fighter/fighter.tscn" id="3_fighter"]
-[ext_resource type="Resource" path="res://data/characters/placeholder.tres" id="4_character"]
+[ext_resource type="Resource" path="res://data/characters/ronin.tres" id="4_character"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="5_pistol"]
 [ext_resource type="Resource" path="res://data/characters/dummy.tres" id="6_dummy"]
 [ext_resource type="Script" path="res://scenes/fighter/character_data.gd" id="7_data"]
@@ -13,7 +13,7 @@
 script = ExtResource("1_main")
 arena_scene = ExtResource("2_arena")
 fighter_scene = ExtResource("3_fighter")
-characters = Array[ExtResource("7_data")]([ExtResource("4_character"), ExtResource("6_dummy")])
+characters = Array[ExtResource("7_data")]([ExtResource("4_character"), ExtResource("4_character")])
 bot_players = Array[int]([1])
 starting_weapon = ExtResource("5_pistol")
 starting_throwable = ExtResource("8_grenade")

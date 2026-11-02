@@ -11,7 +11,7 @@ const COLOR := Color(1, 1, 1, 0.7)
 
 func _init() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	z_index = 20
+	z_index = 30
 	visible = false
 
 
