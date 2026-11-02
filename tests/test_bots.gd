@@ -1,7 +1,7 @@
 # Run: tests/run_all.sh test_bots
 extends "res://tests/test_case.gd"
 
-## The WalkMap finds every part of a course with a bridged pit, one-way platforms and
+## The WalkMap finds every part of a course with a pit, one-way platforms and
 ## ladders for both classes, and a bot gets to a target anywhere on it and hits it without falling in
 ## the pit. Two bots play a match on their own.
 
