@@ -452,7 +452,10 @@ func _physics_process(delta: float) -> void:
 	# A cooking item stays in hand even if a hit knocks the fighter out of the ready stance.
 	var throwable_ready := is_throwable_drawn() or thrower.is_cooking()
 	if is_firearm_drawn() or throwable_ready:
-		aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
+		if controller.aim_at_point:
+			_aim_at(controller.aim_point)
+		else:
+			aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
 	ItemData.show_on(_throwable_sprite, thrower.item)
@@ -520,6 +523,20 @@ func _let_go() -> void:
 	_ladder = null
 	collision_mask = _world_mask
 	_update_pose()
+
+
+## Aims straight at `point`, turning to its side of the body (not of the hand, which moves
+## with the turn and would flip the fighter back and forth over a point between them).
+func _aim_at(point: Vector2) -> void:
+	if not can_act():
+		return
+	var side := point.x - global_position.x
+	if side != 0.0:
+		facing = 1 if side > 0.0 else -1
+		_visuals.scale.x = facing
+	var offset := point - _hand.global_position
+	if not offset.is_zero_approx():
+		aim_angle = atan2(offset.y, maxf(offset.x * facing, 0.0))
 
 
 ## Shows the hit area while an attack can land. Replaced by attack animations later.
