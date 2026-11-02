@@ -24,7 +24,7 @@ func run() -> void:
 	
 	# Test Aim Articulation:
 	# 1. Aim straight up: the fist lands on the point, above the shoulder
-	var shoulder: Vector2 = rig.pivots.arm_front_upper - rig.feet
+	var shoulder := Vector2(rig.pivots.torso.x, rig.pivots.arm_front_upper.y) - rig.feet
 	var fist: Vector2 = shoulder + Vector2.UP * 16.0
 	rig.apply_aim(-PI / 2.0, fist)
 	check(rig.joints.head.rotation < -0.4, "head tilts up when aiming up (%.2f)" % rig.joints.head.rotation)

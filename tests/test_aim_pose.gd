@@ -51,6 +51,7 @@ func _circle(fighter: Fighter, input: FighterController, where: String) -> void:
 	var worst_fist := 0.0
 	var worst_line := 0.0
 	var worst_reach := 0.0
+	var worst_bend := 0.0
 	for degrees in range(0, 360, 45):
 		var center := fighter.global_position + Vector2(0, -14)
 		input.aim_point = center + Vector2.from_angle(deg_to_rad(degrees)) * 60.0
@@ -58,8 +59,10 @@ func _circle(fighter: Fighter, input: FighterController, where: String) -> void:
 		var fist := rig.hand_anchor.global_position
 		worst_fist = maxf(worst_fist, fist.distance_to(gun.get_node("Sprite2D").global_position))
 		worst_reach = maxf(worst_reach, fist.distance_to(fighter.get_node("Visuals/Hand").global_position))
+		worst_bend = maxf(worst_bend, rad_to_deg(absf(rig.joints.arm_front_lower.rotation)))
 		var to_mouse := (input.aim_point - gun.global_position).normalized()
 		worst_line = maxf(worst_line, rad_to_deg(absf(to_mouse.angle_to(fighter.aim_direction()))))
 	check(worst_fist < 1.0, "%s: the gun is on the fist (off by %.1f px)" % [where, worst_fist])
 	check(worst_line < 2.0, "%s: the gun points at the mouse (off by %.1f deg)" % [where, worst_line])
+	check(worst_bend < 45.0, "%s: the arm stretches out (elbow bent %.0f deg)" % [where, worst_bend])
 	check(worst_reach < 1.5, "%s: the fist reaches the aim's hand (off by %.1f px)" % [where, worst_reach])
