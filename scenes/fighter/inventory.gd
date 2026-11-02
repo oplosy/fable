@@ -151,6 +151,14 @@ func _drop_item(data: ItemData) -> void:
 	world.add_child.call_deferred(dropped)
 
 
+## The pictures of what is held, for drawing them on an animated hand.
+func item_sprites() -> Array[Sprite2D]:
+	var sprites: Array[Sprite2D] = [_melee_sprite]
+	if firearm:
+		sprites.append(firearm.get_node("Sprite2D"))
+	return sprites
+
+
 func _show_melee_item() -> void:
 	ItemData.show_on(_melee_sprite, fighter.melee.item)
 

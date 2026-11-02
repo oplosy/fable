@@ -68,9 +68,11 @@ func run() -> void:
 	var attack_placeholder: ColorRect = fighter.get_node("Visuals/AttackPlaceholder")
 	check(not attack_placeholder.visible, "Orange attack placeholder box is hidden on rigged character")
 	
-	# 4. Test Weapon Attachment: Hand follows fist
+	# 4. Test Weapon Attachment: the picture follows the fist, the aim point never moves
 	var hand_node: Node2D = fighter.get_node("Visuals/Hand")
-	check(hand_node.global_position.distance_to(rig.hand_anchor.global_position) < 1.0, "Weapon hand node follows rig hand anchor (%.2f px)" % hand_node.global_position.distance_to(rig.hand_anchor.global_position))
+	check(hand_node.position == Vector2(4, -14), "The hand, where shots start, is not moved by the animation (%s)" % hand_node.position)
+	var drawn_item: Sprite2D = fighter.inventory.item_sprites()[0]
+	check(drawn_item.global_position.distance_to(rig.hand_anchor.global_position) < 1.0, "A held item is drawn on the fist (%.2f px)" % drawn_item.global_position.distance_to(rig.hand_anchor.global_position))
 	
 	# 5. Test Full 4-Hit Combo Chain: Jab 1 -> Jab 2 -> Jab 3 -> Hook
 	await physics_frames(35)

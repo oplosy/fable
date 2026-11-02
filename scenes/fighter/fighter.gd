@@ -481,6 +481,7 @@ func _physics_process(delta: float) -> void:
 		velocity.x = facing * fighter_class.roll_speed
 		_update_hittable()
 
+	_hand.rotation = 0.0
 	# A cooking item stays in hand even if a hit knocks the fighter out of the ready stance.
 	var throwable_ready := is_throwable_drawn() or thrower.is_cooking()
 	var was_cooking := thrower.is_cooking()
@@ -498,12 +499,7 @@ func _physics_process(delta: float) -> void:
 		rig.reset_pose()
 
 	if rig and rig.hand_anchor:
-		_hand.global_position = rig.hand_anchor.global_position
-		if not is_firearm_drawn() and not throwable_ready:
-			_hand.global_rotation = rig.hand_anchor.global_rotation
-	else:
-		if not is_firearm_drawn() and not throwable_ready:
-			_hand.rotation = 0.0
+		_draw_items_at(rig.hand_anchor, is_firearm_drawn() or throwable_ready)
 
 	ItemData.show_on(_throwable_sprite, thrower.item)
 	_throwable_sprite.visible = throwable_ready
@@ -572,6 +568,19 @@ func _let_go() -> void:
 	_ladder = null
 	collision_mask = _world_mask
 	_update_pose()
+
+
+## Draws the held items on the rig's fist. Only the pictures move: `_hand` stays the fixed
+## point aim, shots and throws start from, so they never depend on the animation. An aimed
+## item keeps the aim's angle; otherwise it turns with the fist.
+func _draw_items_at(fist: Node2D, aiming: bool) -> void:
+	var on_visuals := _visuals.global_transform.affine_inverse() * fist.global_transform
+	var position_on_hand := _hand.transform.affine_inverse() * on_visuals.origin
+	var sprites := inventory.item_sprites()
+	sprites.append(_throwable_sprite)
+	for sprite in sprites:
+		sprite.position = position_on_hand
+		sprite.rotation = 0.0 if aiming else on_visuals.get_rotation()
 
 
 ## Aims straight at `point`, turning to its side of the body (not of the hand, which moves
