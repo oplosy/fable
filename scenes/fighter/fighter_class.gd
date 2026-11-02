@@ -37,6 +37,8 @@ extends Resource
 @export var roll_speed := 220.0
 ## Seconds a roll lasts; the fighter cannot be hit while rolling.
 @export var roll_time := 0.4
+## Seconds after a roll before the next one, so rolling cannot be chained into safety.
+@export var roll_cooldown := 0.8
 ## Speed (px/s) up and down a ladder.
 @export var climb_speed := 80.0
 

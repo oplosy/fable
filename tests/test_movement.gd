@@ -101,6 +101,13 @@ func run() -> void:
 	await physics_frames(20)
 	var rolled := fighter.position.x - roll_x
 	check(absf(rolled - fighter.fighter_class.roll_reach()) < 3.0, "a roll covers its roll_reach (%.0f px vs %.0f px)" % [rolled, fighter.fighter_class.roll_reach()])
+	input.move = 1.0
+	await physics_frames(12)
+	await _tap(fighter, "down")
+	check(not fighter.is_rolling(), "the cooldown stops a second roll")
+	await physics_frames(50)
+	await _tap(fighter, "down")
+	check(fighter.is_rolling(), "the fighter rolls again after the cooldown")
 	fighter.queue_free()
 
 	await _test_class_stats()

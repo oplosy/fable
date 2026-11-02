@@ -44,6 +44,7 @@ var _hit_stun := 0.0
 var _down_time := 0.0
 var _getup_invulnerable := 0.0
 var _roll_time := 0.0
+var _roll_cooldown := 0.0
 var _landing_time := 0.0
 ## How fast it was falling on the last airborne frame, for the dust of the landing.
 var _fall_speed := 0.0
@@ -403,6 +404,7 @@ func _physics_process(delta: float) -> void:
 	if _diving and is_on_floor():
 		_diving = false
 	_breaker_cooldown = maxf(_breaker_cooldown - delta, 0.0)
+	_roll_cooldown = maxf(_roll_cooldown - delta, 0.0)
 	# The breaker's attack and jump presses are used up by the break.
 	var broke := controller.combo_break and can_break_combo()
 	if broke:
@@ -489,8 +491,9 @@ func _physics_process(delta: float) -> void:
 			# A jump keeps the speed it was walking with (at air tempo), so it arcs forward.
 			velocity = Vector2(velocity.x, fighter_class.jump_velocity) * fighter_class.air_tempo
 			_jump_rising = true
-	elif unlocked and controller.down and is_running():
+	elif unlocked and controller.down and is_running() and _roll_cooldown <= 0.0:
 		_roll_time = fighter_class.roll_time
+		_roll_cooldown = fighter_class.roll_time + fighter_class.roll_cooldown
 		velocity.x = facing * fighter_class.roll_speed
 		_update_hittable()
 
