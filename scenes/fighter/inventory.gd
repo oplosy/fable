@@ -17,8 +17,6 @@ var hand: Node2D
 var active_slot := Slot.MELEE
 var firearm: Weapon
 
-## How far past the hand point held items sit (the length of an aiming arm).
-var hand_reach := 0.0
 ## Shows the held melee item; hit detection never uses it.
 var _melee_sprite: Sprite2D
 
@@ -32,18 +30,11 @@ func setup(owner_fighter: Fighter, hand_node: Node2D) -> void:
 	fighter.melee.item_broke.connect(_show_melee_item)
 
 
-## Draws the held melee item on `node` (an animated hand) instead of the hand marker.
-## Only the art moves; items are still dropped from `hand`.
-func show_melee_item_on(node: Node2D) -> void:
-	_melee_sprite.reparent(node, false)
-
-
 func equip_firearm(data: WeaponData) -> void:
 	if firearm:
 		firearm.queue_free()
 	firearm = WEAPON_SCENE.instantiate()
 	firearm.data = data
-	firearm.position.x = hand_reach
 	hand.add_child(firearm)
 	active_slot = Slot.FIREARM
 

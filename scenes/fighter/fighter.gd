@@ -59,7 +59,6 @@ var _flash_tween: Tween
 var _stand_shape: RectangleShape2D
 var _crouch_shape: RectangleShape2D
 var _stand_hand_y: float
-var _aim_arm: Sprite2D
 ## Shows the held throwable; hit detection never uses it.
 var _throwable_sprite: Sprite2D
 var _crosshair := Crosshair.new()
@@ -83,10 +82,6 @@ var _world_mask := 0
 func _ready() -> void:
 	if character:
 		_placeholder.color = character.placeholder_color
-		if character.frames_dir:
-			_show_frames(character)
-		elif character.texture:
-			_show_art(character)
 	fighter_class = character.fighter_class if character and character.fighter_class else FighterClass.new()
 	# Health's own _ready already ran with its default, so start it at the class's maximum.
 	health.max_health = fighter_class.max_health
@@ -112,17 +107,13 @@ func _ready() -> void:
 	_crouch_shape.size = Vector2(_stand_shape.size.x, _stand_shape.size.y / 2.0)
 	_placeholder.offset_left = -_stand_shape.size.x / 2.0
 	_placeholder.offset_right = _stand_shape.size.x / 2.0
-	_stand_hand_y = -_stand_shape.size.y * (character.hand_height if character else 0.5)
+	_stand_hand_y = -_stand_shape.size.y * 0.5
 	# Starts "crouched" so the call below applies the standing shape, hand and look.
 	_crouching = true
 	_set_crouching(false)
 	inventory.setup(self, _hand)
-	var frames := _visuals.get_node_or_null("Frames") as FrameAnimator
-	if frames:
-		inventory.show_melee_item_on(frames.hand_anchor)
 	_throwable_sprite = Sprite2D.new()
 	_throwable_sprite.visible = false
-	_throwable_sprite.position.x = inventory.hand_reach
 	_hand.add_child(_throwable_sprite)
 	add_child(_crosshair)
 
@@ -202,51 +193,6 @@ func _set_crouching(crouching: bool) -> void:
 	_hand.position.y = _stand_hand_y * shape.size.y / _stand_shape.size.y
 	# Placeholder look; the hand is resized above rather than squashing the weapon sprite.
 	_placeholder.offset_top = -shape.size.y
-
-
-## Draws the character's art at 1/pixels_per_unit scale with its feet on the fighter's
-## origin, in place of the placeholder box. Hit detection never uses it.
-func _show_art(data: CharacterData) -> void:
-	var sprite := Sprite2D.new()
-	sprite.name = "Art"
-	sprite.texture = data.texture
-	sprite.centered = false
-	sprite.offset = -data.feet
-	sprite.scale = Vector2.ONE / data.pixels_per_unit
-	_visuals.add_child(sprite)
-	_visuals.move_child(sprite, 0)
-	_placeholder.visible = false
-
-
-## Plays the character's frame-by-frame animations in place of the placeholder box; a
-## folder without clips logs an error and leaves the placeholder.
-func _show_frames(data: CharacterData) -> void:
-	var frames := FrameAnimator.new()
-	frames.name = "Frames"
-	if not frames.setup(self, data.frames_dir, data.pixels_per_unit):
-		push_error("%s: no frame clips" % data.frames_dir)
-		frames.free()
-		return
-	frames.self_modulate = data.placeholder_color
-	_visuals.add_child(frames)
-	_visuals.move_child(frames, 0)
-	_visuals.add_child(frames.hand_anchor)
-	_placeholder.visible = false
-	var arm_path := data.frames_dir.path_join("aim_arm.png")
-	if ResourceLoader.exists(arm_path):
-		_show_aim_arm(load(arm_path), data.pixels_per_unit)
-
-
-## An arm turning with the aim from the hand point; held items sit at its far end.
-func _show_aim_arm(texture: Texture2D, pixels_per_unit: float) -> void:
-	_aim_arm = Sprite2D.new()
-	_aim_arm.texture = texture
-	_aim_arm.centered = false
-	_aim_arm.offset.y = -texture.get_height() / 2.0
-	_aim_arm.scale = Vector2.ONE / pixels_per_unit
-	_aim_arm.visible = false
-	_hand.add_child(_aim_arm)
-	inventory.hand_reach = texture.get_width() / pixels_per_unit
 
 
 ## Middle of the body's hit shape (standing or crouched).
@@ -337,17 +283,15 @@ func _update_hittable() -> void:
 	collision_layer = 0 if is_dead() or is_invulnerable() else FIGHTERS_LAYER
 
 
-## Placeholder poses where no clip exists yet: lying backwards when down or dead,
-## head-first while diving, squashed while rolling.
+## Placeholder poses: lying backwards when down or dead, head-first while diving,
+## squashed while rolling.
 func _update_pose() -> void:
 	var now := state()
-	# Frame-by-frame characters have their own lying, dive and roll frames.
-	var drawn := has_node("Visuals/Frames")
-	var lying := (now == State.DEAD or now == State.DOWN) and not drawn
-	var diving := now == State.DIVE and not drawn
+	var lying := now == State.DEAD or now == State.DOWN
+	var diving := now == State.DIVE
 	_visuals.rotation = -facing * PI / 2.0 if lying else (facing * PI / 2.0 if diving else 0.0)
 	_visuals.position.y = -6.0 if lying or diving else 0.0
-	_visuals.scale.y = 0.5 if now == State.ROLL and not drawn else 1.0
+	_visuals.scale.y = 0.5 if now == State.ROLL else 1.0
 	if now != _state:
 		_state = now
 		state_changed.emit(now)
@@ -511,8 +455,6 @@ func _physics_process(delta: float) -> void:
 		aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
-	if _aim_arm:
-		_aim_arm.visible = is_firearm_drawn() or throwable_ready
 	ItemData.show_on(_throwable_sprite, thrower.item)
 	_throwable_sprite.visible = throwable_ready
 	thrower.physics_update(delta, is_throwable_drawn(), controller.attack, controller.attack_held, _hand.global_position, aim_direction())
@@ -582,8 +524,7 @@ func _let_go() -> void:
 
 ## Shows the hit area while an attack can land. Replaced by attack animations later.
 func _update_attack_placeholder() -> void:
-	# The drawn stick figure shows its own strike; the box stands in only for placeholder art.
-	_attack_placeholder.visible = melee.is_hitting() and not has_node("Visuals/Frames")
+	_attack_placeholder.visible = melee.is_hitting()
 	var attack := melee.current_attack()
 	if attack:
 		# Visuals are mirrored by facing, so the facing-right offset is used as is.

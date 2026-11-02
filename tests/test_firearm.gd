@@ -21,12 +21,11 @@ func run() -> void:
 	await _test_crosshair_range()
 
 
-## An aiming arm puts the muzzle far from the body; a target closer than that is still hit.
+## A target closer than the muzzle is still hit.
 func _test_target_behind_muzzle() -> void:
 	var shooter := _spawn(Vector2(100, 328))
-	var target := _spawn(Vector2(114, 328))
+	var target := _spawn(Vector2(106, 328))
 	await physics_frames(5)
-	shooter.inventory.hand_reach = 12.0
 	shooter.inventory.equip_firearm(PISTOL)
 	await physics_frames(2)
 	var health: int = target.health.current

@@ -8,20 +8,5 @@ const DEFAULT_BODY_SIZE := Vector2(12, 28)
 @export var display_name := ""
 @export var placeholder_color := Color.WHITE
 @export var fighter_class: FighterClass
-## Width and height of the standing hit body in world pixels; match it to the art
-## (64x96 art drawn at 1/3 scale is about 12x28).
+## Width and height of the standing hit body in world pixels.
 @export var body_size := DEFAULT_BODY_SIZE
-## Height of the point a held firearm turns around, as a share of the body's height.
-@export var hand_height := 0.5
-
-@export_group("Art")
-## Folder of frame-by-frame clips (a strip and a .json each, from tools/make_stickman.gd);
-## used instead of `texture`.
-@export_dir var frames_dir := ""
-## Standing frame; without frames or this, a placeholder box in placeholder_color is drawn.
-@export var texture: Texture2D
-## Texture pixels per world pixel. The game renders at 3x, so 64x96 art uses 3 and is
-## drawn pixel for pixel when the camera is at its art zoom.
-@export var pixels_per_unit := 3.0
-## Texture pixel that stands on the fighter's feet (bottom centre of the stance).
-@export var feet := Vector2(32, 93)
