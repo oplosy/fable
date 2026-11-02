@@ -976,8 +976,9 @@ new_and_refined.update({
     ]),
 })
 
-# 4. Strikes you can read: a big wind-up, a stretched limb that holds at full reach while
-# the hit window is open, and a slow return. Bodies are cartoon, not anatomy.
+# 4. Strikes you can read: a big wind-up, a limb that keeps moving through the hit window,
+# and a slow return. Punches swing up from low behind in a curve on a bent arm and carry on
+# past the target; a straight arm shot out and held reads as a stab. Bodies are cartoon, not anatomy.
 def rest_pose(t):
     return key(t, (0, 0), leg("front", (0, 0)), leg("back", (0, 0)),
                stretch={"arm_front_upper": 1, "arm_front_lower": 1, "arm_back_upper": 1, "arm_back_lower": 1,
@@ -990,20 +991,20 @@ def rest_pose(t):
 
 def cocked(t, punching_front):
     root = (-7, 5)
-    strike = dict(arm_front_upper=48, arm_front_lower=-105, arm_back_upper=-34, arm_back_lower=-72)
+    strike = dict(arm_front_upper=60, arm_front_lower=-120, arm_back_upper=-34, arm_back_lower=-72)
     if not punching_front:
-        strike = dict(arm_front_upper=-34, arm_front_lower=-72, arm_back_upper=52, arm_back_lower=-105)
+        strike = dict(arm_front_upper=-34, arm_front_lower=-72, arm_back_upper=60, arm_back_lower=-120)
     return key(t, root, leg("front", root, -8), leg("back", root, 2),
-               pelvis=-4, torso=-20, head=10, hand_front=0, hand_back=0,
+               pelvis=-4, torso=-24, head=12, hand_front=0, hand_back=0,
                scabbard=8, coat_tail=-12, coat_back=-10, **strike)
 
 
-def full_reach(t, punching_front, slide=15, height=-118):
+def swing(t, punching_front, slide, height, bend, reach):
     root = (slide, 4)
-    long = {"arm_front_upper": 1.55, "arm_front_lower": 1.55} if punching_front else {"arm_back_upper": 1.5, "arm_back_lower": 1.5}
-    strike = dict(arm_front_upper=height, arm_front_lower=-3, arm_back_upper=58, arm_back_lower=-58)
+    long = {"arm_front_upper": reach, "arm_front_lower": reach} if punching_front else {"arm_back_upper": reach, "arm_back_lower": reach}
+    strike = dict(arm_front_upper=height, arm_front_lower=bend, arm_back_upper=58, arm_back_lower=-58)
     if not punching_front:
-        strike = dict(arm_front_upper=62, arm_front_lower=-60, arm_back_upper=height, arm_back_lower=-3)
+        strike = dict(arm_front_upper=62, arm_front_lower=-60, arm_back_upper=height, arm_back_lower=bend)
     return key(t, root, leg("front", root, -4), leg("back", root, slide + 6), stretch=long,
                pelvis=8, torso=28, head=-20, hand_front=0, hand_back=0,
                scabbard=-14, coat_tail=34, coat_back=28, **strike)
@@ -1012,9 +1013,10 @@ def full_reach(t, punching_front, slide=15, height=-118):
 def punch(name, punching_front, height=-118):
     return clip(name, 0.4, False, [
         rest_pose(0.0),
-        cocked(0.08, punching_front),
-        full_reach(0.12, punching_front, 15, height),
-        full_reach(0.2, punching_front, 17, height),
+        cocked(0.06, punching_front),
+        swing(0.09, punching_front, 4, -46, -22, 1.15),
+        swing(0.12, punching_front, 13, height + 14, -30, 1.25),
+        swing(0.2, punching_front, 17, height - 14, -42, 1.15),
         rest_pose(0.4),
     ], linear=True)
 
@@ -1033,14 +1035,14 @@ new_and_refined.update({
             arm_front_upper=92, arm_front_lower=-44, arm_back_upper=-48, arm_back_lower=-60,
             scabbard=14, coat_tail=-26, coat_back=-22),
         key(0.18, HOOK_REACH, leg("front", HOOK_REACH, -4), leg("back", HOOK_REACH, 18),
-            stretch={"arm_front_upper": 1.6, "arm_front_lower": 1.6},
+            stretch={"arm_front_upper": 1.3, "arm_front_lower": 1.3},
             pelvis=10, torso=36, head=-24, hand_front=0, hand_back=0,
-            arm_front_upper=-124, arm_front_lower=-12, arm_back_upper=64, arm_back_lower=-50,
+            arm_front_upper=-108, arm_front_lower=-32, arm_back_upper=64, arm_back_lower=-50,
             scabbard=-18, coat_tail=46, coat_back=40),
         key(0.26, (16, 4), leg("front", (16, 4), 0), leg("back", (16, 4), 20),
-            stretch={"arm_front_upper": 1.3, "arm_front_lower": 1.3},
+            stretch={"arm_front_upper": 1.15, "arm_front_lower": 1.15},
             pelvis=10, torso=40, head=-26, hand_front=0, hand_back=0,
-            arm_front_upper=-168, arm_front_lower=-24, arm_back_upper=70, arm_back_lower=-46,
+            arm_front_upper=-165, arm_front_lower=-48, arm_back_upper=70, arm_back_lower=-46,
             scabbard=-20, coat_tail=56, coat_back=50),
         rest_pose(0.56),
     ], linear=True),

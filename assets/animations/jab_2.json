@@ -39,15 +39,15 @@
       }
     },
     {
-      "t": 0.08,
+      "t": 0.06,
       "root": [
         -7,
         5
       ],
       "angles": {
         "pelvis": -4,
-        "torso": -20,
-        "head": 10,
+        "torso": -24,
+        "head": 12,
         "hand_front": 0,
         "hand_back": 0,
         "scabbard": 8,
@@ -55,8 +55,8 @@
         "coat_back": -10,
         "arm_front_upper": -34,
         "arm_front_lower": -72,
-        "arm_back_upper": 52,
-        "arm_back_lower": -105,
+        "arm_back_upper": 60,
+        "arm_back_lower": -120,
         "leg_front_upper": -28.4,
         "leg_front_lower": 78.9,
         "foot_front": -50.5,
@@ -67,9 +67,9 @@
       "stretch": {}
     },
     {
-      "t": 0.12,
+      "t": 0.09,
       "root": [
-        15,
+        4,
         4
       ],
       "angles": {
@@ -83,18 +83,49 @@
         "coat_back": 28,
         "arm_front_upper": 62,
         "arm_front_lower": -60,
-        "arm_back_upper": -118,
-        "arm_back_lower": -3,
-        "leg_front_upper": 26.7,
-        "leg_front_lower": 15.5,
-        "foot_front": -42.1,
+        "arm_back_upper": -46,
+        "arm_back_lower": -22,
+        "leg_front_upper": -5.2,
+        "leg_front_lower": 53.1,
+        "foot_front": -47.9,
         "leg_back_upper": -32.2,
         "leg_back_lower": 46.7,
         "foot_back": -14.5
       },
       "stretch": {
-        "arm_back_upper": 1.5,
-        "arm_back_lower": 1.5
+        "arm_back_upper": 1.15,
+        "arm_back_lower": 1.15
+      }
+    },
+    {
+      "t": 0.12,
+      "root": [
+        13,
+        4
+      ],
+      "angles": {
+        "pelvis": 8,
+        "torso": 28,
+        "head": -20,
+        "hand_front": 0,
+        "hand_back": 0,
+        "scabbard": -14,
+        "coat_tail": 34,
+        "coat_back": 28,
+        "arm_front_upper": 62,
+        "arm_front_lower": -60,
+        "arm_back_upper": -104,
+        "arm_back_lower": -30,
+        "leg_front_upper": 24.1,
+        "leg_front_lower": 15.5,
+        "foot_front": -39.6,
+        "leg_back_upper": -32.2,
+        "leg_back_lower": 46.7,
+        "foot_back": -14.5
+      },
+      "stretch": {
+        "arm_back_upper": 1.25,
+        "arm_back_lower": 1.25
       }
     },
     {
@@ -114,8 +145,8 @@
         "coat_back": 28,
         "arm_front_upper": 62,
         "arm_front_lower": -60,
-        "arm_back_upper": -118,
-        "arm_back_lower": -3,
+        "arm_back_upper": -132,
+        "arm_back_lower": -42,
         "leg_front_upper": 29.1,
         "leg_front_lower": 15.5,
         "foot_front": -44.5,
@@ -124,8 +155,8 @@
         "foot_back": -14.5
       },
       "stretch": {
-        "arm_back_upper": 1.5,
-        "arm_back_lower": 1.5
+        "arm_back_upper": 1.15,
+        "arm_back_lower": 1.15
       }
     },
     {
