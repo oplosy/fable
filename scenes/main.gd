@@ -27,7 +27,9 @@ var _rematch_ready := false
 
 func _ready() -> void:
 	KeyBindings.load_saved()
+	GameSettings.load_saved()
 	add_child(SettingsMenu.new())
+	add_child(MouseReticle.new())
 	if OS.is_debug_build():
 		var tuning := TuningPanel.new()
 		tuning.source = func() -> FighterClass: return players[0].fighter_class if not players.is_empty() and is_instance_valid(players[0]) else null
@@ -72,6 +74,7 @@ func _new_controller(index: int) -> FighterController:
 		return BotController.new()
 	var local := LocalController.new()
 	local.prefix = "p%d_" % (index + 1)
+	local.uses_mouse = index == 0
 	return local
 
 
@@ -118,6 +121,8 @@ func _on_match_ended(_winner: int) -> void:
 
 
 func _attack_pressed() -> bool:
+	if GameSettings.mouse_aim and Input.is_action_just_pressed("p1_mouse_attack"):
+		return true
 	for index in characters.size():
 		if Input.is_action_just_pressed("p%d_attack" % (index + 1)):
 			return true

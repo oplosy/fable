@@ -15,6 +15,7 @@ const LABELS := {
 
 var _panel: PanelContainer
 var _buttons := {} ## action name -> Button
+var _aim_button: Button
 var _waiting_for := "" ## Action waiting for its new key, "" when none.
 
 
@@ -48,6 +49,11 @@ func start_rebind(action: String) -> void:
 
 func is_waiting() -> bool:
 	return _waiting_for != ""
+
+
+func toggle_mouse_aim() -> void:
+	GameSettings.set_mouse_aim(not GameSettings.mouse_aim)
+	_refresh()
 
 
 # _input runs before the GUI, so arrow keys and Space reach the rebind instead of moving focus.
@@ -126,11 +132,24 @@ func _build() -> void:
 			grid.add_child(button)
 			_buttons[action_id] = button
 
+	var aim_row := HBoxContainer.new()
+	box.add_child(aim_row)
+	var aim_label := Label.new()
+	aim_label.text = "Player 1 aim"
+	aim_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	aim_row.add_child(aim_label)
+	_aim_button = Button.new()
+	_aim_button.custom_minimum_size.x = 80
+	_aim_button.focus_mode = Control.FOCUS_NONE
+	_aim_button.pressed.connect(toggle_mouse_aim)
+	aim_row.add_child(_aim_button)
+
 	var reset := Button.new()
 	reset.text = "Reset to defaults"
 	reset.focus_mode = Control.FOCUS_NONE
 	reset.pressed.connect(func() -> void:
 		KeyBindings.reset_to_defaults()
+		GameSettings.reset_to_defaults()
 		_refresh())
 	row.add_child(reset)
 	var done := Button.new()
@@ -141,5 +160,6 @@ func _build() -> void:
 
 
 func _refresh() -> void:
+	_aim_button.text = "Mouse" if GameSettings.mouse_aim else "Keyboard"
 	for action_id: String in _buttons:
 		_buttons[action_id].text = "press a key..." if action_id == _waiting_for else KeyBindings.key_text(action_id)
