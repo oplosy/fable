@@ -57,7 +57,7 @@ Every fighter has four slots:
 ## Firearm Handling and Aiming
 
 - Two aim mechanics (user, session 9; was keyboard only): keyboard (W/S turn the aim gradually) or mouse, chosen in the Esc menu per install, keyboard by default. No separate aim mode or aim key.
-- Mouse aim is for player 1 only (there is one mouse). While a firearm or throwable is ready, the aim goes straight at the mouse and the fighter turns to the mouse's side of its body. Left click attacks as well as the attack key. W and S keep their other jobs (ladders, roll, swap) but do not aim. The system cursor is hidden and only the crosshair square shows the aim (user: no ring). While moving, A/D set the facing as usual.
+- Mouse aim is for player 1 only (there is one mouse). While a firearm or throwable is ready, the aim goes straight at the mouse and the fighter turns to the mouse's side of its body. Left click attacks as well as the attack key. W and S keep their other jobs (ladders, roll, swap) but do not aim. The system cursor is hidden and only the crosshair square shows the aim (user: no ring). The crosshair follows the mouse, distance too, out to the weapon's range and stops there (user); keyboard aim keeps it at the range. While moving, A/D set the facing as usual.
 - With the firearm slot active and the fighter standing still, the firearm is drawn in hand; pressing attack fires it.
 - Left/right (A/D) always move the fighter. While moving, the firearm is put away and the run/walk animation plays; when the fighter stops, the firearm is drawn again because the firearm slot is still active. No firing while moving.
 - A faces the fighter left, D faces it right.
