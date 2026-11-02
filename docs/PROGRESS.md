@@ -138,6 +138,8 @@ Map follow-ups: there is no climb animation yet (a climbing fighter shows idle);
 
 - Ronin aim (session 8): a drawn item is aimed on a circle around the shoulder (`CharacterData.aim_shoulder`, `aim_shoulder_crouched`, `aim_reach`), so shot, gun and arm share one line to the mouse; `CharacterRig.apply_aim` bends both arms to it after the animator poses the legs (idle or crouch). Clips redrawn in `tools/build_refined_animations.py`: crouch (knees were backwards), jump_rise, jump_apex, fall, land; landings squash the rig and raise `LandingDust`. Crouch hit height is 14, so level shots from a standing shooter still pass over it.
 
+- Rig note: the art's "front" leg stands behind the "back" one (x 22 vs 38), so stances spread front leg back and back leg forward. `tools/clean_ronin_parts.py` was run once on the parts (baked arm, fist and coat pieces removed); do not rerun it.
+
 ## Known Bugs
 
 None open. The five bugs found in the session 2 review are fixed and covered by tests: melee trades, single-jab stunlock, firearm kept on death, stacking knockback, respawn during pause.
