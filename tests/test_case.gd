@@ -25,6 +25,9 @@ var _errors := ErrorCatcher.new()
 
 func _initialize() -> void:
 	OS.add_logger(_errors)
+	# Never read or write the player's real settings file.
+	GameSettings.save_path = "user://test_settings.cfg"
+	GameSettings.reset_to_defaults()
 	# Godot does not exit on script errors, so fail instead of hanging.
 	create_timer(time_limit).timeout.connect(func() -> void:
 		print("FAIL timed out")
