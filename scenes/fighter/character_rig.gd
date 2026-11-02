@@ -124,10 +124,27 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 ## The legs keep playing the clip.
 func apply_aim(aim_angle: float, fist: Vector2, is_crouching := false, back_hand_lead := Vector2(BACK_HAND_LEAD, 0.0)) -> void:
 	var lean := CROUCH_LEAN if is_crouching else 0.0
+	_place_shoulders(true)
 	joints.torso.rotation = aim_angle * AIM_TORSO_SHARE + lean
 	joints.head.rotation = aim_angle * AIM_HEAD_SHARE - lean
 	_reach("front", fist)
 	_reach("back", fist + back_hand_lead.rotated(aim_angle))
+
+
+## Turns the chest side-on for an aim: both shoulders meet over the torso, so both arms can
+## stretch out ahead. The art's resting shoulders sit too far apart for that.
+func _place_shoulders(aiming: bool) -> void:
+	for side in ["front", "back"]:
+		var part := "arm_%s_upper" % side
+		var shoulder: Vector2 = pivots[part]
+		if aiming:
+			shoulder.x = pivots.torso.x
+		joints[part].position = shoulder - pivots.torso
+
+
+## Back to the resting shoulders, for the clips.
+func release_aim() -> void:
+	_place_shoulders(false)
 
 
 ## Bends one arm so its hand point lands on `target` (rig space, art px), or as near as the
@@ -156,6 +173,7 @@ func _reach(side: String, target: Vector2) -> void:
 
 ## Resets all joints to their standing rest pose angles.
 func reset_pose() -> void:
+	release_aim()
 	for joint: Node2D in joints.values():
 		joint.rotation = 0.0
 
