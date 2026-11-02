@@ -15,7 +15,6 @@ height = 24
 script = ExtResource("1_data")
 display_name = "Pistol"
 texture = SubResource("2_texture")
-art = "res://assets/items/pistol.png"
 grip = Vector2(10, 16)
 muzzle = Vector2(35, 7)
 fire_interval = 0.3

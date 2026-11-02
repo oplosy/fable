@@ -14,7 +14,6 @@ height = 24
 [resource]
 script = ExtResource("1_data")
 texture = SubResource("2_texture")
-art = "res://assets/items/smg.png"
 projectile_scene = ExtResource("3_bullet")
 display_name = "SMG"
 grip = Vector2(31, 17)

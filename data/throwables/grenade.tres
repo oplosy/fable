@@ -15,7 +15,6 @@ height = 15
 script = ExtResource("1_data")
 display_name = "Grenade"
 texture = SubResource("2_texture")
-art = "res://assets/items/grenade.png"
 grip = Vector2(6, 9)
 spawn_weight = 2.0
 count = 3
