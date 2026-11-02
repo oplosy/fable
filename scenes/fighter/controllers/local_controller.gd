@@ -5,6 +5,8 @@ extends FighterController
 @export var prefix := "p1_"
 ## Max seconds between two taps of the same direction that start a run.
 @export var double_tap_time := 0.25
+## This player takes the mouse when GameSettings.mouse_aim is on (there is one mouse).
+@export var uses_mouse := false
 
 var _held_dir := 0
 var _last_tap_dir := 0
@@ -31,6 +33,11 @@ func poll() -> void:
 	jump_held = Input.is_action_pressed(prefix + "jump")
 	attack = Input.is_action_just_pressed(prefix + "attack")
 	attack_held = Input.is_action_pressed(prefix + "attack")
+	aim_at_point = uses_mouse and GameSettings.mouse_aim
+	if aim_at_point:
+		aim_point = (get_parent() as Node2D).get_global_mouse_position()
+		attack = attack or Input.is_action_just_pressed(prefix + "mouse_attack")
+		attack_held = attack_held or Input.is_action_pressed(prefix + "mouse_attack")
 	# "Together" means one key goes down while the other is already held.
 	combo_break = (attack and Input.is_action_pressed(prefix + "jump")) or (jump and attack_held)
 	select_slot = -1
