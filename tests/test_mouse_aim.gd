@@ -16,6 +16,7 @@ func run() -> void:
 	arena.get_node("ItemSpawns/W1").interval = 9999.0
 	root.add_child(arena)
 	await _test_aim_at_point()
+	await _test_crosshair_follows_point()
 	await _test_keyboard_unchanged()
 	await _test_local_controller()
 	_test_settings()
@@ -56,6 +57,25 @@ func _test_aim_at_point() -> void:
 	shooter.controller.move = 0.0
 	await physics_frames(5)
 	check(shooter.facing == 1, "fists do not follow the mouse")
+	shooter.free()
+	await physics_frames(2)
+
+
+func _test_crosshair_follows_point() -> void:
+	var shooter := _spawn(Vector2(200, 328))
+	await physics_frames(5)
+	shooter.inventory.equip_firearm(PISTOL)
+	shooter.controller.aim_at_point = true
+	await physics_frames(2)
+	var hand: Node2D = shooter.get_node("Visuals/Hand")
+	var crosshair: Crosshair = shooter._crosshair
+
+	await _aim(shooter, hand.global_position + Vector2(40, 0))
+	check(crosshair.global_position.distance_to(shooter.controller.aim_point) < 3.0, "the crosshair sits on a point within range")
+	await _aim(shooter, hand.global_position + Vector2(100, -10))
+	check(crosshair.global_position.distance_to(shooter.controller.aim_point) < 3.0, "and follows it further out")
+	await _aim(shooter, hand.global_position + Vector2(500, 0))
+	check(absf(crosshair.global_position.distance_to(hand.global_position) - PISTOL.projectile_range) < 1.0, "past the range it stops at the range")
 	shooter.free()
 	await physics_frames(2)
 

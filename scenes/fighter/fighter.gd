@@ -525,7 +525,7 @@ func _physics_process(delta: float) -> void:
 			firearm.try_fire(aim_direction(), get_parent(), self, fighter_class.crouch_spread_scale if _crouching else 1.0)
 			if firearm.is_empty():
 				inventory.drop_firearm()
-	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction(), get_rid(), firearm.data.projectile_range if firearm else 0.0)
+	_crosshair.point(is_firearm_drawn(), _hand.global_position, aim_direction(), get_rid(), _crosshair_reach())
 
 	if acting and inventory.active_slot == Inventory.Slot.MELEE and controller.attack:
 		melee.request_attack(not is_on_floor())
@@ -534,6 +534,17 @@ func _physics_process(delta: float) -> void:
 	_update_pose()
 
 	move_and_slide()
+
+
+## How far along the aim the crosshair sits: the weapon's range, or nearer to follow a point.
+func _crosshair_reach() -> float:
+	var firearm := inventory.firearm
+	if firearm == null:
+		return 0.0
+	var reach := firearm.data.projectile_range
+	if controller.aim_at_point:
+		reach = minf(reach, _hand.global_position.distance_to(controller.aim_point))
+	return reach
 
 
 ## Up takes hold of a ladder anywhere below its top; down only from its top.
