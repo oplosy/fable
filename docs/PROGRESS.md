@@ -136,6 +136,8 @@ Animation polish moved to the Street Brawler (`data/characters/street_brawler.tr
 
 Map follow-ups: there is no climb animation yet (a climbing fighter shows idle); catwalks cannot be dropped through (ladders are the way down); the Docks art is Claude's procedural pixel art and the user may redraw it (PixelLab only works from the Aseprite GUI).
 
+- Ronin aim (session 8): a drawn item is aimed on a circle around the shoulder (`CharacterData.aim_shoulder`, `aim_shoulder_crouched`, `aim_reach`), so shot, gun and arm share one line to the mouse; `CharacterRig.apply_aim` bends both arms to it after the animator poses the legs (idle or crouch). Clips redrawn in `tools/build_refined_animations.py`: crouch (knees were backwards), jump_rise, jump_apex, fall, land; landings squash the rig and raise `LandingDust`. Crouch hit height is 14, so level shots from a standing shooter still pass over it.
+
 ## Known Bugs
 
 None open. The five bugs found in the session 2 review are fixed and covered by tests: melee trades, single-jab stunlock, firearm kept on death, stacking knockback, respawn during pause.
