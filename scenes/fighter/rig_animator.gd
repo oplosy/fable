@@ -44,6 +44,8 @@ func setup(target: Fighter, rig: CharacterRig) -> void:
 	root_node = get_path_to(rig)
 	_trail = StrikeTrail.new()
 	target.add_child(_trail)
+	# Behind the body, so the limb stays in front of its own wind.
+	target.move_child(_trail, 0)
 	callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	var library := AnimationLibrary.new()
 	if DirAccess.dir_exists_absolute(CLIPS_DIR):
@@ -75,17 +77,20 @@ func _stretch() -> void:
 	_rig.scale = _rest_scale * Vector2(1.0 - amount, 1.0 + amount)
 
 
-## Wind follows the striking fist or foot.
+## Wind fills what the striking arm or leg sweeps.
 func _extend_trail() -> void:
 	if not fighter.melee.is_striking():
 		return
 	var tip: Node2D = _rig.hand_anchor
+	var root: Node2D = _rig.joints.arm_front_upper
 	if _current_clip == "jump_kick":
 		tip = _rig.joints.foot_front
+		root = _rig.joints.leg_front_upper
 	elif _current_clip == "jab_2":
 		tip = _rig.joints.hand_back
+		root = _rig.joints.arm_back_upper
 	if tip:
-		_trail.add(tip.global_position)
+		_trail.add(tip.global_position, root.global_position)
 
 
 ## An item is aimed standing still, so the legs under it idle or crouch.
