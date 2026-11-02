@@ -1,6 +1,7 @@
 import json
 import math
 import os
+import sys
 from PIL import Image
 
 RONIN_DIR = r"assets\characters\ronin"
@@ -9,7 +10,6 @@ ARTIFACTS_DIR = r"C:\Users\mesut\.gemini\antigravity\brain\d9e27150-5a18-4698-b5
 RIG_JSON = os.path.join(RONIN_DIR, "rig.json")
 
 os.makedirs(OUT_DIR, exist_ok=True)
-os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 
 with open(RIG_JSON, "r", encoding="utf-8") as f:
     rig_data = json.load(f)
@@ -145,6 +145,7 @@ def generate_review(clip_name, clip_data, num_frames=8, fps=12):
     for i, f in enumerate(frames):
         strip.paste(f, (i * canvas_w * 4, 0))
         
+    os.makedirs(ARTIFACTS_DIR, exist_ok=True)
     sheet_path = os.path.join(ARTIFACTS_DIR, f"{clip_name}_review_4x.png")
     gif_path = os.path.join(ARTIFACTS_DIR, f"{clip_name}_review_4x.gif")
     
@@ -281,46 +282,137 @@ new_and_refined = {
         ]
     },
 
-    # 2. Refined Horizontal Dive Plunge (with _visuals.rotation = 0.0)
+    # 2. Head-first dive and tucked forward roll, both within the rig pose
     "dive": {
         "name": "dive",
         "loop": False,
-        "length": 0.40,
+        "length": 0.7,
         "keys": [
             {
                 "t": 0.0,
-                "root": [0, 16],
+                "root": [0, 10],
                 "angles": {
-                    "pelvis": 75, "torso": 12, "head": -25,
-                    "arm_front_upper": -25, "arm_front_lower": 10, "hand_front": 0,
-                    "arm_back_upper": -75, "arm_back_lower": 10, "hand_back": 0,
-                    "leg_front_upper": -65, "leg_front_lower": 10, "foot_front": 10,
-                    "leg_back_upper": -75, "leg_back_lower": 15, "foot_back": 10,
-                    "scabbard": -70, "coat_tail": -75, "coat_back": -75
+                    "pelvis": 40, "torso": 8, "head": -20,
+                    "arm_front_upper": -150, "arm_front_lower": -5, "hand_front": 0,
+                    "arm_back_upper": -130, "arm_back_lower": -10, "hand_back": 0,
+                    "leg_front_upper": -25, "leg_front_lower": 25, "foot_front": 10,
+                    "leg_back_upper": 15, "leg_back_lower": 10, "foot_back": 10,
+                    "scabbard": 0, "coat_tail": 5, "coat_back": 5
                 }
             },
             {
-                "t": 0.20,
-                "root": [0, 18],
+                "t": 0.25,
+                "root": [0, 20],
                 "angles": {
-                    "pelvis": 85, "torso": 8, "head": -28,
-                    "arm_front_upper": -30, "arm_front_lower": 5, "hand_front": 0,
-                    "arm_back_upper": -80, "arm_back_lower": 5, "hand_back": 0,
-                    "leg_front_upper": -80, "leg_front_lower": 5, "foot_front": 10,
-                    "leg_back_upper": -85, "leg_back_lower": 5, "foot_back": 10,
-                    "scabbard": -80, "coat_tail": -85, "coat_back": -85
+                    "pelvis": 72, "torso": 8, "head": -30,
+                    "arm_front_upper": -165, "arm_front_lower": -5, "hand_front": 0,
+                    "arm_back_upper": -155, "arm_back_lower": -8, "hand_back": 0,
+                    "leg_front_upper": -3, "leg_front_lower": 5, "foot_front": 10,
+                    "leg_back_upper": 8, "leg_back_lower": 6, "foot_back": 10,
+                    "scabbard": 0, "coat_tail": 8, "coat_back": 8
                 }
             },
             {
-                "t": 0.40,
+                "t": 0.5,
+                "root": [0, 22],
+                "angles": {
+                    "pelvis": 88, "torso": 6, "head": -32,
+                    "arm_front_upper": -168, "arm_front_lower": -4, "hand_front": 0,
+                    "arm_back_upper": -158, "arm_back_lower": -6, "hand_back": 0,
+                    "leg_front_upper": 0, "leg_front_lower": 4, "foot_front": 10,
+                    "leg_back_upper": 10, "leg_back_lower": 8, "foot_back": 10,
+                    "scabbard": 0, "coat_tail": 10, "coat_back": 12
+                }
+            },
+            {
+                "t": 0.7,
+                "root": [0, 22],
+                "angles": {
+                    "pelvis": 110, "torso": 10, "head": -35,
+                    "arm_front_upper": -150, "arm_front_lower": -8, "hand_front": 0,
+                    "arm_back_upper": -140, "arm_back_lower": -10, "hand_back": 0,
+                    "leg_front_upper": 5, "leg_front_lower": 8, "foot_front": 10,
+                    "leg_back_upper": 12, "leg_back_lower": 14, "foot_back": 10,
+                    "scabbard": 0, "coat_tail": 12, "coat_back": 14
+                }
+            }
+        ]
+    },
+    "roll": {
+        "name": "roll",
+        "loop": False,
+        "length": 0.4,
+        "keys": [
+            {
+                "t": 0.0,
+                "root": [0, 8],
+                "angles": {
+                    "pelvis": -340, "torso": 15, "head": 20,
+                    "arm_front_upper": -40, "arm_front_lower": -30, "hand_front": 0,
+                    "arm_back_upper": -30, "arm_back_lower": -25, "hand_back": 0,
+                    "leg_front_upper": -60, "leg_front_lower": 70, "foot_front": 0,
+                    "leg_back_upper": -50, "leg_back_lower": 60, "foot_back": 0,
+                    "scabbard": 5, "coat_tail": 15, "coat_back": 10
+                }
+            },
+            {
+                "t": 0.07,
+                "root": [2, 18],
+                "angles": {
+                    "pelvis": -290, "torso": 35, "head": 30,
+                    "arm_front_upper": -70, "arm_front_lower": -50, "hand_front": 0,
+                    "arm_back_upper": -55, "arm_back_lower": -45, "hand_back": 0,
+                    "leg_front_upper": -115, "leg_front_lower": 125, "foot_front": -10,
+                    "leg_back_upper": -100, "leg_back_lower": 115, "foot_back": -10,
+                    "scabbard": 10, "coat_tail": 30, "coat_back": 20
+                }
+            },
+            {
+                "t": 0.15,
+                "root": [2, 14],
+                "angles": {
+                    "pelvis": -200, "torso": 35, "head": 30,
+                    "arm_front_upper": -70, "arm_front_lower": -50, "hand_front": 0,
+                    "arm_back_upper": -55, "arm_back_lower": -45, "hand_back": 0,
+                    "leg_front_upper": -115, "leg_front_lower": 125, "foot_front": -10,
+                    "leg_back_upper": -100, "leg_back_lower": 115, "foot_back": -10,
+                    "scabbard": 10, "coat_tail": 30, "coat_back": 20
+                }
+            },
+            {
+                "t": 0.23,
                 "root": [0, 18],
                 "angles": {
-                    "pelvis": 85, "torso": 8, "head": -28,
-                    "arm_front_upper": -30, "arm_front_lower": 5, "hand_front": 0,
-                    "arm_back_upper": -80, "arm_back_lower": 5, "hand_back": 0,
-                    "leg_front_upper": -80, "leg_front_lower": 5, "foot_front": 10,
-                    "leg_back_upper": -85, "leg_back_lower": 5, "foot_back": 10,
-                    "scabbard": -80, "coat_tail": -85, "coat_back": -85
+                    "pelvis": -110, "torso": 35, "head": 30,
+                    "arm_front_upper": -70, "arm_front_lower": -50, "hand_front": 0,
+                    "arm_back_upper": -55, "arm_back_lower": -45, "hand_back": 0,
+                    "leg_front_upper": -115, "leg_front_lower": 125, "foot_front": -10,
+                    "leg_back_upper": -100, "leg_back_lower": 115, "foot_back": -10,
+                    "scabbard": 10, "coat_tail": 30, "coat_back": 20
+                }
+            },
+            {
+                "t": 0.31,
+                "root": [0, 18],
+                "angles": {
+                    "pelvis": -35, "torso": 20, "head": 18,
+                    "arm_front_upper": -40, "arm_front_lower": -30, "hand_front": 0,
+                    "arm_back_upper": -30, "arm_back_lower": -30, "hand_back": 0,
+                    "leg_front_upper": -70, "leg_front_lower": 90, "foot_front": 0,
+                    "leg_back_upper": -60, "leg_back_lower": 80, "foot_back": 0,
+                    "scabbard": 5, "coat_tail": 15, "coat_back": 10
+                }
+            },
+            {
+                "t": 0.4,
+                "root": [0, 4],
+                "angles": {
+                    "pelvis": 0, "torso": 5, "head": 5,
+                    "arm_front_upper": 5, "arm_front_lower": 10, "hand_front": 0,
+                    "arm_back_upper": 5, "arm_back_lower": 10, "hand_back": 0,
+                    "leg_front_upper": -15, "leg_front_lower": 25, "foot_front": 0,
+                    "leg_back_upper": -10, "leg_back_lower": 20, "foot_back": 0,
+                    "scabbard": 0, "coat_tail": 2, "coat_back": 2
                 }
             }
         ]
@@ -701,18 +793,18 @@ new_and_refined = {
     }
 }
 
-print(f"Building {len(new_and_refined)} new and refined animation clips...")
+# Usage: python tools/build_refined_animations.py [clip ...] [--review]
+# Names clips to build (default all). --review also renders contact sheets (slow).
+wanted = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
+print(f"Building {len(wanted) or len(new_and_refined)} new and refined animation clips...")
 for name, data in new_and_refined.items():
+    if wanted and name not in wanted:
+        continue
     json_path = os.path.join(OUT_DIR, f"{name}.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-    
-    char_backup_dir = r"DONT-OPEN\characters\06_Ronin_Street_Samurai\rig_perfect\animations"
-    os.makedirs(char_backup_dir, exist_ok=True)
-    with open(os.path.join(char_backup_dir, f"{name}.json"), "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-        
-    generate_review(name, data, num_frames=8, fps=12)
-    print(f"  [+] {name}.json written and review generated.")
+    if "--review" in sys.argv:
+        generate_review(name, data, num_frames=8, fps=12)
+    print(f"  [+] {name}.json written.")
 
 print("All new and refined animations generated successfully!")
