@@ -41,6 +41,8 @@ Ronin Street Samurai (`06_Ronin_Street_Samurai`) was selected to pioneer the per
    - Created `test_combat_sync.gd` to test and guarantee hit window alignment with strike extension.
    - All tests pass (`test_ronin_rig`, `test_ronin_gameplay`, `test_ronin_locomotion`, `test_ronin_actions`, `test_combat_sync`, `test_weapons`, `test_main`, etc.).
 
+Later fix: `Visuals/Hand` is the fixed point aim, shots and throws start from again; `Fighter._draw_items_at` moves only the item pictures onto the rig's fist, so hits never depend on the animation. The drawn gun sits up to about 6 px off the shot line at steep aim. The `down` clip now lies flat on the floor (legs, arms, coat and scabbard).
+
 ## Status (session 9)
 
 The user dropped all asset work to start it over. Removed: `assets/`, `art/`, `tools/`, the Isles, the Mucho and stick figure characters, `FrameAnimator`, the aim arm, `ItemData.art`, `MeleeAttack.animation`, `CharacterData` art fields, `test_isles`, `test_frame_animator`, `test_combat_sync` and `docs/CHARACTER_ANIMATION_SPEC.md`. The game loads the Range with `placeholder.tres` (Fast) and `dummy.tres` (Heavy) as coloured boxes; items, barrels and ladders are flat boxes. Gameplay rules did not change, except that the Fighter hand is at half the body height again. Sections below describing art, the Isles or animations are history. `test_bots` now runs on `tests/bot_course.tscn` (a bare pit, one-way platforms, ladders), since the Range is flat. Steps 2, 3 and 5 of the development order start again when the user picks a direction.
