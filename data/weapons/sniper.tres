@@ -2,22 +2,17 @@
 
 [ext_resource type="Script" path="res://scenes/weapons/weapon_data.gd" id="1_data"]
 [ext_resource type="PackedScene" path="res://scenes/projectiles/bullet.tscn" id="3_bullet"]
-
-[sub_resource type="Gradient" id="placeholder_color"]
-colors = PackedColorArray(0.3, 0.3, 0.33, 1, 0.3, 0.3, 0.33, 1)
-
-[sub_resource type="GradientTexture2D" id="2_texture"]
-gradient = SubResource("placeholder_color")
-width = 90
-height = 27
+[ext_resource type="Texture2D" path="res://assets/weapons/sniper.png" id="4_art"]
 
 [resource]
 script = ExtResource("1_data")
-texture = SubResource("2_texture")
+texture = ExtResource("4_art")
 projectile_scene = ExtResource("3_bullet")
 display_name = "Sniper"
-grip = Vector2(24, 16)
-muzzle = Vector2(89, 10)
+grip = Vector2(17, 16)
+fore_grip = Vector2(40, 12)
+pixels_per_unit = 4.6
+muzzle = Vector2(73, 7)
 fire_interval = 1.2
 damage = 80
 knockback = 200.0

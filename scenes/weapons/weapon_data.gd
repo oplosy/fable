@@ -20,6 +20,8 @@ extends ItemData
 @export var ammo := 12
 ## Projectiles per shot, each with its own random deviation (shotgun pellets).
 @export var pellets := 1
+## Pixel of the texture the back hand holds.
+@export var fore_grip := Vector2.ZERO
 ## Crosshair distance in px and the reach of a sure hit: bullets fly on until they hit
 ## something, but fighters past this are hit less and less often (half at twice the range).
 ## Ranges (user, session 4): pistol, shotgun and SMG 150, rifle 250, sniper 500.
