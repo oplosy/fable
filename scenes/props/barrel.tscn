@@ -1,6 +1,4 @@
-[gd_scene load_steps=3 format=3]
-
-[ext_resource type="Texture2D" path="res://assets/props/barrel.png" id="1_texture"]
+[gd_scene load_steps=2 format=3]
 
 [sub_resource type="RectangleShape2D" id="shape"]
 size = Vector2(12, 18)
@@ -11,8 +9,9 @@ size = Vector2(12, 18)
 position = Vector2(0, -9)
 shape = SubResource("shape")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-8, -19)
-scale = Vector2(0.333333, 0.333333)
-texture = ExtResource("1_texture")
-centered = false
+[node name="Visual" type="ColorRect" parent="."]
+offset_left = -6.0
+offset_top = -18.0
+offset_right = 6.0
+mouse_filter = 2
+color = Color(0.5, 0.36, 0.22, 1)

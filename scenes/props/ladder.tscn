@@ -1,8 +1,6 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scenes/props/ladder.gd" id="1_ladder"]
-[ext_resource type="Texture2D" path="res://assets/props/ladder.png" id="2_texture"]
 
 [node name="Ladder" type="Node2D"]
 script = ExtResource("1_ladder")
-texture = ExtResource("2_texture")

@@ -9,26 +9,20 @@ extends Node2D
 const GROUP := &"ladders"
 ## How far (px) from the ladder's middle a fighter's feet can be to take hold.
 const REACH := 6.0
+## Width of the placeholder look (px).
+const WIDTH := 10.0
 
 @export var height := 96.0
-## One section of rails and a rung, tiled up the ladder.
-@export var texture: Texture2D
-## Art pixels per world pixel (the map art is 3x).
-@export var pixels_per_unit := 3.0
 
 
 func _ready() -> void:
 	add_to_group(GROUP)
-	if texture:
-		var sprite := Sprite2D.new()
-		sprite.texture = texture
-		sprite.centered = false
-		sprite.region_enabled = true
-		sprite.region_rect = Rect2(0, 0, texture.get_width(), height * pixels_per_unit)
-		sprite.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-		sprite.scale = Vector2.ONE / pixels_per_unit
-		sprite.position = Vector2(-texture.get_width() / pixels_per_unit / 2.0, -height)
-		add_child(sprite)
+	var visual := ColorRect.new()
+	visual.color = Color(0.5, 0.36, 0.22)
+	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	visual.position = Vector2(-WIDTH / 2.0, -height)
+	visual.size = Vector2(WIDTH, height)
+	add_child(visual)
 
 
 ## Feet height (global y) of a fighter standing on the platform at the top.
