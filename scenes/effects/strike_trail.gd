@@ -5,7 +5,7 @@ extends Node2D
 ## towards the tail and blow away in `life` seconds. Visual only.
 
 const COLOR := Color(1, 1, 1)
-const WIDTH := 1.8
+const WIDTH := 1.1
 ## How far apart the streaks spread at the tail, world px.
 const SPREAD := 2.2
 
@@ -45,4 +45,4 @@ func _draw() -> void:
 				continue
 			var side := along.orthogonal().normalized() * streak * SPREAD * (1.0 - fade)
 			var width := WIDTH * fade * (1.0 - absf(streak) * 0.5)
-			draw_line(_points[i - 1] + side, _points[i] + side, Color(COLOR, 0.9 * fade), maxf(width, 0.3))
+			draw_line(_points[i - 1] + side, _points[i] + side, Color(COLOR, 0.6 * fade), maxf(width, 0.3))
