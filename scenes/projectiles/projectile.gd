@@ -6,6 +6,8 @@ extends Node2D
 
 ## Physics layers the projectile stops at or hits: world and fighters.
 const HIT_MASK := 1 | Fighter.FIGHTERS_LAYER
+## Past every map; a shot that met nothing is gone by then.
+const MAX_FLIGHT := 4000.0
 
 var velocity := Vector2.ZERO
 var damage := 0
@@ -14,8 +16,8 @@ var knockback := 0.0
 var stun := -1.0
 ## The fighter that fired it; never hit by its own projectile.
 var shooter: Node2D
-## Distance in px before it disappears.
-var max_range := 1200.0
+## Fighters within this distance in px are always hit; further away it can fly past them.
+var sure_range := 1200.0
 ## Extra fighters it passes through after the first one it hits.
 var pierce := 0
 ## Hits within this distance from the muzzle knock the target down.
@@ -36,7 +38,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var step := velocity * delta
-	var remaining := minf(step.length(), max_range - _traveled)
+	var remaining := minf(step.length(), MAX_FLIGHT - _traveled)
 	var to := global_position + velocity.normalized() * remaining
 	var space := get_world_2d().direct_space_state
 	var from := breech if _traveled == 0.0 and breech != Vector2.INF else global_position
@@ -52,6 +54,10 @@ func _physics_process(delta: float) -> void:
 			queue_free()
 			return
 		var at_range := _traveled + global_position.distance_to(hit.position)
+		if body is Fighter and Arena.rng_of(self).randf() >= hit_chance(at_range, sure_range):
+			_exclude.append(hit.rid)
+			from = hit.position
+			continue
 		var knocks_down := knockdown_range > 0.0 and at_range <= knockdown_range
 		var credit: Fighter = shooter as Fighter if is_instance_valid(shooter) else null
 		body.take_hit(damage, velocity.normalized() * knockback, stun, knocks_down, credit)
@@ -63,5 +69,10 @@ func _physics_process(delta: float) -> void:
 		from = hit.position
 	global_position = to
 	_traveled += remaining
-	if _traveled >= max_range:
+	if _traveled >= MAX_FLIGHT:
 		queue_free()
+
+
+## Certain up to `range_px`, then falling with the distance: half at twice the range.
+static func hit_chance(distance: float, range_px: float) -> float:
+	return minf(range_px / maxf(distance, 1.0), 1.0)

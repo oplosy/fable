@@ -20,7 +20,8 @@ extends ItemData
 @export var ammo := 12
 ## Projectiles per shot, each with its own random deviation (shotgun pellets).
 @export var pellets := 1
-## Distance in px a projectile flies before it disappears; the crosshair stops there too.
+## Crosshair distance in px and the reach of a sure hit: bullets fly on until they hit
+## something, but fighters past this are hit less and less often (half at twice the range).
 ## Ranges (user, session 4): pistol, shotgun and SMG 150, rifle 250, sniper 500.
 @export var projectile_range := 1200.0
 ## Extra fighters a projectile passes through after the first one it hits.

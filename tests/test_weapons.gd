@@ -55,11 +55,22 @@ func _test_shotgun() -> void:
 	await physics_frames(1)
 	check(get_nodes_in_group("projectiles").size() == SHOTGUN.pellets, "a blast fires every pellet")
 	await physics_frames(60)
-	check(far.health.current == before, "pellets never reach past their range")
-	check(get_nodes_in_group("projectiles").is_empty(), "pellets disappear at their range")
 	check(not far.is_knocked_down(), "far targets are not knocked down")
-	shooter.queue_free()
 	far.queue_free()
+	await physics_frames(120)
+	await physics_frames(int(SHOTGUN.fire_interval * 60) + 2)
+	shooter.controller.attack = true
+	await physics_frames(1)
+	shooter.controller.attack = false
+	var past_range := false
+	for i in 120:
+		await physics_frames(1)
+		for pellet: Node2D in get_nodes_in_group("projectiles"):
+			past_range = past_range or pellet.global_position.x > 100 + SHOTGUN.projectile_range + 20
+	check(past_range, "pellets fly on past the weapon's range")
+	check(is_equal_approx(Projectile.hit_chance(100.0, 150.0), 1.0), "a hit within range is sure")
+	check(is_equal_approx(Projectile.hit_chance(300.0, 150.0), 0.5), "twice the range is a coin flip")
+	shooter.queue_free()
 	await physics_frames(5)
 
 
