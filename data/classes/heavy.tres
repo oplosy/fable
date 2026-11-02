@@ -8,12 +8,12 @@ script = ExtResource("2_attack")
 display_name = "Punch"
 damage = 7
 knockback = Vector2(40, 0)
-stun_time = 0.45
-windup = 0.1
-active = 0.08
-recovery = 0.18
 hitbox_offset = Vector2(12, -18)
 hitbox_size = Vector2(16, 10)
+stun_time = 0.62
+windup = 0.16
+active = 0.08
+recovery = 0.24
 
 [sub_resource type="Resource" id="kick"]
 script = ExtResource("2_attack")
@@ -22,11 +22,11 @@ damage = 12
 knockback = Vector2(220, -100)
 stun_time = 0.7
 knocks_down = true
-windup = 0.15
-active = 0.1
-recovery = 0.3
 hitbox_offset = Vector2(14, -8)
 hitbox_size = Vector2(18, 10)
+windup = 0.22
+active = 0.1
+recovery = 0.38
 
 [sub_resource type="Resource" id="jump_kick"]
 script = ExtResource("2_attack")
@@ -35,11 +35,11 @@ damage = 12
 knockback = Vector2(200, -80)
 stun_time = 0.6
 knocks_down = true
-windup = 0.08
-active = 0.2
-recovery = 0.15
 hitbox_offset = Vector2(12, 0)
 hitbox_size = Vector2(18, 16)
+windup = 0.12
+active = 0.25
+recovery = 0.18
 
 [resource]
 script = ExtResource("1_class")

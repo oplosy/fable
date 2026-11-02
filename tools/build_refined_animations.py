@@ -819,11 +819,14 @@ def leg(side, root, dx=0.0, dy=0.0):
     }
 
 
-def key(t, root, front=None, back=None, **angles):
+def key(t, root, front=None, back=None, stretch=None, **angles):
     pose = dict(angles)
     pose.update(front or {})
     pose.update(back or {})
-    return {"t": t, "root": list(root), "angles": pose}
+    made = {"t": t, "root": list(root), "angles": pose}
+    # A bone's length over its drawn length; strikes reach further than the body could.
+    made["stretch"] = stretch or {}
+    return made
 
 
 def clip(name, length, loop, keys, **extra):
@@ -928,6 +931,104 @@ new_and_refined.update({
             arm_back_upper=0, arm_back_lower=0, hand_back=0,
             scabbard=0, coat_tail=0, coat_back=0),
     ]),
+})
+
+# 4. Strikes you can read: a big wind-up, a stretched limb that holds at full reach while
+# the hit window is open, and a slow return. Bodies are cartoon, not anatomy.
+def rest_pose(t):
+    return key(t, (0, 0), leg("front", (0, 0)), leg("back", (0, 0)),
+               stretch={"arm_front_upper": 1, "arm_front_lower": 1, "arm_back_upper": 1, "arm_back_lower": 1,
+                        "leg_front_upper": 1, "leg_front_lower": 1},
+               pelvis=0, torso=0, head=0,
+               arm_front_upper=0, arm_front_lower=0, hand_front=0,
+               arm_back_upper=0, arm_back_lower=0, hand_back=0,
+               scabbard=0, coat_tail=0, coat_back=0)
+
+
+def cocked(t, punching_front):
+    root = (-7, 5)
+    strike = dict(arm_front_upper=48, arm_front_lower=-105, arm_back_upper=-34, arm_back_lower=-72)
+    if not punching_front:
+        strike = dict(arm_front_upper=-34, arm_front_lower=-72, arm_back_upper=52, arm_back_lower=-105)
+    return key(t, root, leg("front", root, 3), leg("back", root, -7),
+               pelvis=-4, torso=-20, head=10, hand_front=0, hand_back=0,
+               scabbard=8, coat_tail=-12, coat_back=-10, **strike)
+
+
+def full_reach(t, punching_front, slide=15, height=-86):
+    root = (slide, 4)
+    long = {"arm_front_upper": 1.55, "arm_front_lower": 1.55} if punching_front else {"arm_back_upper": 1.5, "arm_back_lower": 1.5}
+    strike = dict(arm_front_upper=height, arm_front_lower=-3, arm_back_upper=58, arm_back_lower=-58)
+    if not punching_front:
+        strike = dict(arm_front_upper=62, arm_front_lower=-60, arm_back_upper=height, arm_back_lower=-3)
+    return key(t, root, leg("front", root, slide + 3), leg("back", root, -5), stretch=long,
+               pelvis=8, torso=28, head=-20, hand_front=0, hand_back=0,
+               scabbard=-14, coat_tail=34, coat_back=28, **strike)
+
+
+def punch(name, punching_front, height=-86):
+    return clip(name, 0.4, False, [
+        rest_pose(0.0),
+        cocked(0.08, punching_front),
+        full_reach(0.12, punching_front, 15, height),
+        full_reach(0.2, punching_front, 17, height),
+        rest_pose(0.4),
+    ], linear=True)
+
+
+HOOK_REACH = (12, 7)
+KICK_AIR = (6, -3)
+new_and_refined.update({
+    "jab_1": punch("jab_1", True),
+    "jab_2": punch("jab_2", False),
+    "jab_3": punch("jab_3", True, -104),
+    # A full turn of the body: the arm comes round from behind and carries on past the target.
+    "hook": clip("hook", 0.56, False, [
+        rest_pose(0.0),
+        key(0.13, (-10, 8), leg("front", (-10, 8), 4), leg("back", (-10, 8), -9),
+            pelvis=-8, torso=-34, head=16, hand_front=0, hand_back=0,
+            arm_front_upper=92, arm_front_lower=-44, arm_back_upper=-48, arm_back_lower=-60,
+            scabbard=14, coat_tail=-26, coat_back=-22),
+        key(0.18, HOOK_REACH, leg("front", HOOK_REACH, 15), leg("back", HOOK_REACH, -5),
+            stretch={"arm_front_upper": 1.6, "arm_front_lower": 1.6},
+            pelvis=10, torso=36, head=-24, hand_front=0, hand_back=0,
+            arm_front_upper=-92, arm_front_lower=-12, arm_back_upper=64, arm_back_lower=-50,
+            scabbard=-18, coat_tail=46, coat_back=40),
+        key(0.26, (16, 4), leg("front", (16, 4), 17), leg("back", (16, 4), -3),
+            stretch={"arm_front_upper": 1.3, "arm_front_lower": 1.3},
+            pelvis=10, torso=40, head=-26, hand_front=0, hand_back=0,
+            arm_front_upper=-148, arm_front_lower=-24, arm_back_upper=70, arm_back_lower=-46,
+            scabbard=-20, coat_tail=56, coat_back=50),
+        rest_pose(0.56),
+    ], linear=True),
+    # Knee up first, then one long leg shot out and held, the body thrown back behind it.
+    "jump_kick": clip("jump_kick", 0.55, False, [
+        rest_pose(0.0),
+        key(0.08, (-4, -2), pelvis=-6, torso=14, head=-6, hand_front=0, hand_back=0,
+            arm_front_upper=-46, arm_front_lower=-60, arm_back_upper=40, arm_back_lower=-60,
+            leg_front_upper=-96, leg_front_lower=104, foot_front=-8,
+            leg_back_upper=-30, leg_back_lower=86, foot_back=-6,
+            scabbard=-6, coat_tail=20, coat_back=18),
+        key(0.1, KICK_AIR, stretch={"leg_front_upper": 1.5, "leg_front_lower": 1.5},
+            pelvis=-16, torso=-18, head=16, hand_front=0, hand_back=0,
+            arm_front_upper=62, arm_front_lower=-30, arm_back_upper=94, arm_back_lower=-24,
+            leg_front_upper=-94, leg_front_lower=2, foot_front=-20,
+            leg_back_upper=-22, leg_back_lower=92, foot_back=-8,
+            scabbard=18, coat_tail=62, coat_back=56),
+        key(0.4, KICK_AIR, stretch={"leg_front_upper": 1.45, "leg_front_lower": 1.45},
+            pelvis=-14, torso=-16, head=14, hand_front=0, hand_back=0,
+            arm_front_upper=70, arm_front_lower=-24, arm_back_upper=102, arm_back_lower=-20,
+            leg_front_upper=-90, leg_front_lower=4, foot_front=-20,
+            leg_back_upper=-20, leg_back_lower=88, foot_back=-8,
+            scabbard=20, coat_tail=70, coat_back=64),
+        key(0.55, (0, 0), pelvis=0, torso=0, head=0, hand_front=0, hand_back=0,
+            stretch={"leg_front_upper": 1, "leg_front_lower": 1, "arm_front_upper": 1, "arm_front_lower": 1,
+                     "arm_back_upper": 1, "arm_back_lower": 1},
+            arm_front_upper=0, arm_front_lower=0, arm_back_upper=0, arm_back_lower=0,
+            leg_front_upper=-20, leg_front_lower=30, foot_front=0,
+            leg_back_upper=-10, leg_back_lower=30, foot_back=0,
+            scabbard=0, coat_tail=0, coat_back=0),
+    ], linear=True),
 })
 
 # Usage: python tools/build_refined_animations.py [clip ...] [--review]

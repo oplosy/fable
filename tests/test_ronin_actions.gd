@@ -79,7 +79,7 @@ func run() -> void:
 	input.attack = true
 	await physics_frames(1)
 	input.attack = false
-	await physics_frames(8)
+	await physics_frames(20)
 	check(animator.assigned_animation == "jab_2", "Plays jab_2 on combo 2 (%s)" % animator.assigned_animation)
 	
 	# Queue attack 3
@@ -87,7 +87,7 @@ func run() -> void:
 	input.attack = true
 	await physics_frames(1)
 	input.attack = false
-	await physics_frames(8)
+	await physics_frames(20)
 	check(animator.assigned_animation == "jab_3", "Plays jab_3 on combo 3 (%s)" % animator.assigned_animation)
 	
 	# Queue attack 4 (Hook finisher)
@@ -95,7 +95,7 @@ func run() -> void:
 	input.attack = true
 	await physics_frames(1)
 	input.attack = false
-	await physics_frames(8)
+	await physics_frames(20)
 	check(animator.assigned_animation == "hook", "Plays hook on finisher (%s)" % animator.assigned_animation)
 	
 	# Wait for combo to finish

@@ -43,7 +43,7 @@ func run() -> void:
 	_reset(heavy, 214)
 	await physics_frames(5)
 	var highest_index := 0
-	for i in 30:
+	for i in 45:
 		await _press_attack(fast)
 		highest_index = maxi(highest_index, fast.melee.combo_index())
 		await physics_frames(2)

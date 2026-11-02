@@ -16,11 +16,16 @@ const LANDING_ROLL_STATES: Array[Fighter.State] = [Fighter.State.IDLE, Fighter.S
 const FULL_STRETCH_SPEED := 450.0
 const MAX_STRETCH := 0.1
 const MAX_SQUASH := 0.24
+## Limbs a clip may stretch along the bone with a key's "stretch".
+const STRETCH_PARTS: Array[String] = ["arm_front_upper", "arm_front_lower", "arm_back_upper", "arm_back_lower", "leg_front_upper", "leg_front_lower"]
+## Clips drawn to fit a bare-handed attack's whole length.
+const STRIKE_CLIPS: Array[String] = ["jab_1", "jab_2", "jab_3", "hook", "jump_kick"]
 
 var fighter: Fighter
 var _rig: CharacterRig
 var _leg_scale := 1.0
 var _rest_scale := Vector2.ONE
+var _trail: StrikeTrail
 var _reference_speeds := {}
 var _last_state := -1
 ## Seconds left of the roll a dive lands into.
@@ -35,6 +40,8 @@ func setup(target: Fighter, rig: CharacterRig) -> void:
 	_rest_scale = rig.scale
 	_leg_scale = rig.leg_length() / REFERENCE_LEG_LENGTH
 	root_node = get_path_to(rig)
+	_trail = StrikeTrail.new()
+	target.add_child(_trail)
 	callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 	var library := AnimationLibrary.new()
 	if DirAccess.dir_exists_absolute(CLIPS_DIR):
@@ -52,6 +59,7 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(fighter):
 		return
 	_stretch()
+	_extend_trail()
 	fighter.pose_held_items(_rig, fighter.state() == Fighter.State.AIM)
 
 
@@ -63,6 +71,19 @@ func _stretch() -> void:
 	elif fighter._landing_time > 0.0:
 		amount = -MAX_SQUASH * fighter._landing_time / Fighter.LANDING_TIME
 	_rig.scale = _rest_scale * Vector2(1.0 - amount, 1.0 + amount)
+
+
+## Wind follows the striking fist or foot.
+func _extend_trail() -> void:
+	if not fighter.melee.is_striking():
+		return
+	var tip: Node2D = _rig.hand_anchor
+	if _current_clip == "jump_kick":
+		tip = _rig.joints.foot_front
+	elif _current_clip == "jab_2":
+		tip = _rig.joints.hand_back
+	if tip:
+		_trail.add(tip.global_position)
 
 
 ## An item is aimed standing still, so the legs under it idle or crouch.
@@ -174,6 +195,8 @@ func _choose_clip() -> void:
 		clip = "idle"
 		blend = BLEND
 
+	if clip in STRIKE_CLIPS and has_animation(clip):
+		speed = get_animation(clip).length / fighter.melee.current_attack().duration()
 	if clip == "dive":
 		speed = get_animation(clip).length / fighter.fighter_class.air_time(fighter.fighter_class.dive_velocity.y)
 
@@ -215,7 +238,16 @@ func _load_clip(path: String) -> Animation:
 	var angle_tracks := {}
 	for part: String in _rig.joints:
 		angle_tracks[part] = _add_track(clip, part, "rotation")
+	var stretch_tracks := {}
+	for part in STRETCH_PARTS:
+		stretch_tracks[part] = _add_track(clip, part, "scale")
+	var stretches := {}
 		
+	# Strikes snap between far-apart keys, where a cubic curve would overshoot wildly.
+	if data.get("linear", false):
+		for track in clip.get_track_count():
+			clip.track_set_interpolation_type(track, Animation.INTERPOLATION_LINEAR)
+
 	var rest_root: Vector2 = _rig.joints.pelvis.position
 	var root := Vector2.ZERO
 	var angles := {}
@@ -228,6 +260,9 @@ func _load_clip(path: String) -> Animation:
 		for part: String in angle_tracks:
 			angles[part] = float(key.get("angles", {}).get(part, angles.get(part, 0.0)))
 			clip.track_insert_key(angle_tracks[part], t, deg_to_rad(angles[part]))
+		for part: String in stretch_tracks:
+			stretches[part] = float(key.get("stretch", {}).get(part, stretches.get(part, 1.0)))
+			clip.track_insert_key(stretch_tracks[part], t, Vector2(1.0, stretches[part]))
 	return clip
 
 

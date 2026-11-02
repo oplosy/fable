@@ -91,7 +91,7 @@ func run() -> void:
 	shooter.controller.attack = true
 	await physics_frames(2)
 	shooter.controller.attack = false
-	await physics_frames(5)
+	await physics_frames(12)
 	check(not is_instance_valid(third), "a punch sets off a barrel in reach")
 	check(killed_by == [shooter], "a barrel kill is credited to whoever set it off")
 

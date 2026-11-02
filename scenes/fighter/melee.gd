@@ -51,6 +51,14 @@ func is_hitting() -> bool:
 	return _time >= attack.windup and _time < attack.windup + attack.active
 
 
+## From halfway through the wind-up to the end of the hit window: the limb is flying.
+func is_striking() -> bool:
+	if not is_attacking():
+		return false
+	var attack := current_attack()
+	return _time >= attack.windup * 0.5 and _time < attack.windup + attack.active
+
+
 func is_cooling_down() -> bool:
 	return _cooldown > 0.0
 

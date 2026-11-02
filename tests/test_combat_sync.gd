@@ -75,7 +75,7 @@ func run() -> void:
 	check(drawn_item.global_position.distance_to(rig.hand_anchor.global_position) < 1.0, "A held item is drawn on the fist (%.2f px)" % drawn_item.global_position.distance_to(rig.hand_anchor.global_position))
 	
 	# 5. Test Full 4-Hit Combo Chain: Jab 1 -> Jab 2 -> Jab 3 -> Hook
-	await physics_frames(35)
+	await physics_frames(70)
 	
 	input.attack = true
 	await physics_frames(1)
@@ -86,21 +86,21 @@ func run() -> void:
 	input.attack = true
 	await physics_frames(1)
 	input.attack = false
-	await physics_frames(8)
+	await physics_frames(20)
 	check(animator.assigned_animation == "jab_2", "Combo 2: jab_2")
 	
 	await physics_frames(5)
 	input.attack = true
 	await physics_frames(1)
 	input.attack = false
-	await physics_frames(8)
+	await physics_frames(20)
 	check(animator.assigned_animation == "jab_3", "Combo 3: jab_3")
 	
 	await physics_frames(5)
 	input.attack = true
 	await physics_frames(1)
 	input.attack = false
-	await physics_frames(8)
+	await physics_frames(20)
 	check(animator.assigned_animation == "hook", "Combo 4: hook")
 	
 	arena.queue_free()

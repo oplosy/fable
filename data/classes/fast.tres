@@ -10,20 +10,23 @@ damage = 8
 knockback = Vector2(160, -60)
 stun_time = 0.5
 knocks_down = true
-active = 0.2
-recovery = 0.1
 hitbox_offset = Vector2(12, 0)
 hitbox_size = Vector2(16, 16)
+windup = 0.1
+active = 0.3
+recovery = 0.15
 
 [sub_resource type="Resource" id="jab"]
 script = ExtResource("2_attack")
 display_name = "Jab"
 damage = 4
 knockback = Vector2(30, 0)
-active = 0.07
-recovery = 0.1
 hitbox_offset = Vector2(12, -18)
 hitbox_size = Vector2(14, 8)
+stun_time = 0.6
+windup = 0.12
+active = 0.08
+recovery = 0.2
 
 [sub_resource type="Resource" id="hook"]
 script = ExtResource("2_attack")
@@ -32,9 +35,10 @@ damage = 7
 knockback = Vector2(150, -60)
 stun_time = 0.5
 knocks_down = true
-windup = 0.08
-recovery = 0.2
 hitbox_offset = Vector2(12, -18)
+windup = 0.18
+active = 0.08
+recovery = 0.3
 
 [resource]
 script = ExtResource("1_class")
