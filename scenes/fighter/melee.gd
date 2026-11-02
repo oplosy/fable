@@ -9,6 +9,9 @@ signal item_broke
 ## Emitted when a hit lands, at the point it struck (global), heavy for a knockdown hit.
 signal hit_landed(point: Vector2, heavy: bool)
 
+## Seconds a strike keeps flying after reaching out; a long hit window just holds the pose.
+const STRIKE_FOLLOW := 0.08
+
 var fighter: Fighter
 var fighter_class: FighterClass
 ## Held melee item; its combo replaces the class's punches. Null means bare hands.
@@ -51,12 +54,12 @@ func is_hitting() -> bool:
 	return _time >= attack.windup and _time < attack.windup + attack.active
 
 
-## From halfway through the wind-up to the end of the hit window: the limb is flying.
+## From halfway through the wind-up to just after full reach: the limb is flying.
 func is_striking() -> bool:
 	if not is_attacking():
 		return false
 	var attack := current_attack()
-	return _time >= attack.windup * 0.5 and _time < attack.windup + attack.active
+	return _time >= attack.windup * 0.5 and _time < attack.windup + minf(attack.active, STRIKE_FOLLOW)
 
 
 func is_cooling_down() -> bool:
