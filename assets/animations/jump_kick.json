@@ -1,0 +1,115 @@
+{
+  "name": "jump_kick",
+  "loop": false,
+  "length": 0.3,
+  "keys": [
+    {
+      "t": 0.0,
+      "root": [
+        0,
+        -1
+      ],
+      "angles": {
+        "pelvis": 4,
+        "torso": -15,
+        "head": 10,
+        "leg_front_upper": -50,
+        "leg_front_lower": 60,
+        "foot_front": 0,
+        "leg_back_upper": 15,
+        "leg_back_lower": 55,
+        "foot_back": -20,
+        "arm_front_upper": -20,
+        "arm_front_lower": 35,
+        "hand_front": 0,
+        "arm_back_upper": 25,
+        "arm_back_lower": 15,
+        "hand_back": 0,
+        "scabbard": -10,
+        "coat_tail": -15,
+        "coat_back": -12
+      }
+    },
+    {
+      "t": 0.06,
+      "root": [
+        2,
+        -2
+      ],
+      "angles": {
+        "pelvis": 8,
+        "torso": -30,
+        "head": 15,
+        "leg_front_upper": -78,
+        "leg_front_lower": 4,
+        "foot_front": 16,
+        "leg_back_upper": 30,
+        "leg_back_lower": 85,
+        "foot_back": -35,
+        "arm_front_upper": -35,
+        "arm_front_lower": 30,
+        "hand_front": 0,
+        "arm_back_upper": 50,
+        "arm_back_lower": 10,
+        "hand_back": 0,
+        "scabbard": 25,
+        "coat_tail": 40,
+        "coat_back": 35
+      }
+    },
+    {
+      "t": 0.2,
+      "root": [
+        2,
+        -2
+      ],
+      "angles": {
+        "pelvis": 8,
+        "torso": -28,
+        "head": 14,
+        "leg_front_upper": -76,
+        "leg_front_lower": 4,
+        "foot_front": 16,
+        "leg_back_upper": 28,
+        "leg_back_lower": 80,
+        "foot_back": -30,
+        "arm_front_upper": -30,
+        "arm_front_lower": 25,
+        "hand_front": 0,
+        "arm_back_upper": 45,
+        "arm_back_lower": 10,
+        "hand_back": 0,
+        "scabbard": 22,
+        "coat_tail": 35,
+        "coat_back": 30
+      }
+    },
+    {
+      "t": 0.3,
+      "root": [
+        0,
+        0
+      ],
+      "angles": {
+        "pelvis": 2,
+        "torso": -10,
+        "head": 5,
+        "leg_front_upper": -35,
+        "leg_front_lower": 30,
+        "foot_front": 0,
+        "leg_back_upper": 10,
+        "leg_back_lower": 30,
+        "foot_back": 0,
+        "arm_front_upper": -10,
+        "arm_front_lower": 15,
+        "hand_front": 0,
+        "arm_back_upper": 15,
+        "arm_back_lower": 10,
+        "hand_back": 0,
+        "scabbard": 8,
+        "coat_tail": 10,
+        "coat_back": 8
+      }
+    }
+  ]
+}

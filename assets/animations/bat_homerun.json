@@ -1,0 +1,124 @@
+{
+  "name": "bat_homerun",
+  "loop": false,
+  "length": 0.55,
+  "keys": [
+    {
+      "t": 0.0,
+      "root": [
+        0,
+        1
+      ],
+      "angles": {
+        "pelvis": -10,
+        "torso": -15,
+        "head": 6,
+        "arm_front_upper": 25,
+        "arm_front_lower": 65,
+        "hand_front": 10,
+        "arm_back_upper": 10,
+        "arm_back_lower": 45,
+        "hand_back": 0,
+        "scabbard": -10,
+        "coat_tail": -12,
+        "coat_back": -10
+      }
+    },
+    {
+      "t": 0.15,
+      "root": [
+        -2,
+        2
+      ],
+      "angles": {
+        "pelvis": -24,
+        "torso": -32,
+        "head": 12,
+        "arm_front_upper": 60,
+        "arm_front_lower": 85,
+        "hand_front": 20,
+        "arm_back_upper": 25,
+        "arm_back_lower": 65,
+        "hand_back": 0,
+        "scabbard": -25,
+        "coat_tail": -30,
+        "coat_back": -25
+      }
+    },
+    {
+      "t": 0.25,
+      "root": [
+        3,
+        -2
+      ],
+      "angles": {
+        "pelvis": 25,
+        "torso": 40,
+        "head": -18,
+        "arm_front_upper": -85,
+        "arm_front_lower": 45,
+        "hand_front": -15,
+        "arm_back_upper": -60,
+        "arm_back_lower": 35,
+        "hand_back": 0,
+        "leg_front_upper": 18,
+        "leg_front_lower": -20,
+        "foot_front": 2,
+        "leg_back_upper": -20,
+        "leg_back_lower": 16,
+        "foot_back": -2,
+        "scabbard": 28,
+        "coat_tail": 45,
+        "coat_back": 40
+      }
+    },
+    {
+      "t": 0.4,
+      "root": [
+        1,
+        0
+      ],
+      "angles": {
+        "pelvis": 12,
+        "torso": 20,
+        "head": -8,
+        "arm_front_upper": -65,
+        "arm_front_lower": 40,
+        "hand_front": 0,
+        "arm_back_upper": -35,
+        "arm_back_lower": 30,
+        "hand_back": 0,
+        "scabbard": 14,
+        "coat_tail": 20,
+        "coat_back": 15
+      }
+    },
+    {
+      "t": 0.55,
+      "root": [
+        0,
+        0
+      ],
+      "angles": {
+        "pelvis": 0,
+        "torso": 0,
+        "head": 0,
+        "arm_front_upper": 0,
+        "arm_front_lower": 0,
+        "hand_front": 0,
+        "arm_back_upper": 0,
+        "arm_back_lower": 0,
+        "hand_back": 0,
+        "leg_front_upper": 0,
+        "leg_front_lower": 0,
+        "foot_front": 0,
+        "leg_back_upper": 0,
+        "leg_back_lower": 0,
+        "foot_back": 0,
+        "scabbard": 0,
+        "coat_tail": 0,
+        "coat_back": 0
+      }
+    }
+  ]
+}
