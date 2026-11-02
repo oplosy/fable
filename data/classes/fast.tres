@@ -50,5 +50,7 @@ jump_velocity = -251.0
 air_tempo = 1.05
 dive_velocity = Vector2(125, -212)
 roll_speed = 119.0
+coyote_time = 0.1
+jump_buffer = 0.1
 melee_combo = Array[ExtResource("2_attack")]([SubResource("jab"), SubResource("jab"), SubResource("jab"), SubResource("hook")])
 air_attack = SubResource("jump_kick")
