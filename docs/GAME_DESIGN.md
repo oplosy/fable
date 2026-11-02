@@ -8,6 +8,7 @@ Living list of agreed gameplay requirements. Add new items as they are decided; 
 - The game is meant to be detailed: every interaction (who can hit whom, when a weapon drops, what a kick does to a jumping fighter) is thought through and written down here, not left to chance.
 
 ## Visual Direction
+n- Fresh start (user, session 9): all asset work was dropped and starts over. The game is flat placeholder boxes on the Range; the art rules below are history until the user sets a new direction.
 
 - Mucho Pixels characters (user, session 7): the players use the free Mucho Pixels pack (about 31 px tall, three male and three female characters with three outfits each). It replaces the stick figures in the game; the two rules below for stick figures and poses describe the look the pack's clips stand in for. The pack has no kick, crouch, roll, dive or aim art, so these are built from its frames and sit one level below its own animation.
 - Temporary characters (user, session 8): the Mucho clips are frozen as temporary art. Whether final characters use a 2D skeletal rig is decided with their style at the real-assets step.
