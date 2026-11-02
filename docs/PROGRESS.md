@@ -15,9 +15,7 @@ The game is built in these steps, one at a time:
 
 ## Status (session 9)
 
-The user dropped all asset work to start it over. Removed: `assets/`, `art/`, `tools/`, the Isles, the Mucho and stick figure characters, `FrameAnimator`, the aim arm, `ItemData.art`, `MeleeAttack.animation`, `CharacterData` art fields, `test_isles`, `test_frame_animator`, `test_combat_sync` and `docs/CHARACTER_ANIMATION_SPEC.md`. The game loads the Range with `placeholder.tres` (Fast) and `dummy.tres` (Heavy) as coloured boxes; items, barrels and ladders are flat boxes. Gameplay rules did not change, except that the Fighter hand is at half the body height again. Sections below describing art, the Isles or animations are history. `test_bots` now runs on `tests/bot_course.tscn` (bridged pit, one-way platforms, ladders), since the Range is flat. Steps 2, 3 and 5 of the development order start again when the user picks a direction.
-
-Known bug: a bot cannot jump a pit with no bridge. `BotController._steer_in_air` drops the planned landing once nothing is under its feet and turns back. No current map has such a pit.
+The user dropped all asset work to start it over. Removed: `assets/`, `art/`, `tools/`, the Isles, the Mucho and stick figure characters, `FrameAnimator`, the aim arm, `ItemData.art`, `MeleeAttack.animation`, `CharacterData` art fields, `test_isles`, `test_frame_animator`, `test_combat_sync` and `docs/CHARACTER_ANIMATION_SPEC.md`. The game loads the Range with `placeholder.tres` (Fast) and `dummy.tres` (Heavy) as coloured boxes; items, barrels and ladders are flat boxes. Gameplay rules did not change, except that the Fighter hand is at half the body height again. Sections below describing art, the Isles or animations are history. `test_bots` now runs on `tests/bot_course.tscn` (a bare pit, one-way platforms, ladders), since the Range is flat. Steps 2, 3 and 5 of the development order start again when the user picks a direction.
 
 ## Status (session 8)
 
