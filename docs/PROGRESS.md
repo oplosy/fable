@@ -34,7 +34,7 @@ Ronin Street Samurai (`06_Ronin_Street_Samurai`) was selected to pioneer the per
    - *Attack placeholder box*: `_attack_placeholder` hidden on rigged characters (`_placeholder.visible == false`).
    - *Placeholder roll/dive squashing*: `_visuals.scale.y = 0.5` and `_visuals.rotation = 90°` suppressed when a rig is present (`has_rig`); the rig's own clips handle rolls, dives and downed postures.
 5. **Weapon Hand Anchor & Real Art**:
-   - `_hand.global_position` follows `rig.hand_anchor.global_position`, so weapons (firearms, knives, bats, grenades) stay anchored in the fist.
+   - `Fighter._draw_items_at` draws held items (firearms, knives, bats, grenades) on `rig.hand_anchor`; `_hand` itself stays fixed for aim and shots.
    - Real weapon sprites from `DONT-OPEN/weapons/` copied to `assets/weapons/` (pistol, smg, shotgun, sniper, knife, bat, grenade, molotov) replacing grey gradients.
 6. **Main Scene & Test Suite**:
    - Player 2 in `scenes/main.tscn` set to Ronin.
