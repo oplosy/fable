@@ -10,8 +10,8 @@ New maps, character designs and weapons will be added often, so adding content m
 
 - **Maps**: each arena is a self-contained scene under `scenes/arenas/` that owns its geometry, `SpawnPoints`, `ItemSpawns` (`ItemSpawner` nodes) and `Camera2D`. The main scene only loads an arena. A map's `camera_limits` are exactly 640x360, 1280x720 or 2560x1440 (the view at a camera zoom), and the map maker places `CameraShot` nodes (composed views at zoom 3, 1.5 or 0.75) that the camera cuts between; `test_arenas` checks every arena scene. The game loads the Range (`range.tscn`, a flat floor with measuring lines every 8 px); the test arena stays for tests. Map props (`Ladder`, barrels) are scenes under `scenes/props/` drawn as flat boxes; one-way platforms are static bodies (or tiles) with one-way collision.
 - **Bots**: a map needs no bot setup. `WalkMap` scans each arena's collision and ladders into surfaces and links, and `BotController` plays on it; `Main.bot_players` (in `main.tscn`, player 2 by default) says who is a bot. Empty it for two humans.
-- **Characters**: one shared `Fighter` scene; a character is a `CharacterData` resource under `data/characters/` (its placeholder colour and body) that points to a `FighterClass` resource under `data/classes/` (how it fights: melee combo, later class stats).
-- **Weapons**: one shared `Weapon` scene; a weapon is a `WeaponData` resource under `data/weapons/` with a flat grey placeholder texture.
+- **Characters**: one shared `Fighter` scene; a character is a `CharacterData` resource under `data/characters/` (its placeholder colour, body and optional `rig_file`) that points to a `FighterClass` resource under `data/classes/` (how it fights: melee combo, later class stats). Characters with a `rig_file` build a 2D cutout `CharacterRig` driven by `RigAnimator` keyframe clips under `assets/animations/`. Held items anchor to `CharacterRig.hand_anchor`.
+- **Weapons**: one shared `Weapon` scene; a weapon is a `WeaponData` resource under `data/weapons/` pointing to its sprite under `assets/weapons/`.
 - Prefer a new resource or scene over a new code branch when adding content.
 
 # Architecture: Code Rules
@@ -21,11 +21,12 @@ New maps, character designs and weapons will be added often, so adding content m
 - Fighters never read `Input`; a controller (local, bot, remote) provides their intent.
 - Use signals where they simplify communication; avoid unnecessary abstractions and dependencies. Use Godot's native 2D physics and animation.
 - Build one milestone at a time, run the checks after each one, and do not add features that were not requested.
+- Production and animation generation scripts live under `tools/`.
 
 # Art
 
-- **DONT-OPEN/** (user, session 5) holds everything set aside: the Docks map and its art, the street brawler and trenchcoat agent with their cutout rig code (`CharacterRig`, `RigAnimator`, `CoatMesh`) and tests, the item art, Gemini's armoured robot frames and Python tools, reference images, and the user's own drawing folders (`DONT-OPEN/characters/`, `DONT-OPEN/weapons/`, git-ignored). Godot ignores it (`.gdignore`). Never open, read, use or change anything in it unless the user asks.
-- All other art is gone (user, session 9): `assets/`, `art/` and `tools/` were removed, and everything in the game is a flat placeholder (`ColorRect` boxes, grey `GradientTexture2D` items). Art work starts over from here; the old pipelines are in git history before this change.
+- **DONT-OPEN/** (user, session 5) holds everything set aside: reference art, drawing folders (`DONT-OPEN/characters/`, `DONT-OPEN/weapons/`, git-ignored). Godot ignores it (`.gdignore`). Never open, read, use or change anything in it unless the user asks.
+- **Active Art (session 10)**: `assets/characters/ronin/` holds the 17-part cutout rig for Ronin Street Samurai; `assets/animations/` holds JSON keyframe clips; `assets/weapons/` holds pixel art for weapons and throwables. Placeholder characters (`placeholder.tres`, `dummy.tres`) continue to use `ColorRect` boxes and fallback placeholder poses.
 
 # Running Tests
 

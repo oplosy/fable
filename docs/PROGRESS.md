@@ -13,6 +13,34 @@ The game is built in these steps, one at a time:
 5. Real assets: the final characters, sprite sheets, animations, ground, props, effects and sounds.
 6. Polish and content: hit effects, hit-stop, screen shake, UI, menus, more characters, arena detail and balance.
 
+## Status (session 10)
+
+Ronin Street Samurai (`06_Ronin_Street_Samurai`) was selected to pioneer the perfected 2D skeletal rig and fluid combat animation system:
+1. **Anatomy Repair & Perfected 17-Part Rig**:
+   - Fixed missing pixels (`y=76..82`) on `leg_back_lower.png` using mannequin contour and Ronin palette; cleaned extraction specks.
+   - Segmented limbs into discrete ankle/foot joints (`foot_front`, `foot_back` with pivots at `[22, 85]` and `[40, 85]`) ensuring soles stay flat on the ground.
+   - Created discrete wrists and fists (`hand_front`, `hand_back` with `hand_anchor` at `points.hand_front`).
+   - Separated rigid katana scabbard (`scabbard.png`) from soft cloth tails (`coat_tail`, `coat_back`).
+   - Sealed all rotating joints with circular pivot caps and sockets, eliminating rotation seams and gaps.
+   - Integrated `CharacterRig` (`scenes/fighter/character_rig.gd`) into `Fighter` replacing placeholder box for characters with `rig_file`.
+2. **Dynamic Aim Articulation**:
+   - Connected mouse/keyboard crosshair aim to skeletal kinematics: head rotates 42% toward aim angle, torso arches/leans 18%, front and back arms line up along aim vector, planted feet stay flat.
+3. **RigAnimator & 27 Animation Clips**:
+   - `RigAnimator` (`scenes/fighter/rig_animator.gd`) plays JSON keyframe clips under `assets/animations/`.
+   - Locomotion speed scaling: `walk` (0.64s, 4-phase), `run` (0.40s, softened trailing leg), `crouch_walk` (0.60s) scale with movement speed.
+   - Full animation suite: `idle`, `walk`, `run`, `crouch_idle`, `crouch_walk`, `jump_rise`, `jump_apex`, `fall`, `land`, `roll`, `dive`, `jab_1`, `jab_2`, `jab_3`, `hook`, `jump_kick`, `knife_stab`, `knife_slash`, `bat_swing`, `bat_homerun`, `climb`, `cook`, `throw`, `hit_front`, `hit_back`, `down`, `getup`.
+4. **Three In-Game Bug Fixes**:
+   - *Double-punch bug*: one-shot clips (`jab_1`, `hook`, etc.) now play once per attack/combo index and do not loop or re-trigger when `is_playing()` finishes.
+   - *Attack placeholder box*: `_attack_placeholder` hidden on rigged characters (`_placeholder.visible == false`).
+   - *Placeholder roll/dive squashing*: `_visuals.scale.y = 0.5` and `_visuals.rotation = 90°` suppressed when a rig is present (`has_rig`); the rig's own clips handle rolls, dives and downed postures.
+5. **Weapon Hand Anchor & Real Art**:
+   - `_hand.global_position` follows `rig.hand_anchor.global_position`, so weapons (firearms, knives, bats, grenades) stay anchored in the fist.
+   - Real weapon sprites from `DONT-OPEN/weapons/` copied to `assets/weapons/` (pistol, smg, shotgun, sniper, knife, bat, grenade, molotov) replacing grey gradients.
+6. **Main Scene & Test Suite**:
+   - Player 2 in `scenes/main.tscn` set to Ronin.
+   - Created `test_combat_sync.gd` to test and guarantee hit window alignment with strike extension.
+   - All tests pass (`test_ronin_rig`, `test_ronin_gameplay`, `test_ronin_locomotion`, `test_ronin_actions`, `test_combat_sync`, `test_weapons`, `test_main`, etc.).
+
 ## Status (session 9)
 
 The user dropped all asset work to start it over. Removed: `assets/`, `art/`, `tools/`, the Isles, the Mucho and stick figure characters, `FrameAnimator`, the aim arm, `ItemData.art`, `MeleeAttack.animation`, `CharacterData` art fields, `test_isles`, `test_frame_animator`, `test_combat_sync` and `docs/CHARACTER_ANIMATION_SPEC.md`. The game loads the Range with `placeholder.tres` (Fast) and `dummy.tres` (Heavy) as coloured boxes; items, barrels and ladders are flat boxes. Gameplay rules did not change, except that the Fighter hand is at half the body height again. Sections below describing art, the Isles or animations are history. `test_bots` now runs on `tests/bot_course.tscn` (a bare pit, one-way platforms, ladders), since the Range is flat. Steps 2, 3 and 5 of the development order start again when the user picks a direction.
