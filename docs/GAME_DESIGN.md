@@ -44,7 +44,8 @@ Every fighter has four slots:
 
 ## Firearm Handling and Aiming
 
-- No mouse aiming and no separate aim mode or aim key.
+- Two aim mechanics (user, session 9; was keyboard only): keyboard (W/S turn the aim gradually) or mouse, chosen in the Esc menu per install, keyboard by default. No separate aim mode or aim key.
+- Mouse aim is for player 1 only (there is one mouse). While a firearm or throwable is ready, the aim goes straight at the mouse and the fighter turns to the mouse's side of its body. Left click attacks as well as the attack key. W and S keep their other jobs (ladders, roll, swap) but do not aim. A ring marks the mouse in place of the system cursor; the crosshair square still shows where a shot would land. While moving, A/D set the facing as usual.
 - With the firearm slot active and the fighter standing still, the firearm is drawn in hand; pressing attack fires it.
 - Left/right (A/D) always move the fighter. While moving, the firearm is put away and the run/walk animation plays; when the fighter stops, the firearm is drawn again because the firearm slot is still active. No firing while moving.
 - A faces the fighter left, D faces it right.
@@ -101,7 +102,7 @@ Open question (session 4): walk speed against the walk animation. The walk clip 
 
 ## Controls
 
-Player 1 (defaults): A/D move (double tap runs), C crouch, W/S aim (S rolls while running), Space jump (user decision, session 3; was K), J attack (J + Space together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
+Player 1 (defaults): A/D move (double tap runs), C crouch, W/S aim in keyboard mode (S rolls while running), mouse and left click in mouse mode, Space jump (user decision, session 3; was K), J attack (J + Space together breaks a combo), 1-4 select slot (empty slots cannot be selected). Each local player gets its own `pN_` action set.
 
 Player 2 (defaults): Left/Right arrows move (double tap runs), Right Ctrl crouch, Up/Down arrows aim, / jump, . (Period) attack, 7-0 select slot.
 
