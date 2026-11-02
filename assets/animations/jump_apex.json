@@ -1,87 +1,60 @@
 {
   "name": "jump_apex",
   "loop": false,
-  "length": 0.2,
+  "length": 0.22,
   "keys": [
     {
       "t": 0.0,
       "root": [
         0,
-        -1
+        -5
       ],
       "angles": {
-        "pelvis": 1,
-        "torso": -4,
-        "head": -5,
-        "leg_front_upper": -20,
-        "leg_front_lower": 30,
-        "foot_front": -10,
-        "leg_back_upper": -12,
-        "leg_back_lower": 35,
-        "foot_back": -15,
-        "arm_front_upper": -25,
-        "arm_front_lower": 0,
+        "pelvis": 6,
+        "torso": 8,
+        "head": -8,
+        "arm_front_upper": -92,
+        "arm_front_lower": -34,
         "hand_front": 0,
-        "arm_back_upper": -20,
-        "arm_back_lower": 0,
+        "arm_back_upper": 70,
+        "arm_back_lower": -30,
         "hand_back": 0,
-        "scabbard": -8,
-        "coat_tail": -10,
-        "coat_back": -8
-      }
-    },
-    {
-      "t": 0.1,
-      "root": [
-        0,
-        0
-      ],
-      "angles": {
-        "pelvis": 0,
-        "torso": 0,
-        "head": 0,
-        "leg_front_upper": -10,
-        "leg_front_lower": 18,
-        "foot_front": -5,
-        "leg_back_upper": -5,
-        "leg_back_lower": 20,
+        "leg_front_upper": -78,
+        "leg_front_lower": 92,
+        "foot_front": -6,
+        "leg_back_upper": -42,
+        "leg_back_lower": 84,
         "foot_back": -8,
-        "arm_front_upper": -10,
-        "arm_front_lower": 10,
-        "hand_front": 0,
-        "arm_back_upper": 10,
-        "arm_back_lower": 15,
-        "hand_back": 0,
-        "scabbard": 0,
-        "coat_tail": 4,
-        "coat_back": -2
+        "scabbard": -4,
+        "coat_tail": 34,
+        "coat_back": 30
       }
     },
     {
-      "t": 0.2,
+      "t": 0.22,
       "root": [
         0,
-        0
+        -5
       ],
       "angles": {
-        "pelvis": 0,
-        "torso": 2,
-        "head": 2,
-        "leg_front_upper": 0,
-        "leg_front_lower": 10,
-        "foot_front": 0,
-        "leg_back_upper": 4,
-        "leg_back_lower": 12,
-        "foot_back": 0,
-        "arm_front_upper": 5,
-        "arm_front_lower": 12,
+        "pelvis": 4,
+        "torso": 6,
+        "head": -2,
+        "arm_front_upper": -104,
+        "arm_front_lower": -30,
         "hand_front": 0,
-        "arm_back_upper": 15,
-        "arm_back_lower": 15,
+        "arm_back_upper": 84,
+        "arm_back_lower": -26,
         "hand_back": 0,
-        "scabbard": 4,
-        "coat_tail": 12,
-        "coat_back": 8
+        "leg_front_upper": -70,
+        "leg_front_lower": 84,
+        "foot_front": -2,
+        "leg_back_upper": -34,
+        "leg_back_lower": 76,
+        "foot_back": -4,
+        "scabbard": -8,
+        "coat_tail": 46,
+        "coat_back": 42
       }
     }
   ]

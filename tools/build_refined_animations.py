@@ -793,6 +793,143 @@ new_and_refined = {
     }
 }
 
+# Legs of a planted pose: the angles that keep a foot flat at its rest place plus
+# (dx, dy) art px, with the knee forward, while the body sits at `root`.
+def leg(side, root, dx=0.0, dy=0.0):
+    upper, lower, foot = f"leg_{side}_upper", f"leg_{side}_lower", f"foot_{side}"
+    hip, knee, ankle = pivots[upper], pivots[lower], pivots[foot]
+    thigh = (knee[0] - hip[0], knee[1] - hip[1])
+    shin = (ankle[0] - knee[0], ankle[1] - knee[1])
+    thigh_length, shin_length = math.hypot(*thigh), math.hypot(*shin)
+    to_x = ankle[0] + dx - hip[0] - root[0]
+    to_y = ankle[1] + dy - hip[1] - root[1]
+    distance = min(math.hypot(to_x, to_y), thigh_length + shin_length - 0.01)
+    base = math.atan2(to_y, to_x)
+    bend = math.acos(max(-1.0, min(1.0, (thigh_length ** 2 + distance ** 2 - shin_length ** 2) / (2 * thigh_length * distance))))
+    thigh_angle = base - bend
+    knee_x, knee_y = thigh_length * math.cos(thigh_angle), thigh_length * math.sin(thigh_angle)
+    foot_x, foot_y = distance * math.cos(base), distance * math.sin(base)
+    shin_angle = math.atan2(foot_y - knee_y, foot_x - knee_x)
+    upper_turn = thigh_angle - math.atan2(thigh[1], thigh[0])
+    lower_turn = shin_angle - math.atan2(shin[1], shin[0]) - upper_turn
+    return {
+        upper: round(math.degrees(upper_turn), 1),
+        lower: round(math.degrees(lower_turn), 1),
+        foot: round(-math.degrees(upper_turn + lower_turn), 1),
+    }
+
+
+def key(t, root, front=None, back=None, **angles):
+    pose = dict(angles)
+    pose.update(front or {})
+    pose.update(back or {})
+    return {"t": t, "root": list(root), "angles": pose}
+
+
+def clip(name, length, loop, keys, **extra):
+    return {"name": name, "loop": loop, "length": length, "keys": keys, **extra}
+
+
+def crouch_pose(t, root, front_foot, back_foot, sway=0):
+    return key(t, root, leg("front", root, *front_foot), leg("back", root, *back_foot),
+               pelvis=0, torso=18 + sway, head=-16 - sway,
+               arm_front_upper=-32, arm_front_lower=-68, hand_front=0,
+               arm_back_upper=-18, arm_back_lower=-74, hand_back=0,
+               scabbard=-12, coat_tail=6, coat_back=8)
+
+
+# 3. Jump in three clear stages and a landing that sinks deep and springs back
+SQUAT = (0, 22)
+LAND_DEEP = (0, 24)
+new_and_refined.update({
+    "crouch_idle": clip("crouch_idle", 0.8, True, [
+        crouch_pose(0.0, SQUAT, (5, 0), (-5, 0)),
+        crouch_pose(0.4, (0, 23), (5, 0), (-5, 0), 2),
+        crouch_pose(0.8, SQUAT, (5, 0), (-5, 0)),
+    ]),
+    "crouch_walk": clip("crouch_walk", 0.6, True, [
+        crouch_pose(0.0, SQUAT, (6, 0), (-6, 0)),
+        crouch_pose(0.15, (0, 21), (0, 0), (0, -4), 2),
+        crouch_pose(0.3, SQUAT, (-6, 0), (6, 0)),
+        crouch_pose(0.45, (0, 21), (0, -4), (0, 0), 2),
+        crouch_pose(0.6, SQUAT, (6, 0), (-6, 0)),
+    ], reference_speed=60.0),
+    # Rising: the whole body one long line, arms thrown up, toes pointing down.
+    "jump_rise": clip("jump_rise", 0.3, False, [
+        key(0.0, (0, -3), pelvis=-2, torso=-6, head=-14,
+            arm_front_upper=-150, arm_front_lower=-8, hand_front=0,
+            arm_back_upper=-125, arm_back_lower=-14, hand_back=0,
+            leg_front_upper=-6, leg_front_lower=10, foot_front=34,
+            leg_back_upper=14, leg_back_lower=16, foot_back=38,
+            scabbard=14, coat_tail=10, coat_back=8),
+        key(0.3, (0, -4), pelvis=-1, torso=-4, head=-12,
+            arm_front_upper=-138, arm_front_lower=-14, hand_front=0,
+            arm_back_upper=-112, arm_back_lower=-20, hand_back=0,
+            leg_front_upper=-16, leg_front_lower=24, foot_front=30,
+            leg_back_upper=10, leg_back_lower=26, foot_back=34,
+            scabbard=10, coat_tail=16, coat_back=14),
+    ]),
+    # The top of the jump: knees tucked up, arms open, the coat floating out.
+    "jump_apex": clip("jump_apex", 0.22, False, [
+        key(0.0, (0, -5), pelvis=6, torso=8, head=-8,
+            arm_front_upper=-92, arm_front_lower=-34, hand_front=0,
+            arm_back_upper=70, arm_back_lower=-30, hand_back=0,
+            leg_front_upper=-78, leg_front_lower=92, foot_front=-6,
+            leg_back_upper=-42, leg_back_lower=84, foot_back=-8,
+            scabbard=-4, coat_tail=34, coat_back=30),
+        key(0.22, (0, -5), pelvis=4, torso=6, head=-2,
+            arm_front_upper=-104, arm_front_lower=-30, hand_front=0,
+            arm_back_upper=84, arm_back_lower=-26, hand_back=0,
+            leg_front_upper=-70, leg_front_lower=84, foot_front=-2,
+            leg_back_upper=-34, leg_back_lower=76, foot_back=-4,
+            scabbard=-8, coat_tail=46, coat_back=42),
+    ]),
+    # Falling: legs reaching for the floor, arms up and shaking, the coat blown upward.
+    "fall": clip("fall", 0.3, True, [
+        key(0.0, (0, -2), pelvis=-3, torso=-8, head=14,
+            arm_front_upper=-128, arm_front_lower=-24, hand_front=0,
+            arm_back_upper=124, arm_back_lower=26, hand_back=0,
+            leg_front_upper=-18, leg_front_lower=20, foot_front=-2,
+            leg_back_upper=20, leg_back_lower=12, foot_back=-6,
+            scabbard=-18, coat_tail=66, coat_back=60),
+        key(0.15, (0, -2), pelvis=-3, torso=-7, head=16,
+            arm_front_upper=-142, arm_front_lower=-14, hand_front=0,
+            arm_back_upper=136, arm_back_lower=18, hand_back=0,
+            leg_front_upper=-22, leg_front_lower=26, foot_front=-4,
+            leg_back_upper=24, leg_back_lower=16, foot_back=-8,
+            scabbard=-22, coat_tail=78, coat_back=72),
+        key(0.3, (0, -2), pelvis=-3, torso=-8, head=14,
+            arm_front_upper=-128, arm_front_lower=-24, hand_front=0,
+            arm_back_upper=124, arm_back_lower=26, hand_back=0,
+            leg_front_upper=-18, leg_front_lower=20, foot_front=-2,
+            leg_back_upper=20, leg_back_lower=12, foot_back=-6,
+            scabbard=-18, coat_tail=66, coat_back=60),
+    ]),
+    # Hits the floor already sunk in, hangs there a moment, then springs up.
+    "land": clip("land", 0.26, False, [
+        key(0.0, LAND_DEEP, leg("front", LAND_DEEP, 8), leg("back", LAND_DEEP, -8),
+            pelvis=0, torso=36, head=-24,
+            arm_front_upper=-58, arm_front_lower=-12, hand_front=0,
+            arm_back_upper=58, arm_back_lower=-16, hand_back=0,
+            scabbard=-22, coat_tail=44, coat_back=38),
+        key(0.09, LAND_DEEP, leg("front", LAND_DEEP, 8), leg("back", LAND_DEEP, -8),
+            pelvis=0, torso=32, head=-20,
+            arm_front_upper=-44, arm_front_lower=-18, hand_front=0,
+            arm_back_upper=44, arm_back_lower=-20, hand_back=0,
+            scabbard=-14, coat_tail=20, coat_back=16),
+        key(0.2, (0, 4), leg("front", (0, 4), 4), leg("back", (0, 4), -4),
+            pelvis=0, torso=6, head=-4,
+            arm_front_upper=-10, arm_front_lower=-8, hand_front=0,
+            arm_back_upper=8, arm_back_lower=-8, hand_back=0,
+            scabbard=4, coat_tail=8, coat_back=6),
+        key(0.26, (0, 0), leg("front", (0, 0)), leg("back", (0, 0)),
+            pelvis=0, torso=0, head=0,
+            arm_front_upper=0, arm_front_lower=0, hand_front=0,
+            arm_back_upper=0, arm_back_lower=0, hand_back=0,
+            scabbard=0, coat_tail=0, coat_back=0),
+    ]),
+})
+
 # Usage: python tools/build_refined_animations.py [clip ...] [--review]
 # Names clips to build (default all). --review also renders contact sheets (slow).
 wanted = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
