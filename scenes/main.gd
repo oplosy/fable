@@ -29,7 +29,7 @@ func _ready() -> void:
 	KeyBindings.load_saved()
 	GameSettings.load_saved()
 	add_child(SettingsMenu.new())
-	add_child(MouseReticle.new())
+	add_child(MouseCursor.new())
 	if OS.is_debug_build():
 		var tuning := TuningPanel.new()
 		tuning.source = func() -> FighterClass: return players[0].fighter_class if not players.is_empty() and is_instance_valid(players[0]) else null
