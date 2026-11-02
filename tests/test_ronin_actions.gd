@@ -65,6 +65,7 @@ func run() -> void:
 	# Wait to land
 	await physics_frames(30)
 	check(fighter.is_on_floor(), "Landed on floor")
+	await physics_frames(int(Fighter.LANDING_TIME * 60) + 15)
 	check(animator.assigned_animation == "idle", "Returns to idle after landing")
 	
 	# 4. Melee Combo: Jab 1 -> Jab 2 -> Jab 3 -> Hook
