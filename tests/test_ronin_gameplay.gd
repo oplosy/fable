@@ -31,7 +31,7 @@ func run() -> void:
 	check(is_equal_approx(fighter.aim_angle, -PI / 2.0), "Aim reaches straight up (-PI/2: %.2f)" % fighter.aim_angle)
 	check(rig.joints.head.rotation < -0.5, "Head tilts up (%.2f rad)" % rig.joints.head.rotation)
 	check(rig.joints.torso.rotation < -0.2, "Torso arches back (%.2f rad)" % rig.joints.torso.rotation)
-	check(rig.joints.arm_front_upper.rotation < -0.8, "Arm points up (%.2f rad)" % rig.joints.arm_front_upper.rotation)
+	check(rig.hand_anchor.global_position.y < fighter.get_node("Visuals/Hand").global_position.y + 1.5, "The fist is up at the aimed hand")
 	
 	# Fire upward
 	input.attack = true
@@ -47,7 +47,7 @@ func run() -> void:
 	check(is_equal_approx(fighter.aim_angle, PI / 2.0), "Aim reaches straight down (+PI/2: %.2f)" % fighter.aim_angle)
 	check(rig.joints.head.rotation > 0.5, "Head tilts down (%.2f rad)" % rig.joints.head.rotation)
 	check(rig.joints.torso.rotation > 0.2, "Torso leans down (%.2f rad)" % rig.joints.torso.rotation)
-	check(rig.joints.arm_front_upper.rotation > 0.8, "Arm points down (%.2f rad)" % rig.joints.arm_front_upper.rotation)
+	check(rig.hand_anchor.global_position.y > fighter.get_node("Visuals/Hand").global_position.y - 1.5, "The fist is down at the aimed hand")
 	
 	# 3. Dynamic Mouse Aiming (Instant crosshair tracking)
 	input.aim = 0.0
@@ -59,8 +59,7 @@ func run() -> void:
 	check(rig.joints.head.rotation < -0.5, "Head follows mouse up (%.2f rad)" % rig.joints.head.rotation)
 	
 	# Aim at point forward-level
-	var hand_pos: Vector2 = fighter.get_node("Visuals/Hand").global_position
-	input.aim_point = hand_pos + Vector2(100, 0)
+	input.aim_point = fighter.aim_origin() + Vector2(100, 0)
 	await physics_frames(2)
 	check(is_zero_approx(fighter.aim_angle), "Mouse aim points forward level (%.2f rad)" % fighter.aim_angle)
 	check(is_zero_approx(rig.joints.head.rotation), "Head levels with mouse (%.2f rad)" % rig.joints.head.rotation)

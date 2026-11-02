@@ -12,10 +12,15 @@ const BLEND := 0.1
 const SNAP := 0.03
 const STILL_SPEED := 5.0
 const LANDING_ROLL_STATES: Array[Fighter.State] = [Fighter.State.IDLE, Fighter.State.WALK, Fighter.State.RUN, Fighter.State.CROUCH, Fighter.State.AIM]
+## Fall or rise speed (world px/s) of the full stretch.
+const FULL_STRETCH_SPEED := 450.0
+const MAX_STRETCH := 0.1
+const MAX_SQUASH := 0.24
 
 var fighter: Fighter
 var _rig: CharacterRig
 var _leg_scale := 1.0
+var _rest_scale := Vector2.ONE
 var _reference_speeds := {}
 var _last_state := -1
 ## Seconds left of the roll a dive lands into.
@@ -27,6 +32,7 @@ var _last_attack_active := false
 func setup(target: Fighter, rig: CharacterRig) -> void:
 	fighter = target
 	_rig = rig
+	_rest_scale = rig.scale
 	_leg_scale = rig.leg_length() / REFERENCE_LEG_LENGTH
 	root_node = get_path_to(rig)
 	callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
@@ -43,12 +49,33 @@ func setup(target: Fighter, rig: CharacterRig) -> void:
 func _physics_process(delta: float) -> void:
 	_choose_clip()
 	advance(delta)
+	if not is_instance_valid(fighter):
+		return
+	_stretch()
+	fighter.pose_held_items(_rig, fighter.state() == Fighter.State.AIM)
+
+
+## Stretches the body with its speed in the air and squashes it into the floor on landing.
+func _stretch() -> void:
+	var amount := 0.0
+	if fighter.state() == Fighter.State.AIR:
+		amount = minf(absf(fighter.velocity.y) / FULL_STRETCH_SPEED, 1.0) * MAX_STRETCH
+	elif fighter._landing_time > 0.0:
+		amount = -MAX_SQUASH * fighter._landing_time / Fighter.LANDING_TIME
+	_rig.scale = _rest_scale * Vector2(1.0 - amount, 1.0 + amount)
+
+
+## An item is aimed standing still, so the legs under it idle or crouch.
+func _state_of_legs(state: Fighter.State) -> Fighter.State:
+	if state != Fighter.State.AIM:
+		return state
+	return Fighter.State.CROUCH if fighter.is_crouching() else Fighter.State.IDLE
 
 
 func _choose_clip() -> void:
 	if not is_instance_valid(fighter) or _rig == null:
 		return
-	var state := fighter.state()
+	var state := _state_of_legs(fighter.state())
 	var clip := ""
 	var blend := BLEND
 	var speed := 1.0
@@ -146,8 +173,6 @@ func _choose_clip() -> void:
 	elif state == Fighter.State.IDLE:
 		clip = "idle"
 		blend = BLEND
-	elif state == Fighter.State.AIM:
-		clip = ""
 
 	if clip == "dive":
 		speed = get_animation(clip).length / fighter.fighter_class.air_time(fighter.fighter_class.dive_velocity.y)
@@ -172,7 +197,6 @@ func _choose_clip() -> void:
 	_last_attack_active = false
 	_last_combo_index = -1
 	_current_clip = ""
-	# If no clip, stop playing and let idle/aim IK take over
 	if is_playing():
 		stop()
 		_rig.reset_pose()

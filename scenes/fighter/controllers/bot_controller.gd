@@ -103,7 +103,8 @@ func _fight(target: Fighter, delta: float) -> bool:
 	var gun := fighter.inventory.firearm
 	if gun == null or absf(to_target.x) < GUN_MIN_RANGE or to_target.length() > gun.data.projectile_range * GUN_RANGE or not sees:
 		return false
-	var angle := atan2(to_target.y, absf(to_target.x))
+	var line: Vector2 = target.center() - fighter.aim_origin()
+	var angle := atan2(line.y, absf(line.x))
 	# Up or down at a ladder would grab it instead of aiming.
 	if absf(angle - fighter.aim_angle) > AIM_TOLERANCE and _at_ladder():
 		return false

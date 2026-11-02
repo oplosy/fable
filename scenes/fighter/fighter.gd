@@ -20,6 +20,8 @@ signal hit_taken
 
 ## Seconds a hit keeps its attacker credited, so a fall soon after a push still counts.
 const KILL_CREDIT_TIME := 5.0
+## Seconds the landing shows; the landing never holds the fighter back.
+const LANDING_TIME := 0.26
 
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).
@@ -43,6 +45,8 @@ var _down_time := 0.0
 var _getup_invulnerable := 0.0
 var _roll_time := 0.0
 var _landing_time := 0.0
+## How fast it was falling on the last airborne frame, for the dust of the landing.
+var _fall_speed := 0.0
 var _throw_time := 0.0
 var _diving := false
 ## The fighter whose melee hit caused the current stun; the combo breaker pushes it back.
@@ -60,7 +64,7 @@ var _crouching := false
 var _flash_tween: Tween
 var _stand_shape: RectangleShape2D
 var _crouch_shape: RectangleShape2D
-var _stand_hand_y: float
+var _rest_hand: Vector2
 ## Shows the held throwable; hit detection never uses it.
 var _throwable_sprite: Sprite2D
 var _crosshair := Crosshair.new()
@@ -111,7 +115,7 @@ func _ready() -> void:
 	_crouch_shape.size = Vector2(_stand_shape.size.x, _stand_shape.size.y / 2.0)
 	_placeholder.offset_left = -_stand_shape.size.x / 2.0
 	_placeholder.offset_right = _stand_shape.size.x / 2.0
-	_stand_hand_y = -_stand_shape.size.y * 0.5
+	_rest_hand = Vector2(_hand.position.x, -_stand_shape.size.y * 0.5)
 	# Starts "crouched" so the call below applies the standing shape, hand and look.
 	_crouching = true
 	_set_crouching(false)
@@ -194,7 +198,7 @@ func _set_crouching(crouching: bool) -> void:
 	var shape := _crouch_shape if crouching else _stand_shape
 	_body_shape.shape = shape
 	_body_shape.position.y = -shape.size.y / 2.0
-	_hand.position.y = _stand_hand_y * shape.size.y / _stand_shape.size.y
+	_place_hand(false)
 	# Placeholder look; the hand is resized above rather than squashing the weapon sprite.
 	_placeholder.offset_top = -shape.size.y
 
@@ -202,6 +206,11 @@ func _set_crouching(crouching: bool) -> void:
 ## Middle of the body's hit shape (standing or crouched).
 func center() -> Vector2:
 	return _body_shape.global_position
+
+
+## Where shots line up from: the point the aim turns around.
+func aim_origin() -> Vector2:
+	return _visuals.to_global(_aim_center())
 
 
 ## The body's current (standing or crouched) collision shape node.
@@ -406,10 +415,14 @@ func _physics_process(delta: float) -> void:
 
 	if is_on_floor():
 		if _since_floor > 0.05 and velocity.y >= 0.0 and not is_rolling() and not _diving:
-			_landing_time = 0.12
+			_landing_time = LANDING_TIME
+			if _fall_speed >= LandingDust.MIN_FALL_SPEED:
+				LandingDust.spawn(get_parent(), global_position, _fall_speed)
 		_since_floor = 0.0
+		_fall_speed = 0.0
 	else:
 		_since_floor += delta
+		_fall_speed = maxf(velocity.y, 0.0)
 	_jump_buffered = fighter_class.jump_buffer if controller.jump and not broke else maxf(_jump_buffered - delta, 0.0)
 
 	if is_climbing() and (not unlocked or controller.jump or controller.move != 0.0):
@@ -485,7 +498,6 @@ func _physics_process(delta: float) -> void:
 	# A cooking item stays in hand even if a hit knocks the fighter out of the ready stance.
 	var throwable_ready := is_throwable_drawn() or thrower.is_cooking()
 	var was_cooking := thrower.is_cooking()
-	var rig := _visuals.get_node_or_null("Rig") as CharacterRig
 	if is_firearm_drawn() or throwable_ready:
 		if controller.aim_at_point:
 			_aim_at(controller.aim_point)
@@ -493,13 +505,9 @@ func _physics_process(delta: float) -> void:
 			aim_angle = clampf(aim_angle + controller.aim * deg_to_rad(fighter_class.aim_speed_degrees) * delta, -PI / 2.0, PI / 2.0)
 		# Visuals are mirrored by facing, so the same local angle points into the facing half.
 		_hand.rotation = aim_angle
-		if rig:
-			rig.apply_aim(aim_angle, _crouching)
-	elif rig and can_act():
-		rig.reset_pose()
-
-	if rig and rig.hand_anchor:
-		_draw_items_at(rig.hand_anchor, is_firearm_drawn() or throwable_ready)
+		_place_hand(true)
+	else:
+		_place_hand(false)
 
 	ItemData.show_on(_throwable_sprite, thrower.item)
 	_throwable_sprite.visible = throwable_ready
@@ -570,6 +578,36 @@ func _let_go() -> void:
 	_update_pose()
 
 
+## Called once the clip has posed the rig: `aim_over_clip` puts the arms on a drawn item, then
+## the held items go on the fist.
+func pose_held_items(rig: CharacterRig, aim_over_clip: bool) -> void:
+	var aiming := is_firearm_drawn() or is_throwable_drawn() or thrower.is_cooking()
+	if aiming and aim_over_clip:
+		rig.apply_aim(aim_angle, rig.transform.affine_inverse() * _hand.position, _crouching)
+	if rig.hand_anchor:
+		_draw_items_at(rig.hand_anchor, aiming)
+
+
+## Puts the hand at its resting place, or on the aim's circle around the shoulder. Both are
+## fixed points of the body, so shots never depend on the animation.
+func _place_hand(aiming: bool) -> void:
+	_hand.position = _rest_hand * Vector2(1.0, _crouch_scale())
+	if aiming and character and character.aim_reach > 0.0:
+		_hand.position = _aim_center() + Vector2.from_angle(aim_angle) * character.aim_reach
+
+
+## The point the aim turns around, on the visuals.
+func _aim_center() -> Vector2:
+	if character == null or character.aim_reach <= 0.0:
+		return _hand.position
+	return character.aim_shoulder_crouched if _crouching else character.aim_shoulder
+
+
+## The body's height now against standing.
+func _crouch_scale() -> float:
+	return (_body_shape.shape as RectangleShape2D).size.y / _stand_shape.size.y
+
+
 ## Draws the held items on the rig's fist. Only the pictures move: `_hand` stays the fixed
 ## point aim, shots and throws start from, so they never depend on the animation. An aimed
 ## item keeps the aim's angle; otherwise it turns with the fist.
@@ -592,7 +630,7 @@ func _aim_at(point: Vector2) -> void:
 	if side != 0.0:
 		facing = 1 if side > 0.0 else -1
 		_visuals.scale.x = facing
-	var offset := point - _hand.global_position
+	var offset := point - aim_origin()
 	if not offset.is_zero_approx():
 		aim_angle = atan2(offset.y, maxf(offset.x * facing, 0.0))
 

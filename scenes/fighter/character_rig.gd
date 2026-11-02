@@ -30,6 +30,14 @@ const PARTS := [
 ## Parts a character may leave out of its rig.json.
 const OPTIONAL := ["coat_back", "coat_tail", "foot_back", "foot_front", "hand_back", "hand_front", "scabbard"]
 
+## How much of the aim's angle the torso and the head turn with.
+const AIM_TORSO_SHARE := 0.18
+const AIM_HEAD_SHARE := 0.42
+## Radians the torso bows forward while crouching and aiming.
+const CROUCH_LEAN := 0.28
+## How far along the barrel the back hand holds the gun, art px.
+const BACK_HAND_LEAD := 6.0
+
 ## Part name -> the node it rotates around its joint.
 var joints := {}
 ## rig.json "points" (hand_front, hand_back, head_top) in art pixels on the canvas.
@@ -111,37 +119,39 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 	return true
 
 
-## Dynamically articulates the skeleton towards the aim angle (-PI/2 up to +PI/2 down).
-## Head, torso, shoulders, arms, hands, and scabbard participate harmoniously.
-func apply_aim(aim_angle: float, is_crouching: bool = false) -> void:
-	if joints.has("torso"):
-		joints.torso.rotation = aim_angle * 0.18
-	if joints.has("head"):
-		joints.head.rotation = aim_angle * 0.42
-	if joints.has("scabbard") and joints.has("torso"):
-		joints.scabbard.rotation = joints.torso.rotation * 0.5
-	
-	# Front arm aiming along the aim vector
-	if joints.has("arm_front_upper"):
-		joints.arm_front_upper.rotation = aim_angle * 0.60
-	if joints.has("arm_front_lower"):
-		joints.arm_front_lower.rotation = aim_angle * 0.30
-	if joints.has("hand_front"):
-		joints.hand_front.rotation = aim_angle * 0.10
-		
-	# Back arm providing two-handed support
-	if joints.has("arm_back_upper"):
-		joints.arm_back_upper.rotation = aim_angle * 0.50
-	if joints.has("arm_back_lower"):
-		joints.arm_back_lower.rotation = aim_angle * 0.25
-	if joints.has("hand_back"):
-		joints.hand_back.rotation = aim_angle * 0.15
+## Lays the aim over the current clip: both arms reach for the gun, the front fist on
+## `fist` (rig space, art px) and the back hand further along the barrel. The legs keep
+## playing the clip.
+func apply_aim(aim_angle: float, fist: Vector2, is_crouching := false) -> void:
+	var lean := CROUCH_LEAN if is_crouching else 0.0
+	joints.torso.rotation = aim_angle * AIM_TORSO_SHARE + lean
+	joints.head.rotation = aim_angle * AIM_HEAD_SHARE - lean
+	_reach("front", fist)
+	_reach("back", fist + Vector2.from_angle(aim_angle) * BACK_HAND_LEAD)
 
-	# Ensure planted feet stay flat on floor
-	if joints.has("foot_front") and joints.has("leg_front_lower"):
-		joints.foot_front.rotation = -joints.leg_front_lower.rotation
-	if joints.has("foot_back") and joints.has("leg_back_lower"):
-		joints.foot_back.rotation = -joints.leg_back_lower.rotation
+
+## Bends one arm so its hand point lands on `target` (rig space, art px), or as near as the
+## arm reaches. The elbow bends towards the floor when aiming ahead.
+func _reach(side: String, target: Vector2) -> void:
+	var upper_name := "arm_%s_upper" % side
+	var lower_name := "arm_%s_lower" % side
+	var hand_name := "hand_%s" % side
+	var upper: Node2D = joints[upper_name]
+	var lower: Node2D = joints[lower_name]
+	if joints.has(hand_name):
+		joints[hand_name].rotation = 0.0
+	var elbow_rest: Vector2 = pivots[lower_name] - pivots[upper_name]
+	var hand_rest: Vector2 = points[hand_name] - pivots[lower_name]
+	var upper_length := elbow_rest.length()
+	var lower_length := hand_rest.length()
+	var to_target: Vector2 = (upper.get_parent() as Node2D).to_local(to_global(target)) - upper.position
+	var distance := clampf(to_target.length(), absf(upper_length - lower_length) + 0.01, upper_length + lower_length - 0.01)
+	var bend := acos(clampf((upper_length * upper_length + distance * distance - lower_length * lower_length) / (2.0 * upper_length * distance), -1.0, 1.0))
+	var upper_angle := to_target.angle() + bend
+	var elbow := Vector2.from_angle(upper_angle) * upper_length
+	var hand := Vector2.from_angle(to_target.angle()) * distance
+	upper.rotation = wrapf(upper_angle - elbow_rest.angle(), -PI, PI)
+	lower.rotation = wrapf((hand - elbow).angle() - hand_rest.angle() - upper.rotation, -PI, PI)
 
 
 ## Resets all joints to their standing rest pose angles.
