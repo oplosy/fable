@@ -55,7 +55,7 @@ Every fighter has four slots:
 ## Firearm Handling and Aiming
 
 - Two aim mechanics (user, session 9; was keyboard only): keyboard (W/S turn the aim gradually) or mouse, chosen in the Esc menu per install, keyboard by default. No separate aim mode or aim key.
-- Mouse aim is for player 1 only (there is one mouse). While a firearm or throwable is ready, the aim goes straight at the mouse and the fighter turns to the mouse's side of its body. Left click attacks as well as the attack key. W and S keep their other jobs (ladders, roll, swap) but do not aim. A ring marks the mouse in place of the system cursor; the crosshair square still shows where a shot would land. While moving, A/D set the facing as usual.
+- Mouse aim is for player 1 only (there is one mouse). While a firearm or throwable is ready, the aim goes straight at the mouse and the fighter turns to the mouse's side of its body. Left click attacks as well as the attack key. W and S keep their other jobs (ladders, roll, swap) but do not aim. The system cursor is hidden and only the crosshair square shows the aim (user: no ring). While moving, A/D set the facing as usual.
 - With the firearm slot active and the fighter standing still, the firearm is drawn in hand; pressing attack fires it.
 - Left/right (A/D) always move the fighter. While moving, the firearm is put away and the run/walk animation plays; when the fighter stops, the firearm is drawn again because the firearm slot is still active. No firing while moving.
 - A faces the fighter left, D faces it right.
@@ -289,4 +289,4 @@ Build order is open; shotgun, SMG, sniper rifle, knife, baseball bat, grenade an
 - The main scene spawns player 1 (Fast, keys) and a bot (Heavy), both with a pistol and 3 grenades, and goes straight into a deathmatch; there is no mode or map menu yet.
 - Death and knockdown are placeholders (the rectangle rotates); the real animations come with sprites.
 - Animations will be driven by `Fighter.state()` / `state_changed` (IDLE, WALK, RUN, CROUCH, AIR, AIM, COOK, ATTACK, STUN, DIVE, ROLL, DOWN, DEAD, highest priority first); stance details such as crouching, aim angle, held item and combo index are read separately.
-- Weapon range (user, session 4): bullets disappear and the crosshair stops at `WeaponData.projectile_range` when nothing is in the way. Pistol, shotgun and SMG 150 px, rifle (not built) 250 px, sniper 500 px (user; 970 was far too long, then 220 from their sketch). The shotgun was 180.
+- Weapon range (user, session 10, replaces session 4): bullets fly on until they hit something; only the crosshair stops at `WeaponData.projectile_range` when nothing is in the way. Past that range a fighter is hit with chance range/distance (half at twice the range). Pistol, shotgun and SMG 150 px, rifle (not built) 250 px, sniper 500 px (user; 970 was far too long, then 220 from their sketch). The shotgun was 180.
