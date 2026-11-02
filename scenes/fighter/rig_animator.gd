@@ -11,12 +11,15 @@ const REFERENCE_LEG_LENGTH := 39.0
 const BLEND := 0.1
 const SNAP := 0.03
 const STILL_SPEED := 5.0
+const LANDING_ROLL_STATES: Array[Fighter.State] = [Fighter.State.IDLE, Fighter.State.WALK, Fighter.State.RUN, Fighter.State.CROUCH, Fighter.State.AIM]
 
 var fighter: Fighter
 var _rig: CharacterRig
 var _leg_scale := 1.0
 var _reference_speeds := {}
 var _last_state := -1
+## Seconds left of the roll a dive lands into.
+var _landing_roll := 0.0
 var _current_clip := ""
 var _last_combo_index := -1
 var _last_attack_active := false
@@ -50,6 +53,11 @@ func _choose_clip() -> void:
 	var blend := BLEND
 	var speed := 1.0
 	var is_attack := state == Fighter.State.ATTACK
+	# A dive lands into a forward roll; only the picture rolls, the fighter is free to act.
+	_landing_roll = maxf(_landing_roll - get_physics_process_delta_time(), 0.0)
+	if _last_state == Fighter.State.DIVE and state in LANDING_ROLL_STATES:
+		_landing_roll = get_animation("roll").length
+	_last_state = state
 
 	# 1. High priority states: Down / Dead / Stun / Invulnerable Getup
 	if state == Fighter.State.DEAD or state == Fighter.State.DOWN:
@@ -63,7 +71,11 @@ func _choose_clip() -> void:
 		blend = SNAP
 	elif state == Fighter.State.ROLL:
 		clip = "roll"
-		blend = SNAP
+		# The turn ends at 0 for the next clip, so it starts a full turn away: never blended.
+		blend = 0.0
+	elif _landing_roll > 0.0 and state in LANDING_ROLL_STATES:
+		clip = "roll"
+		blend = 0.0
 	elif state == Fighter.State.DIVE:
 		clip = "dive"
 		blend = SNAP
@@ -136,6 +148,9 @@ func _choose_clip() -> void:
 		blend = BLEND
 	elif state == Fighter.State.AIM:
 		clip = ""
+
+	if clip == "dive":
+		speed = get_animation(clip).length / fighter.fighter_class.air_time(fighter.fighter_class.dive_velocity.y)
 
 	if clip != "":
 		if has_animation(clip):
