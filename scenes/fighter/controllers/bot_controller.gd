@@ -56,13 +56,17 @@ func poll() -> void:
 		return
 	var target := _nearest_enemy()
 	if target == null or not fighter.can_act():
+		# A hit throws the bot off any planned jump.
+		_landing = NAN
 		return
 	_map = WalkMap.of(arena)
 	if fighter.is_climbing():
 		aim = _climb
 	elif not fighter.is_on_floor():
 		_steer_in_air()
-	elif not _fight(target, delta):
+	elif _fight(target, delta):
+		_landing = NAN
+	else:
 		_ready_in = REACTION
 		_walk_to(target, delta)
 
@@ -212,8 +216,6 @@ func _head_for(x: float, delta: float) -> void:
 func _steer_in_air() -> void:
 	jump_held = true
 	var feet := fighter.global_position
-	var goal := _landing
-	if is_nan(goal) or _map.surface_under(feet) < 0:
-		goal = _map.nearest_floor_x(feet)
+	var goal := _map.nearest_floor_x(feet) if is_nan(_landing) else _landing
 	if absf(goal - feet.x) > TAKE_OFF_RANGE:
 		move = signf(goal - feet.x)
