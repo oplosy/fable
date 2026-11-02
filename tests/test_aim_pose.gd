@@ -23,7 +23,7 @@ func run() -> void:
 	await physics_frames(30)
 	var animator: AnimationPlayer = fighter.get_node("Animator")
 	check(fighter.state() == Fighter.State.AIM, "the fighter aims")
-	check(animator.is_playing() and animator.assigned_animation == "idle", "the legs idle under the aim (%s)" % animator.assigned_animation)
+	check(animator.is_playing() and animator.assigned_animation == "aim_idle", "the legs idle under the aim (%s)" % animator.assigned_animation)
 
 	await _circle(fighter, input, "standing")
 

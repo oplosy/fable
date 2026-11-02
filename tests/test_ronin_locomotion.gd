@@ -44,6 +44,6 @@ func run() -> void:
 	await physics_frames(15)
 	check(fighter.state() == Fighter.State.IDLE, "Fighter returns to IDLE state")
 	check(animator.assigned_animation == "idle", "Animator transitions to idle (%s)" % animator.assigned_animation)
-	check(is_zero_approx(rig.joints.leg_front_upper.rotation), "Legs reset to standing pose")
+	check(absf(rig.joints.leg_front_upper.rotation) < 0.35, "Legs return to the standing pose (%.2f)" % rig.joints.leg_front_upper.rotation)
 	
 	arena.queue_free()

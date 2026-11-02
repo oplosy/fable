@@ -20,7 +20,7 @@ func run() -> void:
 	# Verify all animations loaded into animator
 	var expected_clips := [
 		"idle", "walk", "run", "crouch_idle", "crouch_walk",
-		"jump_rise", "jump_apex", "fall", "land", "roll", "dive",
+		"jump_rise", "jump_apex", "fall", "land", "roll", "dive", "aim_idle",
 		"jab_1", "jab_2", "jab_3", "hook", "jump_kick",
 		"knife_stab", "knife_slash", "hit_front", "hit_back",
 		"bat_swing", "bat_homerun", "climb", "cook", "throw",
