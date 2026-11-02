@@ -337,11 +337,11 @@ new_and_refined = {
                 "root": [0, 34],
                 "angles": {
                     "pelvis": -90, "torso": 0, "head": 5,
-                    "arm_front_upper": 65, "arm_front_lower": 25, "hand_front": 0,
-                    "arm_back_upper": 55, "arm_back_lower": 30, "hand_back": 0,
-                    "leg_front_upper": 88, "leg_front_lower": 6, "foot_front": 10,
-                    "leg_back_upper": 84, "leg_back_lower": 8, "foot_back": 10,
-                    "scabbard": -85, "coat_tail": -85, "coat_back": -85
+                    "arm_front_upper": 12, "arm_front_lower": 6, "hand_front": 0,
+                    "arm_back_upper": 6, "arm_back_lower": 8, "hand_back": 0,
+                    "leg_front_upper": 4, "leg_front_lower": 6, "foot_front": 10,
+                    "leg_back_upper": 9, "leg_back_lower": 8, "foot_back": 10,
+                    "scabbard": 2, "coat_tail": 2, "coat_back": 2
                 }
             },
             {
@@ -349,11 +349,11 @@ new_and_refined = {
                 "root": [0, 33.6],
                 "angles": {
                     "pelvis": -90, "torso": -1, "head": 4,
-                    "arm_front_upper": 63, "arm_front_lower": 27, "hand_front": 0,
-                    "arm_back_upper": 54, "arm_back_lower": 31, "hand_back": 0,
-                    "leg_front_upper": 88, "leg_front_lower": 6, "foot_front": 10,
-                    "leg_back_upper": 84, "leg_back_lower": 8, "foot_back": 10,
-                    "scabbard": -85, "coat_tail": -85, "coat_back": -85
+                    "arm_front_upper": 12, "arm_front_lower": 6, "hand_front": 0,
+                    "arm_back_upper": 6, "arm_back_lower": 8, "hand_back": 0,
+                    "leg_front_upper": 4, "leg_front_lower": 6, "foot_front": 10,
+                    "leg_back_upper": 9, "leg_back_lower": 8, "foot_back": 10,
+                    "scabbard": 2, "coat_tail": 2, "coat_back": 2
                 }
             },
             {
@@ -361,11 +361,11 @@ new_and_refined = {
                 "root": [0, 34],
                 "angles": {
                     "pelvis": -90, "torso": 0, "head": 5,
-                    "arm_front_upper": 65, "arm_front_lower": 25, "hand_front": 0,
-                    "arm_back_upper": 55, "arm_back_lower": 30, "hand_back": 0,
-                    "leg_front_upper": 88, "leg_front_lower": 6, "foot_front": 10,
-                    "leg_back_upper": 84, "leg_back_lower": 8, "foot_back": 10,
-                    "scabbard": -85, "coat_tail": -85, "coat_back": -85
+                    "arm_front_upper": 12, "arm_front_lower": 6, "hand_front": 0,
+                    "arm_back_upper": 6, "arm_back_lower": 8, "hand_back": 0,
+                    "leg_front_upper": 4, "leg_front_lower": 6, "foot_front": 10,
+                    "leg_back_upper": 9, "leg_back_lower": 8, "foot_back": 10,
+                    "scabbard": 2, "coat_tail": 2, "coat_back": 2
                 }
             }
         ]
