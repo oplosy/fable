@@ -1,0 +1,144 @@
+{
+  "character": "06_Ronin_Street_Samurai",
+  "version": "perfect_v1",
+  "canvas": [
+    64,
+    96
+  ],
+  "feet": [
+    32,
+    93
+  ],
+  "draw_order": [
+    "arm_back_upper",
+    "arm_back_lower",
+    "hand_back",
+    "coat_back",
+    "leg_back_upper",
+    "leg_back_lower",
+    "foot_back",
+    "pelvis",
+    "scabbard",
+    "leg_front_upper",
+    "leg_front_lower",
+    "foot_front",
+    "torso",
+    "coat_tail",
+    "head",
+    "arm_front_upper",
+    "arm_front_lower",
+    "hand_front"
+  ],
+  "hierarchy": {
+    "pelvis": "",
+    "torso": "pelvis",
+    "head": "torso",
+    "scabbard": "pelvis",
+    "coat_tail": "pelvis",
+    "coat_back": "pelvis",
+    "leg_front_upper": "pelvis",
+    "leg_front_lower": "leg_front_upper",
+    "foot_front": "leg_front_lower",
+    "leg_back_upper": "pelvis",
+    "leg_back_lower": "leg_back_upper",
+    "foot_back": "leg_back_lower",
+    "arm_front_upper": "torso",
+    "arm_front_lower": "arm_front_upper",
+    "hand_front": "arm_front_lower",
+    "arm_back_upper": "torso",
+    "arm_back_lower": "arm_back_upper",
+    "hand_back": "arm_back_lower"
+  },
+  "pivots": {
+    "pelvis": [
+      32,
+      50
+    ],
+    "torso": [
+      32,
+      45
+    ],
+    "head": [
+      31,
+      23
+    ],
+    "scabbard": [
+      20,
+      52
+    ],
+    "coat_tail": [
+      32,
+      47
+    ],
+    "coat_back": [
+      32,
+      47
+    ],
+    "arm_back_upper": [
+      41,
+      30
+    ],
+    "arm_back_lower": [
+      43,
+      42
+    ],
+    "hand_back": [
+      44,
+      50
+    ],
+    "arm_front_upper": [
+      21,
+      31
+    ],
+    "arm_front_lower": [
+      18,
+      41
+    ],
+    "hand_front": [
+      19,
+      48
+    ],
+    "leg_back_upper": [
+      37,
+      54
+    ],
+    "leg_back_lower": [
+      39,
+      72
+    ],
+    "foot_back": [
+      40,
+      85
+    ],
+    "leg_front_upper": [
+      26,
+      54
+    ],
+    "leg_front_lower": [
+      22,
+      72
+    ],
+    "foot_front": [
+      22,
+      85
+    ]
+  },
+  "points": {
+    "hand_front": [
+      18,
+      50
+    ],
+    "hand_back": [
+      45,
+      53
+    ],
+    "head_top": [
+      27,
+      5
+    ]
+  },
+  "asymmetric_details": [
+    "katana_scabbards_at_hip",
+    "white_forearm_wrap_front_arm"
+  ]
+}
