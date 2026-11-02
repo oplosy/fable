@@ -43,6 +43,8 @@ Ronin Street Samurai (`06_Ronin_Street_Samurai`) was selected to pioneer the per
 
 Later fix: `Visuals/Hand` is the fixed point aim, shots and throws start from again; `Fighter._draw_items_at` moves only the item pictures onto the rig's fist, so hits never depend on the animation. The drawn gun sits up to about 6 px off the shot line at steep aim. The `down` clip now lies flat on the floor (legs, arms, coat and scabbard).
 
+The dive and roll were redrawn (user): the dive is head-first with arms out and legs trailing, timed to the air time; the roll is a tucked ball; a dive lands into the roll, picture only (`RigAnimator._landing_roll`). `tools/build_refined_animations.py` takes clip names, renders reviews only with `--review`, and no longer writes into `DONT-OPEN/`. `build_all_animations.py` and `generate_locomotion.py` still touch it: do not run them until they are changed.
+
 ## Status (session 9)
 
 The user dropped all asset work to start it over. Removed: `assets/`, `art/`, `tools/`, the Isles, the Mucho and stick figure characters, `FrameAnimator`, the aim arm, `ItemData.art`, `MeleeAttack.animation`, `CharacterData` art fields, `test_isles`, `test_frame_animator`, `test_combat_sync` and `docs/CHARACTER_ANIMATION_SPEC.md`. The game loads the Range with `placeholder.tres` (Fast) and `dummy.tres` (Heavy) as coloured boxes; items, barrels and ladders are flat boxes. Gameplay rules did not change, except that the Fighter hand is at half the body height again. Sections below describing art, the Isles or animations are history. `test_bots` now runs on `tests/bot_course.tscn` (a bare pit, one-way platforms, ladders), since the Range is flat. Steps 2, 3 and 5 of the development order start again when the user picks a direction.
