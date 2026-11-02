@@ -21,7 +21,7 @@ signal hit_taken
 ## Seconds a hit keeps its attacker credited, so a fall soon after a push still counts.
 const KILL_CREDIT_TIME := 5.0
 ## Seconds the landing shows; the landing never holds the fighter back.
-const LANDING_TIME := 0.44
+const LANDING_TIME := 0.75
 
 @export var character: CharacterData
 ## Without one the fighter stands idle (e.g. a target dummy).

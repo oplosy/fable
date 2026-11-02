@@ -1,7 +1,7 @@
 {
   "name": "fall",
   "loop": true,
-  "length": 0.3,
+  "length": 0.5,
   "keys": [
     {
       "t": 0.0,
@@ -28,10 +28,11 @@
         "scabbard": -18,
         "coat_tail": 66,
         "coat_back": 60
-      }
+      },
+      "stretch": {}
     },
     {
-      "t": 0.15,
+      "t": 0.25,
       "root": [
         0,
         -2
@@ -55,10 +56,11 @@
         "scabbard": -22,
         "coat_tail": 78,
         "coat_back": 72
-      }
+      },
+      "stretch": {}
     },
     {
-      "t": 0.3,
+      "t": 0.5,
       "root": [
         0,
         -2
@@ -82,7 +84,8 @@
         "scabbard": -18,
         "coat_tail": 66,
         "coat_back": 60
-      }
+      },
+      "stretch": {}
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "name": "jump_apex",
   "loop": false,
-  "length": 0.22,
+  "length": 0.4,
   "keys": [
     {
       "t": 0.0,
@@ -28,10 +28,11 @@
         "scabbard": -4,
         "coat_tail": 34,
         "coat_back": 30
-      }
+      },
+      "stretch": {}
     },
     {
-      "t": 0.22,
+      "t": 0.4,
       "root": [
         0,
         -5
@@ -55,7 +56,8 @@
         "scabbard": -8,
         "coat_tail": 46,
         "coat_back": 42
-      }
+      },
+      "stretch": {}
     }
   ]
 }
