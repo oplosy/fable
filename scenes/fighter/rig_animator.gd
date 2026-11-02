@@ -16,6 +16,8 @@ const LANDING_ROLL_STATES: Array[Fighter.State] = [Fighter.State.IDLE, Fighter.S
 const FULL_STRETCH_SPEED := 450.0
 const MAX_STRETCH := 0.1
 const MAX_SQUASH := 0.24
+## Below this vertical speed (world px/s) the jump shows its top.
+const APEX_SPEED := 90.0
 ## Limbs a clip may stretch along the bone with a key's "stretch".
 const STRETCH_PARTS: Array[String] = ["arm_front_upper", "arm_front_lower", "arm_back_upper", "arm_back_lower", "leg_front_upper", "leg_front_lower"]
 ## Clips drawn to fit a bare-handed attack's whole length.
@@ -161,10 +163,10 @@ func _choose_clip() -> void:
 		if fighter.melee.is_air_attacking():
 			clip = "jump_kick"
 			blend = SNAP
-		elif fighter.velocity.y < -50.0:
+		elif fighter.velocity.y < -APEX_SPEED:
 			clip = "jump_rise"
 			blend = SNAP
-		elif fighter.velocity.y > 50.0:
+		elif fighter.velocity.y > APEX_SPEED:
 			clip = "fall"
 			blend = BLEND
 		else:

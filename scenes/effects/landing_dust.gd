@@ -11,7 +11,7 @@ const MIN_FALL_SPEED := 150.0
 ## Landing speed of the biggest dust.
 const FULL_FALL_SPEED := 450.0
 
-@export var life := 0.32
+@export var life := 0.6
 ## How far the outermost puff travels, world px, at full size.
 @export var reach := 16.0
 var size := 1.0
