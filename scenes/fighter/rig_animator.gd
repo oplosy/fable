@@ -15,7 +15,7 @@ const LANDING_ROLL_STATES: Array[Fighter.State] = [Fighter.State.IDLE, Fighter.S
 ## Fall or rise speed (world px/s) of the full stretch.
 const FULL_STRETCH_SPEED := 450.0
 const MAX_STRETCH := 0.1
-const MAX_SQUASH := 0.24
+const MAX_SQUASH := 0.08
 ## Below this vertical speed (world px/s) the jump shows its top.
 const APEX_SPEED := 130.0
 ## Limbs a clip may stretch along the bone with a key's "stretch".
