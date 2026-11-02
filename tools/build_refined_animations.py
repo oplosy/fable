@@ -886,7 +886,7 @@ new_and_refined["aim_idle"] = clip("aim_idle", 1.8, True, [
 
 # 3. Jump in three clear stages and a landing that sinks deep and springs back
 SQUAT = (0, 16)
-LAND_DEEP = (0, 24)
+LAND_DEEP = (0, 7)
 new_and_refined.update({
     "crouch_idle": clip("crouch_idle", 0.8, True, [
         crouch_pose(0.0, SQUAT, (-7, 0), (9, 0)),
@@ -953,21 +953,21 @@ new_and_refined.update({
     ]),
     # Hits the floor already sunk in, hangs there a moment, then springs up.
     "land": clip("land", 0.75, False, [
-        key(0.0, LAND_DEEP, leg("front", LAND_DEEP, -8), leg("back", LAND_DEEP, 9),
-            pelvis=0, torso=36, head=-24,
-            arm_front_upper=-58, arm_front_lower=-12, hand_front=0,
-            arm_back_upper=58, arm_back_lower=-16, hand_back=0,
-            scabbard=-22, coat_tail=44, coat_back=38),
-        key(0.28, LAND_DEEP, leg("front", LAND_DEEP, -8), leg("back", LAND_DEEP, 9),
-            pelvis=0, torso=32, head=-20,
-            arm_front_upper=-44, arm_front_lower=-18, hand_front=0,
-            arm_back_upper=44, arm_back_lower=-20, hand_back=0,
-            scabbard=-14, coat_tail=20, coat_back=16),
-        key(0.58, (0, 4), leg("front", (0, 4), -4), leg("back", (0, 4), 4),
-            pelvis=0, torso=6, head=-4,
-            arm_front_upper=-10, arm_front_lower=-8, hand_front=0,
-            arm_back_upper=8, arm_back_lower=-8, hand_back=0,
-            scabbard=4, coat_tail=8, coat_back=6),
+        key(0.0, LAND_DEEP, leg("front", LAND_DEEP, -4), leg("back", LAND_DEEP, 4),
+            pelvis=0, torso=12, head=-8,
+            arm_front_upper=-22, arm_front_lower=-10, hand_front=0,
+            arm_back_upper=20, arm_back_lower=-12, hand_back=0,
+            scabbard=-8, coat_tail=18, coat_back=14),
+        key(0.28, (0, 5), leg("front", (0, 5), -3), leg("back", (0, 5), 3),
+            pelvis=0, torso=9, head=-6,
+            arm_front_upper=-16, arm_front_lower=-12, hand_front=0,
+            arm_back_upper=14, arm_back_lower=-12, hand_back=0,
+            scabbard=-5, coat_tail=10, coat_back=8),
+        key(0.58, (0, 2), leg("front", (0, 2), -1), leg("back", (0, 2), 1),
+            pelvis=0, torso=3, head=-2,
+            arm_front_upper=-5, arm_front_lower=-6, hand_front=0,
+            arm_back_upper=4, arm_back_lower=-6, hand_back=0,
+            scabbard=2, coat_tail=4, coat_back=3),
         key(0.75, (0, 0), leg("front", (0, 0)), leg("back", (0, 0)),
             pelvis=0, torso=0, head=0,
             arm_front_upper=0, arm_front_lower=0, hand_front=0,
