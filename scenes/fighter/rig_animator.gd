@@ -192,7 +192,7 @@ func _choose_clip() -> void:
 		var ref_speed: float = _reference_speeds.get("run", 200.0)
 		speed = absf(fighter.velocity.x) / (ref_speed * _leg_scale) if ref_speed > 0.0 else 1.0
 	elif state == Fighter.State.IDLE:
-		clip = "idle"
+		clip = "aim_idle" if fighter.state() == Fighter.State.AIM else "idle"
 		blend = BLEND
 
 	if clip in STRIKE_CLIPS and has_animation(clip):

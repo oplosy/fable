@@ -841,21 +841,64 @@ def crouch_pose(t, root, front_foot, back_foot, sway=0):
                scabbard=-12, coat_tail=6, coat_back=8)
 
 
+# A lunge forward, then over the leading shoulder: one leg stays long instead of a tucked
+# ball, and the turn happens late and fast. It starts a full turn away so it ends at 0.
+def roll_key(t, root, pelvis, torso, head, front_arm, back_arm, front_leg, back_leg, coat):
+    return key(t, root, pelvis=pelvis, torso=torso, head=head, hand_front=0, hand_back=0,
+               arm_front_upper=front_arm[0], arm_front_lower=front_arm[1],
+               arm_back_upper=back_arm[0], arm_back_lower=back_arm[1],
+               leg_front_upper=front_leg[0], leg_front_lower=front_leg[1], foot_front=0,
+               leg_back_upper=back_leg[0], leg_back_lower=back_leg[1], foot_back=0,
+               scabbard=coat / 3, coat_tail=coat, coat_back=coat)
+
+
+new_and_refined["roll"] = clip("roll", 0.4, False, [
+    roll_key(0.0, (0, 8), -352, 12, -6, (-30, -20), (10, -20), (-30, 45), (10, 20), 10),
+    roll_key(0.1, (14, 20), -310, 20, -30, (-98, -5), (-84, -10), (-50, 70), (32, 20), 44),
+    roll_key(0.18, (12, -6), -210, 50, 20, (-140, -60), (-70, -40), (-30, 40), (-10, 30), 30),
+    roll_key(0.27, (6, 16), -100, 30, 20, (-90, -50), (-40, -40), (-85, 100), (-40, 60), 20),
+    roll_key(0.34, (2, 18), -30, 28, -10, (-50, -40), (10, -40), (-70, 90), (-35, 70), 10),
+    roll_key(0.4, (0, 6), 0, 6, 0, (0, 0), (0, 0), (-15, 25), (-10, 20), 0),
+], linear=True)
+
+# Standing still is alive: the chest fills and sinks, weight drifts, hands and coat sway.
+def idle_pose(t, breath, drift):
+    root = (drift, breath * 2.6)
+    return key(t, root, leg("front", root, -1), leg("back", root, 1),
+               pelvis=0, torso=2 + breath * 3, head=-1 - breath * 3,
+               arm_front_upper=-4 + breath * 7, arm_front_lower=-10 - breath * 8, hand_front=0,
+               arm_back_upper=-3 - breath * 6, arm_back_lower=-10 - breath * 8, hand_back=0,
+               scabbard=breath * 2, coat_tail=1 + breath * 5, coat_back=1 + breath * 6)
+
+
+new_and_refined["idle"] = clip("idle", 1.8, True, [
+    idle_pose(0.0, 0.0, -0.8),
+    idle_pose(0.9, 1.0, 0.8),
+    idle_pose(1.8, 0.0, -0.8),
+])
+
+# Holding a gun steady breathes far less, so the stretched arms stay on the aim.
+new_and_refined["aim_idle"] = clip("aim_idle", 1.8, True, [
+    idle_pose(0.0, 0.0, 0.0),
+    idle_pose(0.9, 0.2, 0.0),
+    idle_pose(1.8, 0.0, 0.0),
+])
+
 # 3. Jump in three clear stages and a landing that sinks deep and springs back
-SQUAT = (0, 22)
+SQUAT = (0, 16)
 LAND_DEEP = (0, 24)
 new_and_refined.update({
     "crouch_idle": clip("crouch_idle", 0.8, True, [
-        crouch_pose(0.0, SQUAT, (5, 0), (-5, 0)),
-        crouch_pose(0.4, (0, 23), (5, 0), (-5, 0), 2),
-        crouch_pose(0.8, SQUAT, (5, 0), (-5, 0)),
+        crouch_pose(0.0, SQUAT, (-7, 0), (9, 0)),
+        crouch_pose(0.4, (0, 17), (-7, 0), (9, 0), 2),
+        crouch_pose(0.8, SQUAT, (-7, 0), (9, 0)),
     ]),
     "crouch_walk": clip("crouch_walk", 0.6, True, [
-        crouch_pose(0.0, SQUAT, (6, 0), (-6, 0)),
-        crouch_pose(0.15, (0, 21), (0, 0), (0, -4), 2),
-        crouch_pose(0.3, SQUAT, (-6, 0), (6, 0)),
-        crouch_pose(0.45, (0, 21), (0, -4), (0, 0), 2),
-        crouch_pose(0.6, SQUAT, (6, 0), (-6, 0)),
+        crouch_pose(0.0, SQUAT, (-3, 0), (12, 0)),
+        crouch_pose(0.15, (0, 15), (-7, 0), (9, -2), 2),
+        crouch_pose(0.3, SQUAT, (-11, 0), (6, 0)),
+        crouch_pose(0.45, (0, 15), (-7, -2), (9, 0), 2),
+        crouch_pose(0.6, SQUAT, (-3, 0), (12, 0)),
     ], reference_speed=60.0),
     # Rising: the whole body one long line, arms thrown up, toes pointing down.
     "jump_rise": clip("jump_rise", 0.3, False, [
@@ -910,17 +953,17 @@ new_and_refined.update({
     ]),
     # Hits the floor already sunk in, hangs there a moment, then springs up.
     "land": clip("land", 0.26, False, [
-        key(0.0, LAND_DEEP, leg("front", LAND_DEEP, 8), leg("back", LAND_DEEP, -8),
+        key(0.0, LAND_DEEP, leg("front", LAND_DEEP, -8), leg("back", LAND_DEEP, 9),
             pelvis=0, torso=36, head=-24,
             arm_front_upper=-58, arm_front_lower=-12, hand_front=0,
             arm_back_upper=58, arm_back_lower=-16, hand_back=0,
             scabbard=-22, coat_tail=44, coat_back=38),
-        key(0.09, LAND_DEEP, leg("front", LAND_DEEP, 8), leg("back", LAND_DEEP, -8),
+        key(0.09, LAND_DEEP, leg("front", LAND_DEEP, -8), leg("back", LAND_DEEP, 9),
             pelvis=0, torso=32, head=-20,
             arm_front_upper=-44, arm_front_lower=-18, hand_front=0,
             arm_back_upper=44, arm_back_lower=-20, hand_back=0,
             scabbard=-14, coat_tail=20, coat_back=16),
-        key(0.2, (0, 4), leg("front", (0, 4), 4), leg("back", (0, 4), -4),
+        key(0.2, (0, 4), leg("front", (0, 4), -4), leg("back", (0, 4), 4),
             pelvis=0, torso=6, head=-4,
             arm_front_upper=-10, arm_front_lower=-8, hand_front=0,
             arm_back_upper=8, arm_back_lower=-8, hand_back=0,
@@ -950,23 +993,23 @@ def cocked(t, punching_front):
     strike = dict(arm_front_upper=48, arm_front_lower=-105, arm_back_upper=-34, arm_back_lower=-72)
     if not punching_front:
         strike = dict(arm_front_upper=-34, arm_front_lower=-72, arm_back_upper=52, arm_back_lower=-105)
-    return key(t, root, leg("front", root, 3), leg("back", root, -7),
+    return key(t, root, leg("front", root, -8), leg("back", root, 2),
                pelvis=-4, torso=-20, head=10, hand_front=0, hand_back=0,
                scabbard=8, coat_tail=-12, coat_back=-10, **strike)
 
 
-def full_reach(t, punching_front, slide=15, height=-86):
+def full_reach(t, punching_front, slide=15, height=-118):
     root = (slide, 4)
     long = {"arm_front_upper": 1.55, "arm_front_lower": 1.55} if punching_front else {"arm_back_upper": 1.5, "arm_back_lower": 1.5}
     strike = dict(arm_front_upper=height, arm_front_lower=-3, arm_back_upper=58, arm_back_lower=-58)
     if not punching_front:
         strike = dict(arm_front_upper=62, arm_front_lower=-60, arm_back_upper=height, arm_back_lower=-3)
-    return key(t, root, leg("front", root, slide + 3), leg("back", root, -5), stretch=long,
+    return key(t, root, leg("front", root, -4), leg("back", root, slide + 6), stretch=long,
                pelvis=8, torso=28, head=-20, hand_front=0, hand_back=0,
                scabbard=-14, coat_tail=34, coat_back=28, **strike)
 
 
-def punch(name, punching_front, height=-86):
+def punch(name, punching_front, height=-118):
     return clip(name, 0.4, False, [
         rest_pose(0.0),
         cocked(0.08, punching_front),
@@ -981,23 +1024,23 @@ KICK_AIR = (6, -3)
 new_and_refined.update({
     "jab_1": punch("jab_1", True),
     "jab_2": punch("jab_2", False),
-    "jab_3": punch("jab_3", True, -104),
+    "jab_3": punch("jab_3", True, -134),
     # A full turn of the body: the arm comes round from behind and carries on past the target.
     "hook": clip("hook", 0.56, False, [
         rest_pose(0.0),
-        key(0.13, (-10, 8), leg("front", (-10, 8), 4), leg("back", (-10, 8), -9),
+        key(0.13, (-10, 8), leg("front", (-10, 8), -9), leg("back", (-10, 8), 3),
             pelvis=-8, torso=-34, head=16, hand_front=0, hand_back=0,
             arm_front_upper=92, arm_front_lower=-44, arm_back_upper=-48, arm_back_lower=-60,
             scabbard=14, coat_tail=-26, coat_back=-22),
-        key(0.18, HOOK_REACH, leg("front", HOOK_REACH, 15), leg("back", HOOK_REACH, -5),
+        key(0.18, HOOK_REACH, leg("front", HOOK_REACH, -4), leg("back", HOOK_REACH, 18),
             stretch={"arm_front_upper": 1.6, "arm_front_lower": 1.6},
             pelvis=10, torso=36, head=-24, hand_front=0, hand_back=0,
-            arm_front_upper=-92, arm_front_lower=-12, arm_back_upper=64, arm_back_lower=-50,
+            arm_front_upper=-124, arm_front_lower=-12, arm_back_upper=64, arm_back_lower=-50,
             scabbard=-18, coat_tail=46, coat_back=40),
-        key(0.26, (16, 4), leg("front", (16, 4), 17), leg("back", (16, 4), -3),
+        key(0.26, (16, 4), leg("front", (16, 4), 0), leg("back", (16, 4), 20),
             stretch={"arm_front_upper": 1.3, "arm_front_lower": 1.3},
             pelvis=10, torso=40, head=-26, hand_front=0, hand_back=0,
-            arm_front_upper=-148, arm_front_lower=-24, arm_back_upper=70, arm_back_lower=-46,
+            arm_front_upper=-168, arm_front_lower=-24, arm_back_upper=70, arm_back_lower=-46,
             scabbard=-20, coat_tail=56, coat_back=50),
         rest_pose(0.56),
     ], linear=True),
