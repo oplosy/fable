@@ -1,12 +1,13 @@
 # Run: tests/run_all.sh test_bots
 extends "res://tests/test_case.gd"
 
-## The WalkMap finds every part of the Isles for both classes, and a bot gets to a target
-## anywhere on it and hits it without falling in the pit. Two bots play a match on their own.
+## The WalkMap finds every part of a course with a bridged pit, one-way platforms and
+## ladders for both classes, and a bot gets to a target anywhere on it and hits it without falling in
+## the pit. Two bots play a match on their own.
 
 const FIGHTER_SCENE := preload("res://scenes/fighter/fighter.tscn")
-const FAST := preload("res://data/characters/stickman.tres")
-const HEAVY := preload("res://data/characters/stickman_heavy.tres")
+const FAST := preload("res://data/characters/placeholder.tres")
+const HEAVY := preload("res://data/characters/dummy.tres")
 const PISTOL := preload("res://data/weapons/pistol.tres")
 ## Simulated seconds a bot gets to reach a target and hit it.
 const HUNT_TIME := 25.0
@@ -21,16 +22,14 @@ func _init() -> void:
 
 
 func run() -> void:
-	arena = load("res://scenes/arenas/isles.tscn").instantiate()
+	arena = load("res://tests/bot_course.tscn").instantiate()
 	root.add_child(arena)
 	arena.rng.seed = 8
-	for spawner in arena.get_node("ItemSpawns").get_children():
-		spawner.interval = 9999.0
 	await physics_frames(5)
 	var map := WalkMap.of(arena)
 	_check_map(map)
-	# A spot on each kind of place: the far ground, every island, the bridge.
-	var spots: Array[Vector2] = [Vector2(600, 300), Vector2(20, 300), Vector2(130, 226), Vector2(520, 226), Vector2(300, 160), Vector2(110, 106), Vector2(520, 100), Vector2(310, 282)]
+	# A spot on each kind of place: the far ground, the near end, both platforms.
+	var spots: Array[Vector2] = [Vector2(600, 300), Vector2(40, 300), Vector2(150, 270), Vector2(480, 200)]
 	for character: CharacterData in [FAST, HEAVY]:
 		for spot in spots:
 			await _hunt(character, Vector2(280, 300), spot, null)
@@ -40,12 +39,12 @@ func run() -> void:
 
 
 func _check_map(map: WalkMap) -> void:
-	check(map.surfaces.size() >= 8, "the scan finds the map's floors (%d surfaces)" % map.surfaces.size())
-	for spot: Vector2 in [Vector2(100, 300), Vector2(500, 300), Vector2(100, 226), Vector2(500, 226), Vector2(320, 160), Vector2(120, 106), Vector2(520, 100), Vector2(320, 282)]:
+	check(map.surfaces.size() >= 4, "the scan finds the map's floors (%d surfaces)" % map.surfaces.size())
+	for spot: Vector2 in [Vector2(100, 328), Vector2(500, 328), Vector2(150, 280), Vector2(480, 200)]:
 		var found := map.surface_under(spot)
 		check(found >= 0 and absf(map.surfaces[found].y - spot.y) <= 3.0, "there is a floor at %s" % spot)
-	check(map.surface_under(Vector2(320, 340)) < 0, "the pit has no floor")
-	var ground := map.surface_under(Vector2(100, 300))
+	check(map.surface_under(Vector2(312, 340)) < 0, "the pit has no floor")
+	var ground := map.surface_under(Vector2(100, 328))
 	for character: CharacterData in [FAST, HEAVY]:
 		for i in map.surfaces.size():
 			if i != ground:
