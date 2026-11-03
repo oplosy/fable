@@ -1,10 +1,11 @@
-[gd_scene load_steps=32 format=3]
+[gd_scene load_steps=31 format=3]
 
 [ext_resource type="Script" path="res://scenes/arenas/arena.gd" id="arena"]
 [ext_resource type="Script" path="res://scenes/arenas/follow_camera.gd" id="camera"]
-[ext_resource type="Script" path="res://scenes/arenas/camera_shot.gd" id="shot"]
 [ext_resource type="Texture2D" path="res://assets/arenas/shipyard/background.png" id="art"]
 [ext_resource type="PackedScene" path="res://scenes/props/ladder.tscn" id="ladder"]
+[ext_resource type="PackedScene" path="res://scenes/props/explosive_drum.tscn" id="explosive"]
+[ext_resource type="PackedScene" path="res://scenes/props/oil_drum.tscn" id="plain"]
 [ext_resource type="Script" path="res://scenes/items/item_spawner.gd" id="spawner"]
 [ext_resource type="Script" path="res://scenes/items/item_data.gd" id="item_data"]
 [ext_resource type="Resource" path="res://data/weapons/pistol.tres" id="pistol"]
@@ -17,342 +18,315 @@
 [ext_resource type="Resource" path="res://data/throwables/molotov.tres" id="molotov"]
 
 [sub_resource type="RectangleShape2D" id="shape_Ground"]
-size = Vector2(1280, 102)
+size = Vector2(672, 71)
 
 [sub_resource type="RectangleShape2D" id="shape_CabinWallWest"]
-size = Vector2(8, 151)
+size = Vector2(5, 106)
 
 [sub_resource type="RectangleShape2D" id="shape_CabinWallEast"]
-size = Vector2(8, 151)
+size = Vector2(6, 106)
 
 [sub_resource type="RectangleShape2D" id="shape_Warehouse"]
-size = Vector2(1184, 8)
+size = Vector2(672, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_QuayWest"]
-size = Vector2(237, 8)
+size = Vector2(45, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_QuayEast"]
-size = Vector2(214, 8)
-
-[sub_resource type="RectangleShape2D" id="shape_CatwalkWest"]
-size = Vector2(170, 8)
-
-[sub_resource type="RectangleShape2D" id="shape_CatwalkEast"]
-size = Vector2(93, 8)
+size = Vector2(44, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_Deck"]
-size = Vector2(863, 8)
+size = Vector2(607, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_CabinUpper"]
-size = Vector2(433, 8)
+size = Vector2(305, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_CabinLower"]
-size = Vector2(432, 8)
+size = Vector2(304, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_BridgeBalcony"]
-size = Vector2(144, 8)
+size = Vector2(99, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_BridgeDeck"]
-size = Vector2(198, 8)
+size = Vector2(109, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_BridgeRoof"]
-size = Vector2(173, 8)
+size = Vector2(60, 6)
 
 [sub_resource type="RectangleShape2D" id="shape_WallWest"]
-size = Vector2(16, 972)
+size = Vector2(16, 710)
 
 [sub_resource type="RectangleShape2D" id="shape_WallEast"]
-size = Vector2(16, 972)
+size = Vector2(16, 710)
 
 [node name="Shipyard" type="Node2D"]
 script = ExtResource("arena")
-bounds = Rect2(-64, -360, 1408, 1144)
-camera_limits = Rect2(0, 0, 1280, 720)
-
-[node name="Backdrop" type="ColorRect" parent="."]
-offset_right = 1280.0
-offset_bottom = 720.0
-mouse_filter = 2
-color = Color(0.05, 0.06, 0.08, 1)
+bounds = Rect2(-64, -360, 768, 784)
+camera_limits = Rect2(0, 0, 640, 360)
 
 [node name="Background" type="Sprite2D" parent="."]
 texture = ExtResource("art")
 centered = false
-scale = Vector2(0.64, 0.64)
+scale = Vector2(0.45, 0.45)
 
 [node name="Collision" type="Node2D" parent="."]
 
 [node name="Ground" type="StaticBody2D" parent="Collision"]
-position = Vector2(640.0, 663.0)
+position = Vector2(320.0, 385.5)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/Ground"]
 shape = SubResource("shape_Ground")
 
 [node name="CabinWallWest" type="StaticBody2D" parent="Collision"]
-position = Vector2(428.0, 334.5)
+position = Vector2(163.5, 154.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/CabinWallWest"]
 shape = SubResource("shape_CabinWallWest")
 
 [node name="CabinWallEast" type="StaticBody2D" parent="Collision"]
-position = Vector2(868.0, 334.5)
+position = Vector2(473.0, 154.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/CabinWallEast"]
 shape = SubResource("shape_CabinWallEast")
 
 [node name="Warehouse" type="StaticBody2D" parent="Collision"]
-position = Vector2(592.0, 529.0)
+position = Vector2(320.0, 291.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/Warehouse"]
 shape = SubResource("shape_Warehouse")
 one_way_collision = true
 
 [node name="QuayWest" type="StaticBody2D" parent="Collision"]
-position = Vector2(118.5, 323.0)
+position = Vector2(6.5, 146.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/QuayWest"]
 shape = SubResource("shape_QuayWest")
 one_way_collision = true
 
 [node name="QuayEast" type="StaticBody2D" parent="Collision"]
-position = Vector2(1173.0, 323.0)
+position = Vector2(634.0, 146.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/QuayEast"]
 shape = SubResource("shape_QuayEast")
 one_way_collision = true
 
-[node name="CatwalkWest" type="StaticBody2D" parent="Collision"]
-position = Vector2(85.0, 417.0)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/CatwalkWest"]
-shape = SubResource("shape_CatwalkWest")
-one_way_collision = true
-
-[node name="CatwalkEast" type="StaticBody2D" parent="Collision"]
-position = Vector2(1233.5, 418.0)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/CatwalkEast"]
-shape = SubResource("shape_CatwalkEast")
-one_way_collision = true
-
 [node name="Deck" type="StaticBody2D" parent="Collision"]
-position = Vector2(656.5, 258.0)
+position = Vector2(324.5, 101.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/Deck"]
 shape = SubResource("shape_Deck")
 one_way_collision = true
 
 [node name="CabinUpper" type="StaticBody2D" parent="Collision"]
-position = Vector2(648.5, 343.0)
+position = Vector2(318.5, 160.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/CabinUpper"]
 shape = SubResource("shape_CabinUpper")
 one_way_collision = true
 
 [node name="CabinLower" type="StaticBody2D" parent="Collision"]
-position = Vector2(648.0, 407.0)
+position = Vector2(318.0, 205.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/CabinLower"]
 shape = SubResource("shape_CabinLower")
 one_way_collision = true
 
 [node name="BridgeBalcony" type="StaticBody2D" parent="Collision"]
-position = Vector2(363.0, 224.0)
+position = Vector2(116.5, 77.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/BridgeBalcony"]
 shape = SubResource("shape_BridgeBalcony")
 one_way_collision = true
 
 [node name="BridgeDeck" type="StaticBody2D" parent="Collision"]
-position = Vector2(413.0, 189.0)
+position = Vector2(135.5, 56.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/BridgeDeck"]
 shape = SubResource("shape_BridgeDeck")
 one_way_collision = true
 
 [node name="BridgeRoof" type="StaticBody2D" parent="Collision"]
-position = Vector2(437.5, 156.0)
+position = Vector2(165.0, 34.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/BridgeRoof"]
 shape = SubResource("shape_BridgeRoof")
 one_way_collision = true
 
 [node name="WallWest" type="StaticBody2D" parent="Collision"]
-position = Vector2(-8.0, 126.0)
+position = Vector2(-8.0, -5.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/WallWest"]
 shape = SubResource("shape_WallWest")
 
 [node name="WallEast" type="StaticBody2D" parent="Collision"]
-position = Vector2(1288.0, 126.0)
+position = Vector2(648.0, -5.0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Collision/WallEast"]
 shape = SubResource("shape_WallEast")
 
 [node name="Props" type="Node2D" parent="."]
 
-[node name="LadderGroundWest" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(79, 612)
-height = 87.0
-placeholder = false
-
 [node name="LadderGroundMid" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(614, 612)
-height = 87.0
+position = Vector2(295, 350)
+height = 62.0
 placeholder = false
 
 [node name="LadderGroundEast" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(800, 612)
-height = 87.0
+position = Vector2(425, 350)
+height = 62.0
 placeholder = false
 
 [node name="LadderGroundFar" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(973, 612)
-height = 87.0
-placeholder = false
-
-[node name="LadderCatwalkWest" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(150, 525)
-height = 112.0
+position = Vector2(547, 350)
+height = 62.0
 placeholder = false
 
 [node name="LadderQuayWest" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(150, 413)
-height = 94.0
-placeholder = false
+position = Vector2(11, 288)
+height = 145.0
 
 [node name="LadderSternWest" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(232, 319)
-height = 65.0
-
-[node name="LadderBowEast" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(1080, 319)
-height = 65.0
-
-[node name="LadderCatwalkEast" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(1200, 612)
-height = 198.0
+position = Vector2(26, 143)
+height = 45.0
 
 [node name="LadderQuayEast" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(1200, 414)
-height = 95.0
+position = Vector2(633, 288)
+height = 145.0
+
+[node name="LadderBowEast" parent="Props" instance=ExtResource("ladder")]
+position = Vector2(622, 143)
+height = 45.0
+
+[node name="LadderKeelWest" parent="Props" instance=ExtResource("ladder")]
+position = Vector2(205, 288)
+height = 86.0
+
+[node name="LadderKeelEast" parent="Props" instance=ExtResource("ladder")]
+position = Vector2(448, 288)
+height = 86.0
 
 [node name="LadderHatch" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(528, 339)
-height = 85.0
+position = Vector2(234, 157)
+height = 59.0
 placeholder = false
 
 [node name="LadderCabin" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(528, 403)
-height = 64.0
+position = Vector2(234, 202)
+height = 45.0
 placeholder = false
 
 [node name="LadderCabinEast" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(699, 403)
-height = 64.0
+position = Vector2(354, 202)
+height = 45.0
 placeholder = false
 
-[node name="LadderKeel" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(832, 525)
-height = 122.0
-
 [node name="LadderStairs" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(378, 254)
-height = 34.0
+position = Vector2(140, 98)
+height = 24.0
 placeholder = false
 
 [node name="LadderStairsUpper" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(378, 220)
-height = 35.0
+position = Vector2(140, 74)
+height = 21.0
 placeholder = false
 
 [node name="LadderMast" parent="Props" instance=ExtResource("ladder")]
-position = Vector2(499, 185)
-height = 33.0
+position = Vector2(178, 53)
+height = 22.0
+
+[node name="Barrel1" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(30, 288)
+
+[node name="Barrel2" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(189, 288)
+
+[node name="Barrel3" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(323, 288)
+
+[node name="Barrel4" parent="Props" instance=ExtResource("plain")]
+position = Vector2(374, 288)
+
+[node name="Barrel5" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(386, 288)
+
+[node name="Barrel6" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(509, 288)
+
+[node name="Barrel7" parent="Props" instance=ExtResource("plain")]
+position = Vector2(268, 350)
+
+[node name="Barrel8" parent="Props" instance=ExtResource("plain")]
+position = Vector2(314, 350)
+
+[node name="Barrel9" parent="Props" instance=ExtResource("plain")]
+position = Vector2(326, 350)
+
+[node name="Barrel10" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(454, 350)
+
+[node name="Barrel11" parent="Props" instance=ExtResource("explosive")]
+position = Vector2(467, 350)
+
+[node name="Barrel12" parent="Props" instance=ExtResource("plain")]
+position = Vector2(432, 202)
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
 [node name="P1" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(192, 612)
+position = Vector2(52, 350)
 
 [node name="P2" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(1088, 612)
+position = Vector2(601, 350)
 
 [node name="P3" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(640, 403)
+position = Vector2(313, 202)
 
 [node name="P4" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(384, 525)
+position = Vector2(133, 288)
 
 [node name="P5" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(1184, 319)
+position = Vector2(560, 288)
 
 [node name="P6" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(768, 254)
+position = Vector2(403, 98)
 
 [node name="ItemSpawns" type="Node2D" parent="."]
 
 [node name="GroundWest" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(410, 604)
+position = Vector2(151, 342)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("pistol"), ExtResource("shotgun"), ExtResource("smg"), ExtResource("knife"), ExtResource("bat"), ExtResource("grenade"), ExtResource("molotov")])
 
 [node name="GroundEast" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(896, 604)
+position = Vector2(502, 342)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("pistol"), ExtResource("shotgun"), ExtResource("smg"), ExtResource("knife"), ExtResource("bat"), ExtResource("grenade"), ExtResource("molotov")])
 
 [node name="Warehouse" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(704, 517)
+position = Vector2(349, 280)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("pistol"), ExtResource("shotgun"), ExtResource("smg"), ExtResource("knife"), ExtResource("bat"), ExtResource("grenade"), ExtResource("molotov")])
 
 [node name="CabinUpper" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(608, 331)
+position = Vector2(290, 149)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("pistol"), ExtResource("shotgun"), ExtResource("smg"), ExtResource("knife"), ExtResource("bat"), ExtResource("grenade"), ExtResource("molotov")])
 
 [node name="CabinLower" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(486, 395)
+position = Vector2(394, 194)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("pistol"), ExtResource("shotgun"), ExtResource("smg"), ExtResource("knife"), ExtResource("bat"), ExtResource("grenade"), ExtResource("molotov")])
 
-[node name="QuayWest" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(64, 311)
+[node name="Deck" type="Marker2D" parent="ItemSpawns"]
+position = Vector2(65, 90)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("pistol"), ExtResource("shotgun"), ExtResource("smg"), ExtResource("knife"), ExtResource("bat"), ExtResource("grenade"), ExtResource("molotov")])
 
 [node name="BridgeRoof" type="Marker2D" parent="ItemSpawns"]
-position = Vector2(442, 144)
+position = Vector2(155, 23)
 script = ExtResource("spawner")
 items = Array[ExtResource("item_data")]([ExtResource("sniper")])
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(640.0, 360.0)
+position = Vector2(320.0, 180.0)
 script = ExtResource("camera")
-
-[node name="CameraShots" type="Node2D" parent="."]
-
-[node name="LowWest" type="Marker2D" parent="CameraShots"]
-position = Vector2(320, 540)
-script = ExtResource("shot")
-
-[node name="LowMid" type="Marker2D" parent="CameraShots"]
-position = Vector2(640, 540)
-script = ExtResource("shot")
-
-[node name="LowEast" type="Marker2D" parent="CameraShots"]
-position = Vector2(960, 540)
-script = ExtResource("shot")
-
-[node name="HighWest" type="Marker2D" parent="CameraShots"]
-position = Vector2(320, 250)
-script = ExtResource("shot")
-
-[node name="HighMid" type="Marker2D" parent="CameraShots"]
-position = Vector2(640, 250)
-script = ExtResource("shot")
-
-[node name="HighEast" type="Marker2D" parent="CameraShots"]
-position = Vector2(960, 250)
-script = ExtResource("shot")
