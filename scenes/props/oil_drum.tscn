@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/props/plain_barrel.png" id="1_art"]
+
+[sub_resource type="RectangleShape2D" id="shape"]
+size = Vector2(12, 18)
+
+[node name="OilDrum" type="StaticBody2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -9)
+shape = SubResource("shape")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(0, -8.5)
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("1_art")
