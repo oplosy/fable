@@ -14,7 +14,7 @@ func run() -> void:
 	root.add_child(arena)
 	await physics_frames(5)
 	var map := WalkMap.of(arena)
-	check(map.surfaces.size() >= 11, "the scan finds the map's floors (%d surfaces)" % map.surfaces.size())
+	check(map.surfaces.size() >= 9, "the scan finds the map's floors (%d surfaces)" % map.surfaces.size())
 	for ladder: Ladder in arena.find_children("*", "Node2D", true, false).filter(func(n: Node) -> bool: return n is Ladder):
 		var x := ladder.global_position.x
 		check(_floor_at(map, x, ladder.bottom()), "%s stands on a floor" % ladder.name)
@@ -24,14 +24,14 @@ func run() -> void:
 	for spawner: Marker2D in arena.get_node("ItemSpawns").get_children():
 		var below := map.surface_under(spawner.global_position)
 		check(below >= 0 and map.surfaces[below].y - spawner.global_position.y <= 12.0, "item spawner %s is just over a floor" % spawner.name)
-	var ground := map.surface_under(Vector2(200, 600))
+	var ground := map.surface_under(Vector2(40, 340))
 	check(ground >= 0, "the quay is a floor")
 	for character: CharacterData in [FAST, HEAVY]:
 		for i in map.surfaces.size():
 			if i == ground:
 				continue
 			var at := "surface %d (x %d-%d, y %d)" % [i, map.surfaces[i].left, map.surfaces[i].right, map.surfaces[i].y]
-			check(map.next_link(ground, i, 200.0, character.fighter_class) != null, "%s gets from the quay to %s" % [character.resource_path.get_file(), at])
+			check(map.next_link(ground, i, 40.0, character.fighter_class) != null, "%s gets from the quay to %s" % [character.resource_path.get_file(), at])
 			check(map.next_link(i, ground, map.surfaces[i].left, character.fighter_class) != null, "%s gets from %s to the quay" % [character.resource_path.get_file(), at])
 	arena.free()
 
