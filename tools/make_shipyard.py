@@ -1,203 +1,140 @@
-"""Builds the Shipyard map from the user's reference art (art/shipyard/reference.png, 2000x1116).
+"""Builds the Shipyard map, a dry dock at night after the user's reference picture
+(art/shipyard/reference.png, used only for layout and colour).
 
-1. Paints the barrels out of the picture (each filled from the best matching stretch of the
-   same rows) and cuts the map's part of it into assets/arenas/shipyard/background.png.
-2. Cuts one explosive and one plain barrel out of the picture into assets/props/.
+1. Writes the layout below to art/shipyard/layout.json.
+2. Runs tools/draw_shipyard.lua in Aseprite, which draws the map pixel by pixel from that
+   layout: art/shipyard/shipyard.aseprite, assets/arenas/shipyard/background.png and the
+   barrel sprites in assets/props/.
 3. Writes scenes/arenas/shipyard.tscn: collision, ladders, barrel props, spawns, items.
 
-The picture is drawn at SCALE world px per art px, the scale at which its barrels are the
-game's 12x18 barrels and its doors fit a 28 px fighter; CROP is the 640x360 map's part of
-it. Everything below is measured in art px on the reference; edit it here and rerun:
+Everything is in world px, and the art is 1 px per world px (640x360), shown unfiltered at
+zoom 3 so every art pixel is a sharp 3x3 block. Edit the layout here and rerun:
 
     python tools/make_shipyard.py
 """
 
+import json
+import subprocess
 from pathlib import Path
 
-import numpy as np
-from PIL import Image
-
 ROOT = Path(__file__).resolve().parent.parent
-REFERENCE = ROOT / "art" / "shipyard" / "reference.png"
-BACKGROUND = ROOT / "assets" / "arenas" / "shipyard" / "background.png"
-PROPS = ROOT / "assets" / "props"
+ASEPRITE = Path("C:/Program Files/Aseprite/Aseprite.exe")
+LAYOUT = ROOT / "art" / "shipyard" / "layout.json"
 OUT = ROOT / "scenes" / "arenas" / "shipyard.tscn"
 
-SCALE = 0.45
 MAP = (640, 360)
-# Left and top of the map's part of the picture (art px); it spans MAP / SCALE.
-CROP = (305, 180)
+
+# Heights of the floors and the ship's outline, shared with the drawing.
+GROUND = 350
+WAREHOUSE = 288
+QUAY = 143
+DECK = 98
+KEEL = 212
+CABIN_WEST, CABIN_EAST = 166, 470
+CABIN_UPPER, CABIN_LOWER = 157, 202
+BALCONY, BRIDGE_DECK, ROOF = 74, 53, 31
 
 # One-way platforms: name, left, right, top.
 PLATFORMS = [
-	("Warehouse", 0, 1850, 821),
-	("QuayWest", 0, 370, 498),
-	("QuayEast", 1665, 2000, 498),
-	("Deck", 352, 1700, 397),
-	("CabinUpper", 675, 1352, 529),
-	("CabinLower", 675, 1350, 629),
-	("BridgeBalcony", 453, 675, 344),
-	("BridgeDeck", 486, 727, 298),
-	("BridgeRoof", 605, 738, 248),
+	("Warehouse", 0, MAP[0], WAREHOUSE),
+	("QuayWest", 0, 29, QUAY),
+	("QuayEast", 612, MAP[0], QUAY),
+	("Deck", 21, 628, DECK),
+	("CabinUpper", CABIN_WEST, CABIN_EAST, CABIN_UPPER),
+	("CabinLower", CABIN_WEST, CABIN_EAST, CABIN_LOWER),
+	("BridgeBalcony", 67, 166, BALCONY),
+	("BridgeDeck", 81, 190, BRIDGE_DECK),
+	("BridgeRoof", 135, 195, ROOF),
 ]
 
-# Solid blocks: name, left, top, right, bottom.
+# Solid blocks: name, left, top, right, bottom. The cabin walls are the hull's cut edges.
 SOLIDS = [
-	("Ground", 0, 957, 2000, 1116),
-	("CabinWallWest", 663, 405, 675, 640),
-	("CabinWallEast", 1350, 405, 1362, 640),
+	("Ground", 0, GROUND, MAP[0], MAP[1] + 60),
+	("CabinWallWest", CABIN_WEST - 5, DECK + 3, CABIN_WEST, KEEL - 5),
+	("CabinWallEast", CABIN_EAST, DECK + 3, CABIN_EAST + 6, KEEL - 5),
 ]
 
-# Ladders: name, x, bottom, top; drawn says whether the art already shows it.
+# Ladders: name, x (middle), bottom, top. All are drawn in the art.
 LADDERS = [
-	("LadderGroundMid", 960, 957, 821, True),
-	("LadderGroundEast", 1250, 957, 821, True),
-	("LadderGroundFar", 1521, 957, 821, True),
-	("LadderQuayWest", 330, 821, 498, False),
-	("LadderSternWest", 362, 498, 397, False),
-	("LadderQuayEast", 1712, 821, 498, False),
-	("LadderBowEast", 1688, 498, 397, False),
-	("LadderKeelWest", 760, 821, 629, False),
-	("LadderKeelEast", 1300, 821, 629, False),
-	("LadderHatch", 825, 529, 397, True),
-	("LadderCabin", 825, 629, 529, True),
-	("LadderCabinEast", 1092, 629, 529, True),
-	("LadderStairs", 616, 397, 344, True),
-	("LadderStairsUpper", 616, 344, 298, True),
-	("LadderMast", 700, 298, 248, False),
+	("LadderGroundMid", 295, GROUND, WAREHOUSE),
+	("LadderGroundEast", 425, GROUND, WAREHOUSE),
+	("LadderGroundFar", 547, GROUND, WAREHOUSE),
+	("LadderQuayWest", 11, WAREHOUSE, QUAY),
+	("LadderSternWest", 26, QUAY, DECK),
+	("LadderQuayEast", 633, WAREHOUSE, QUAY),
+	("LadderBowEast", 622, QUAY, DECK),
+	("LadderKeelWest", 205, WAREHOUSE, CABIN_LOWER),
+	("LadderKeelEast", 448, WAREHOUSE, CABIN_LOWER),
+	("LadderHatch", 234, CABIN_UPPER, DECK),
+	("LadderCabin", 234, CABIN_LOWER, CABIN_UPPER),
+	("LadderCabinEast", 354, CABIN_LOWER, CABIN_UPPER),
+	("LadderStairs", 140, DECK, BALCONY),
+	("LadderStairsUpper", 140, BALCONY, BRIDGE_DECK),
+	("LadderMast", 178, BRIDGE_DECK, ROOF),
 ]
 
-# Barrels painted out of the picture: left, top, right, bottom (bottom on the floor).
-PAINTED_BARRELS = [
-	(283, 762, 340, 821),  # two gas bottles and an explosive barrel
-	(356, 781, 387, 821),
-	(710, 781, 741, 821),
-	(1010, 782, 1035, 821),
-	(1118, 781, 1152, 821),
-	(1161, 781, 1187, 821),
-	(1406, 781, 1452, 821),
-	(878, 928, 922, 956),  # a barrel lying on its side
-	(983, 897, 1024, 956),  # a stack of grey drums
-	(1028, 918, 1064, 956),
-	(1298, 916, 1360, 956),
-	(1250, 594, 1278, 628),
-]
-
-# Barrel props: kind, x (middle), floor. Neighbours either touch (12 world px apart) or
-# leave a fighter's width between them, never a slot a foot could get stuck in.
+# Barrel props: kind, x (middle), floor. Neighbours either touch (12 px apart) or leave
+# a fighter's width between them, never a slot a foot could get stuck in.
 BARRELS = [
-	("explosive", 371, 821),
-	("explosive", 725, 821),
-	("explosive", 1022, 821),
-	("plain", 1135, 821),
-	("explosive", 1162, 821),
-	("explosive", 1437, 821),
-	("plain", 900, 957),
-	("plain", 1003, 957),
-	("plain", 1030, 957),
-	("explosive", 1315, 957),
-	("explosive", 1342, 957),
-	("plain", 1264, 629),
-]
-
-# Barrel art cut from the picture: kind, left, top, right, bottom.
-BARREL_ART = [
-	("explosive", 711, 782, 740, 822),
-	("plain", 1029, 919, 1063, 957),
+	("explosive", 30, WAREHOUSE),
+	("explosive", 189, WAREHOUSE),
+	("explosive", 323, WAREHOUSE),
+	("plain", 374, WAREHOUSE),
+	("explosive", 386, WAREHOUSE),
+	("explosive", 509, WAREHOUSE),
+	("plain", 268, GROUND),
+	("plain", 314, GROUND),
+	("plain", 326, GROUND),
+	("explosive", 454, GROUND),
+	("explosive", 466, GROUND),
+	("plain", 432, CABIN_LOWER),
 ]
 
 # Spawn points: name, x, feet y.
 SPAWNS = [
-	("P1", 420, 957),
-	("P2", 1640, 957),
-	("P3", 1000, 629),
-	("P4", 600, 821),
-	("P5", 1550, 821),
-	("P6", 1200, 397),
+	("P1", 52, GROUND),
+	("P2", 601, GROUND),
+	("P3", 313, CABIN_LOWER),
+	("P4", 133, WAREHOUSE),
+	("P5", 560, WAREHOUSE),
+	("P6", 403, DECK),
 ]
 
 # Item spawners: name, x, feet y, pool.
 ITEMS = [
-	("GroundWest", 640, 957, "mixed"),
-	("GroundEast", 1420, 957, "mixed"),
-	("Warehouse", 1080, 821, "mixed"),
-	("CabinUpper", 950, 529, "mixed"),
-	("CabinLower", 1180, 629, "mixed"),
-	("Deck", 450, 397, "mixed"),
-	("BridgeRoof", 650, 248, "sniper"),
+	("GroundWest", 120, GROUND, "mixed"),
+	("GroundEast", 520, GROUND, "mixed"),
+	("Warehouse", 349, WAREHOUSE, "mixed"),
+	("CabinUpper", 290, CABIN_UPPER, "mixed"),
+	("CabinLower", 394, CABIN_LOWER, "mixed"),
+	("Deck", 65, DECK, "mixed"),
+	("BridgeRoof", 155, ROOF, "sniper"),
 ]
 
 WALL = 16
 PLATFORM_THICKNESS = 6
-# Items float this far (world px) over the floor, as in the test arena.
+# Items float this far over the floor, as in the test arena.
 ITEM_LIFT = 8
-# Width (art px) of the frame around a painted-out barrel matched against other spots.
-RING = 4
-# How far (art px) along its rows a painted-out barrel looks for its fill.
-SEARCH = 400
-# Barrel outlines are darker than this (0-255 sum of RGB / 3); the art around them is cut away.
-OUTLINE = 34
 
 
-def wx(art: float) -> int:
-	return round((art - CROP[0]) * SCALE)
+def write_layout() -> None:
+	LAYOUT.parent.mkdir(parents=True, exist_ok=True)
+	LAYOUT.write_text(json.dumps({
+		"ground_y": GROUND, "warehouse_y": WAREHOUSE, "quay_y": QUAY, "deck_y": DECK, "keel_y": KEEL,
+		"cabin_west": CABIN_WEST, "cabin_east": CABIN_EAST, "cabin_upper_y": CABIN_UPPER, "cabin_lower_y": CABIN_LOWER,
+		"balcony_y": BALCONY, "bridge_deck_y": BRIDGE_DECK, "roof_y": ROOF,
+		"ladders": [{"x": x, "bottom": bottom, "top": top} for _, x, bottom, top in LADDERS],
+	}, indent=1), encoding="utf-8")
 
 
-def wy(art: float) -> int:
-	return round((art - CROP[1]) * SCALE)
-
-
-def paint_out(picture: np.ndarray) -> np.ndarray:
-	"""Fills every PAINTED_BARRELS box with the stretch of the same rows whose frame matches best."""
-	out = picture.copy()
-	blocked = np.zeros(picture.shape[:2], bool)
-	for left, top, right, bottom in PAINTED_BARRELS:
-		blocked[top - RING:bottom, left - RING:right + RING] = True
-	for left, top, right, bottom in PAINTED_BARRELS:
-		frame = np.zeros(picture.shape[:2], bool)
-		frame[top - RING:bottom, left - RING:right + RING] = True
-		frame[top:bottom, left:right] = False
-		ys, xs = np.nonzero(frame)
-		target = picture[ys, xs].astype(float)
-		best, best_dx = None, 0
-		for dx in range(-SEARCH, SEARCH + 1):
-			l, r = left + dx - RING, right + dx + RING
-			if abs(dx) < right - left + RING or l < 0 or r > picture.shape[1]:
-				continue
-			if blocked[top - RING:bottom, l:r].any():
-				continue
-			cost = ((picture[ys, xs + dx].astype(float) - target) ** 2).sum()
-			if best is None or cost < best:
-				best, best_dx = cost, dx
-		out[top:bottom, left:right] = picture[top:bottom, left + best_dx:right + best_dx]
-	return out
-
-
-def cut_barrel(picture: np.ndarray, left: int, top: int, right: int, bottom: int) -> Image.Image:
-	"""The barrel inside its outline on each row, with the art around it see-through."""
-	part = picture[top:bottom, left:right]
-	dark = part.mean(axis=2) < OUTLINE
-	alpha = np.zeros(dark.shape, np.uint8)
-	for row in range(dark.shape[0]):
-		cols = np.nonzero(dark[row])[0]
-		if cols.size:
-			alpha[row, cols[0]:cols[-1] + 1] = 255
-	return Image.fromarray(np.dstack([part, alpha]), "RGBA")
-
-
-def build_art() -> dict[str, tuple[int, int]]:
-	picture = np.array(Image.open(REFERENCE).convert("RGB"))
-	painted = paint_out(picture)
-	size = (round(MAP[0] / SCALE), round(MAP[1] / SCALE))
-	crop = painted[CROP[1]:CROP[1] + size[1], CROP[0]:CROP[0] + size[0]]
-	BACKGROUND.parent.mkdir(parents=True, exist_ok=True)
-	Image.fromarray(crop).save(BACKGROUND)
-	PROPS.mkdir(parents=True, exist_ok=True)
-	sizes = {}
-	for kind, left, top, right, bottom in BARREL_ART:
-		cut_barrel(picture, left, top, right, bottom).save(PROPS / f"{kind}_barrel.png")
-		sizes[kind] = (right - left, bottom - top)
-	return sizes
+def draw() -> None:
+	result = subprocess.run(
+		[str(ASEPRITE), "-b", "--script-param", f"root={ROOT.as_posix()}", "--script", str(ROOT / "tools" / "draw_shipyard.lua")],
+		capture_output=True, text=True,
+	)
+	# Aseprite's own extensions may complain in batch mode; only the script's result counts.
+	if "drew the Shipyard" not in result.stdout:
+		raise SystemExit(f"Aseprite failed:\n{result.stdout}\n{result.stderr}")
 
 
 def build_scene() -> None:
@@ -227,7 +164,6 @@ def build_scene() -> None:
 	nodes: list[str] = []
 
 	def body(name: str, left: int, top: int, right: int, bottom: int, one_way: bool) -> None:
-		left, right = max(left, -WALL), min(right, MAP[0] + WALL)
 		sid = f"shape_{name}"
 		subs.append(f'[sub_resource type="RectangleShape2D" id="{sid}"]\nsize = Vector2({right - left}, {bottom - top})\n')
 		nodes.append(f'[node name="{name}" type="StaticBody2D" parent="Collision"]\nposition = Vector2({(left + right) / 2}, {(top + bottom) / 2})\n')
@@ -242,39 +178,39 @@ def build_scene() -> None:
 		f"bounds = Rect2(-64, -360, {MAP[0] + 128}, {MAP[1] + 424})\n"
 		f"camera_limits = Rect2(0, 0, {MAP[0]}, {MAP[1]})\n"
 	)
+	# Pixel art: drawn unfiltered, so each art pixel stays a sharp block at zoom 3.
 	nodes.append(
 		'[node name="Background" type="Sprite2D" parent="."]\n'
-		f'texture = ExtResource("art")\ncentered = false\nscale = Vector2({SCALE}, {SCALE})\n'
+		'texture_filter = 1\ntexture = ExtResource("art")\ncentered = false\n'
 	)
 
 	nodes.append('[node name="Collision" type="Node2D" parent="."]\n')
 	for name, left, top, right, bottom in SOLIDS:
-		body(name, wx(left), wy(top), wx(right), wy(bottom), False)
+		body(name, left, top, right, bottom, False)
 	for name, left, right, top in PLATFORMS:
-		body(name, wx(left), wy(top), wx(right), wy(top) + PLATFORM_THICKNESS, True)
-	ground = wy(957)
-	body("WallWest", -WALL, -360, 0, ground, False)
-	body("WallEast", MAP[0], -360, MAP[0] + WALL, ground, False)
+		body(name, left, top, right, top + PLATFORM_THICKNESS, True)
+	body("WallWest", -WALL, -360, 0, GROUND, False)
+	body("WallEast", MAP[0], -360, MAP[0] + WALL, GROUND, False)
 
 	nodes.append('[node name="Props" type="Node2D" parent="."]\n')
-	for name, x, bottom, top, drawn in LADDERS:
-		props = f"position = Vector2({wx(x)}, {wy(bottom)})\nheight = {float(wy(bottom) - wy(top))}\n"
-		if drawn:
-			props += "placeholder = false\n"
-		nodes.append(f'[node name="{name}" parent="Props" instance=ExtResource("ladder")]\n{props}')
+	for name, x, bottom, top in LADDERS:
+		nodes.append(
+			f'[node name="{name}" parent="Props" instance=ExtResource("ladder")]\n'
+			f"position = Vector2({x}, {bottom})\nheight = {float(bottom - top)}\nplaceholder = false\n"
+		)
 	for i, (kind, x, floor) in enumerate(BARRELS):
-		nodes.append(f'[node name="Barrel{i + 1}" parent="Props" instance=ExtResource("{kind}")]\nposition = Vector2({wx(x)}, {wy(floor)})\n')
+		nodes.append(f'[node name="Barrel{i + 1}" parent="Props" instance=ExtResource("{kind}")]\nposition = Vector2({x}, {floor})\n')
 
 	nodes.append('[node name="SpawnPoints" type="Node2D" parent="."]\n')
 	for name, x, y in SPAWNS:
-		nodes.append(f'[node name="{name}" type="Marker2D" parent="SpawnPoints"]\nposition = Vector2({wx(x)}, {wy(y)})\n')
+		nodes.append(f'[node name="{name}" type="Marker2D" parent="SpawnPoints"]\nposition = Vector2({x}, {y})\n')
 
 	nodes.append('[node name="ItemSpawns" type="Node2D" parent="."]\n')
 	for name, x, y, pool in ITEMS:
 		items = ", ".join(f'ExtResource("{i}")' for i in pools[pool])
 		nodes.append(
 			f'[node name="{name}" type="Marker2D" parent="ItemSpawns"]\n'
-			f"position = Vector2({wx(x)}, {wy(y) - ITEM_LIFT})\n"
+			f"position = Vector2({x}, {y - ITEM_LIFT})\n"
 			'script = ExtResource("spawner")\n'
 			f'items = Array[ExtResource("item_data")]([{items}])\n'
 		)
@@ -292,11 +228,10 @@ def build_scene() -> None:
 
 
 def main() -> None:
-	sizes = build_art()
+	write_layout()
+	draw()
 	build_scene()
-	for kind, (width, height) in sizes.items():
-		print(f"{kind} barrel art {width}x{height} -> {width * SCALE:.1f}x{height * SCALE:.1f} world px")
-	print(f"wrote {BACKGROUND}, {PROPS} and {OUT}")
+	print(f"drew the art and wrote {OUT}")
 
 
 if __name__ == "__main__":
