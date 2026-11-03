@@ -1,0 +1,91 @@
+{
+ "ground_y": 350,
+ "warehouse_y": 288,
+ "quay_y": 143,
+ "deck_y": 98,
+ "keel_y": 212,
+ "cabin_west": 166,
+ "cabin_east": 470,
+ "cabin_upper_y": 157,
+ "cabin_lower_y": 202,
+ "balcony_y": 74,
+ "bridge_deck_y": 53,
+ "roof_y": 31,
+ "ladders": [
+  {
+   "x": 295,
+   "bottom": 350,
+   "top": 288
+  },
+  {
+   "x": 425,
+   "bottom": 350,
+   "top": 288
+  },
+  {
+   "x": 547,
+   "bottom": 350,
+   "top": 288
+  },
+  {
+   "x": 11,
+   "bottom": 288,
+   "top": 143
+  },
+  {
+   "x": 26,
+   "bottom": 143,
+   "top": 98
+  },
+  {
+   "x": 633,
+   "bottom": 288,
+   "top": 143
+  },
+  {
+   "x": 622,
+   "bottom": 143,
+   "top": 98
+  },
+  {
+   "x": 205,
+   "bottom": 288,
+   "top": 202
+  },
+  {
+   "x": 448,
+   "bottom": 288,
+   "top": 202
+  },
+  {
+   "x": 234,
+   "bottom": 157,
+   "top": 98
+  },
+  {
+   "x": 234,
+   "bottom": 202,
+   "top": 157
+  },
+  {
+   "x": 354,
+   "bottom": 202,
+   "top": 157
+  },
+  {
+   "x": 140,
+   "bottom": 98,
+   "top": 74
+  },
+  {
+   "x": 140,
+   "bottom": 74,
+   "top": 53
+  },
+  {
+   "x": 178,
+   "bottom": 53,
+   "top": 31
+  }
+ ]
+}
