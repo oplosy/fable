@@ -13,10 +13,14 @@ const REACH := 6.0
 const WIDTH := 10.0
 
 @export var height := 96.0
+## Off when the map's background art already draws this ladder.
+@export var placeholder := true
 
 
 func _ready() -> void:
 	add_to_group(GROUP)
+	if not placeholder:
+		return
 	var visual := ColorRect.new()
 	visual.color = Color(0.5, 0.36, 0.22)
 	visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
