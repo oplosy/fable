@@ -24,7 +24,7 @@
         "foot_front": 0,
         "leg_back_upper": 8,
         "leg_back_lower": -8,
-        "foot_back": 0,
+        "foot_back": 13.5,
         "scabbard": -15,
         "coat_tail": -18,
         "coat_back": -14
@@ -34,7 +34,7 @@
       "t": 0.12,
       "root": [
         -2,
-        1
+        -0.03
       ],
       "angles": {
         "pelvis": -20,
@@ -48,7 +48,8 @@
         "hand_back": 0,
         "scabbard": -22,
         "coat_tail": -25,
-        "coat_back": -20
+        "coat_back": -20,
+        "foot_back": 22.0
       }
     },
     {
@@ -69,7 +70,7 @@
         "hand_back": 0,
         "leg_front_upper": 14,
         "leg_front_lower": -16,
-        "foot_front": 2,
+        "foot_front": -10.0,
         "leg_back_upper": -16,
         "leg_back_lower": 14,
         "foot_back": -2,

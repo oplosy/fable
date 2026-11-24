@@ -24,7 +24,7 @@
         "foot_front": 0,
         "leg_back_upper": 8,
         "leg_back_lower": -6,
-        "foot_back": 0,
+        "foot_back": 2.5,
         "scabbard": -8,
         "coat_tail": -12,
         "coat_back": -8
@@ -48,7 +48,7 @@
         "hand_back": 0,
         "leg_front_upper": 12,
         "leg_front_lower": -12,
-        "foot_front": 0,
+        "foot_front": -7.0,
         "leg_back_upper": -12,
         "leg_back_lower": 8,
         "foot_back": 0,

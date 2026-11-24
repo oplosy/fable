@@ -7,7 +7,7 @@
       "t": 0.0,
       "root": [
         0,
-        7
+        6.15
       ],
       "angles": {
         "pelvis": 0,
@@ -27,7 +27,7 @@
         "foot_front": -63.0,
         "leg_back_upper": -40.1,
         "leg_back_lower": 72.5,
-        "foot_back": -32.4
+        "foot_back": -30.4
       },
       "stretch": {}
     },
@@ -35,7 +35,7 @@
       "t": 0.28,
       "root": [
         0,
-        5
+        4.52
       ],
       "angles": {
         "pelvis": 0,
@@ -55,7 +55,7 @@
         "foot_front": -52.8,
         "leg_back_upper": -32.5,
         "leg_back_lower": 61.1,
-        "foot_back": -28.6
+        "foot_back": -26.6
       },
       "stretch": {}
     },

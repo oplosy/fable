@@ -34,7 +34,7 @@
       "t": 0.15,
       "root": [
         0,
-        1
+        0.77
       ],
       "angles": {
         "pelvis": -2,
@@ -48,7 +48,9 @@
         "hand_back": 0,
         "scabbard": -2,
         "coat_tail": 2,
-        "coat_back": 0
+        "coat_back": 0,
+        "foot_front": 1.5,
+        "foot_back": 4.0
       }
     },
     {
@@ -69,7 +71,9 @@
         "hand_back": 0,
         "scabbard": 2,
         "coat_tail": -4,
-        "coat_back": -2
+        "coat_back": -2,
+        "foot_front": -0.5,
+        "foot_back": 3.5
       }
     }
   ]

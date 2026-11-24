@@ -15,10 +15,10 @@
         "head": 20,
         "leg_front_upper": 60,
         "leg_front_lower": -40,
-        "foot_front": 10,
+        "foot_front": 0.5,
         "leg_back_upper": 55,
         "leg_back_lower": -35,
-        "foot_back": 10,
+        "foot_back": 7.5,
         "arm_front_upper": 45,
         "arm_front_lower": 60,
         "hand_front": 0,
@@ -61,7 +61,7 @@
       "t": 0.22,
       "root": [
         0,
-        3
+        2.98
       ],
       "angles": {
         "pelvis": 0,
@@ -69,7 +69,7 @@
         "head": 0,
         "leg_front_upper": 30,
         "leg_front_lower": -45,
-        "foot_front": 15,
+        "foot_front": 17.0,
         "leg_back_upper": 25,
         "leg_back_lower": -40,
         "foot_back": 15,
