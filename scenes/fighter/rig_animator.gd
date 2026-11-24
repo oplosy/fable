@@ -7,6 +7,8 @@ extends AnimationPlayer
 const CLIPS_DIR := "res://assets/animations"
 ## Hip-to-floor length (art px) of the reference rig.
 const REFERENCE_LEG_LENGTH := 39.0
+## Art pixels per world pixel of the reference rig: its legs are 13 world px long.
+const REFERENCE_PIXELS_PER_UNIT := 3.0
 ## Seconds two clips cross-fade when the clip changes.
 const BLEND := 0.1
 const SNAP := 0.03
@@ -26,6 +28,8 @@ const STRIKE_CLIPS: Array[String] = ["jab_1", "jab_2", "jab_3", "hook", "jump_ki
 var fighter: Fighter
 var _rig: CharacterRig
 var _leg_scale := 1.0
+## World leg length against the reference rig's: a shorter leg steps faster for one speed.
+var _stride_scale := 1.0
 var _rest_scale := Vector2.ONE
 var _trail: StrikeTrail
 var _reference_speeds := {}
@@ -41,6 +45,7 @@ func setup(target: Fighter, rig: CharacterRig) -> void:
 	_rig = rig
 	_rest_scale = rig.scale
 	_leg_scale = rig.leg_length() / REFERENCE_LEG_LENGTH
+	_stride_scale = rig.leg_length() * rig.scale.y / (REFERENCE_LEG_LENGTH / REFERENCE_PIXELS_PER_UNIT)
 	root_node = get_path_to(rig)
 	_trail = StrikeTrail.new()
 	target.add_child(_trail)
@@ -185,19 +190,19 @@ func _choose_clip() -> void:
 		if fighter.controller.move != 0.0:
 			clip = "crouch_walk"
 			var ref_speed: float = _reference_speeds.get("crouch_walk", 60.0)
-			speed = absf(fighter.velocity.x) / (ref_speed * _leg_scale) if ref_speed > 0.0 else 1.0
+			speed = absf(fighter.velocity.x) / (ref_speed * _stride_scale) if ref_speed > 0.0 else 1.0
 		else:
 			clip = "crouch_idle"
 	elif state == Fighter.State.WALK:
 		clip = "walk"
 		blend = BLEND
 		var ref_speed: float = _reference_speeds.get("walk", 120.0)
-		speed = absf(fighter.velocity.x) / (ref_speed * _leg_scale) if ref_speed > 0.0 else 1.0
+		speed = absf(fighter.velocity.x) / (ref_speed * _stride_scale) if ref_speed > 0.0 else 1.0
 	elif state == Fighter.State.RUN:
 		clip = "run"
 		blend = BLEND
 		var ref_speed: float = _reference_speeds.get("run", 200.0)
-		speed = absf(fighter.velocity.x) / (ref_speed * _leg_scale) if ref_speed > 0.0 else 1.0
+		speed = absf(fighter.velocity.x) / (ref_speed * _stride_scale) if ref_speed > 0.0 else 1.0
 	elif state == Fighter.State.IDLE:
 		clip = "aim_idle" if fighter.state() == Fighter.State.AIM else "idle"
 		blend = BLEND
