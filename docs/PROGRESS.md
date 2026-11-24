@@ -13,6 +13,10 @@ The game is built in these steps, one at a time:
 5. Real assets: the final characters, sprite sheets, animations, ground, props, effects and sounds.
 6. Polish and content: hit effects, hit-stop, screen shake, UI, menus, more characters, arena detail and balance.
 
+## Status (session 12)
+
+The user dropped pixel art for a 2D vector cutout look (see GAME_DESIGN → Visual Direction); Claude will draw and rig everything. Deleted: the Shipyard (scene, art, drawing tools, `test_shipyard`, its oil and explosive drum props), the Ronin rig parts and `ronin.tres` with every test built on them (`test_ronin_*`, `test_aim_pose`, `test_combat_sync`, `test_rig_draw_order`), the Ronin animation tools, and the weapon and barrel pixel art. Items are flat boxes again (`GradientTexture2D` at the old art sizes, so grips, muzzles and pickup bodies keep their tuning). `main.tscn` loads the Range with `placeholder.tres` against `dummy.tres`. `CharacterRig`, `RigAnimator` and the 28 JSON clips stay, unused, until the vector pipeline is designed. `DONT-OPEN/` is gone from disk (not deleted by Claude; still in git). All 25 suites pass. Next: design the vector art and rig pipeline.
+
 ## Status (session 10)
 
 Ronin Street Samurai (`06_Ronin_Street_Samurai`) was selected to pioneer the perfected 2D skeletal rig and fluid combat animation system:
