@@ -1,0 +1,70 @@
+{
+  "canvas": [
+    40,
+    60
+  ],
+  "feet": [
+    20,
+    58
+  ],
+  "pivots": {
+    "pelvis": [
+      20,
+      34
+    ],
+    "torso": [
+      20,
+      30
+    ],
+    "head": [
+      20,
+      14
+    ],
+    "arm_front_upper": [
+      22,
+      18
+    ],
+    "arm_front_lower": [
+      24,
+      26
+    ],
+    "arm_back_upper": [
+      18,
+      18
+    ],
+    "arm_back_lower": [
+      16,
+      26
+    ],
+    "leg_front_upper": [
+      22,
+      36
+    ],
+    "leg_front_lower": [
+      22,
+      46
+    ],
+    "leg_back_upper": [
+      18,
+      36
+    ],
+    "leg_back_lower": [
+      18,
+      46
+    ],
+    "hand_front": [
+      26,
+      32
+    ]
+  },
+  "points": {
+    "hand_front": [
+      26,
+      32
+    ],
+    "hand_back": [
+      14,
+      32
+    ]
+  }
+}

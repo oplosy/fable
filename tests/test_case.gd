@@ -21,6 +21,7 @@ class ErrorCatcher extends Logger:
 var time_limit := 30.0
 var _failed := false
 var _errors := ErrorCatcher.new()
+var _expected_errors: Array[String] = []
 
 
 func _initialize() -> void:
@@ -33,6 +34,12 @@ func _initialize() -> void:
 		print("FAIL timed out")
 		quit(1))
 	await run()
+	for fragment in _expected_errors:
+		var at := _errors.errors.find_custom(func(error: String) -> bool: return fragment in error)
+		if at < 0:
+			check(false, "expected error: " + fragment)
+		else:
+			_errors.errors.remove_at(at)
 	for error in _errors.errors:
 		check(false, "no engine or script error: " + error)
 	print("FAILED" if _failed else "ALL PASSED")
@@ -41,6 +48,12 @@ func _initialize() -> void:
 
 func run() -> void:
 	pass
+
+
+## Marks one engine or script error containing `fragment` as expected, so it does not fail
+## the suite; the suite fails if no such error happens.
+func expect_error(fragment: String) -> void:
+	_expected_errors.append(fragment)
 
 
 func physics_frames(count: int) -> void:

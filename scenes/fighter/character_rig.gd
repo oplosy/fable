@@ -3,7 +3,7 @@ extends Node2D
 
 ## A character's cutout rig: one node per body part, parented joint to joint,
 ## so rotating a part carries everything attached to it.
-## Built from a rig.json and the part PNGs next to it. Shapes and hits never use it.
+## Built from a rig.json and the part SVGs (or PNGs) next to it. Shapes and hits never use it.
 
 ## Every part in draw order (back to front) with its parent; "" is the rig root at the feet.
 const PARTS := [
@@ -68,9 +68,12 @@ func build(rig_path: String, pixels_per_unit: float) -> bool:
 				continue
 			push_error("%s: no pivot for %s" % [rig_path, part])
 			return false
-		var texture := load("%s/%s.png" % [dir, part]) as Texture2D
+		var file := "%s/%s.svg" % [dir, part]
+		if not ResourceLoader.exists(file):
+			file = "%s/%s.png" % [dir, part]
+		var texture := load(file) as Texture2D if ResourceLoader.exists(file) else null
 		if texture == null:
-			push_error("%s: missing part %s.png" % [rig_path, part])
+			push_error("%s: missing part %s.svg" % [rig_path, part])
 			return false
 		textures[part] = texture
 	feet = _vec(rig.feet)
