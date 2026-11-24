@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240">
+<path d="M115,176 Q115,173 119,173 L131,173 Q136,173 136,178 L136,188 Q136,192 131,192 L120,192 Q115,192 115,188 Z" fill="#2a1f2b" stroke="#2a1f2b" stroke-width="6.0" stroke-linejoin="round"/>
+<path d="M115,176 Q115,173 119,173 L131,173 Q136,173 136,178 L136,188 Q136,192 131,192 L120,192 Q115,192 115,188 Z" fill="#cc3138"/>
+<clipPath id="hand_front_clip"><path d="M115,176 Q115,173 119,173 L131,173 Q136,173 136,178 L136,188 Q136,192 131,192 L120,192 Q115,192 115,188 Z"/></clipPath>
+<g clip-path="url(#hand_front_clip)"><rect x="113" y="187" width="26" height="8" fill="#8e1e28"/></g>
+<path d="M125,174 L125,180" fill="none" stroke="#8e1e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M129,174 L129,180" fill="none" stroke="#8e1e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M133,174 L133,180" fill="none" stroke="#8e1e28" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

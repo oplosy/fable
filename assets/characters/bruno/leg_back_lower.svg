@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240">
+<path d="M80.50,205.00 L80.50,224.00 A9.5,9.5 0 0 0 99.50,224.00 L99.50,205.00 A9.5,9.5 0 0 0 80.50,205.00 Z" fill="#2a1f2b" stroke="#2a1f2b" stroke-width="6.0" stroke-linejoin="round"/>
+<path d="M80.50,205.00 L80.50,224.00 A9.5,9.5 0 0 0 99.50,224.00 L99.50,205.00 A9.5,9.5 0 0 0 80.50,205.00 Z" fill="#283265"/>
+<clipPath id="leg_back_lower_clip"><path d="M80.50,205.00 L80.50,224.00 A9.5,9.5 0 0 0 99.50,224.00 L99.50,205.00 A9.5,9.5 0 0 0 80.50,205.00 Z"/></clipPath>
+<g clip-path="url(#leg_back_lower_clip)"><rect x="0" y="0" width="200" height="240" fill="#1b2348"/><path d="M84.50,205.00 L84.50,224.00 A9.5,9.5 0 0 0 103.50,224.00 L103.50,205.00 A9.5,9.5 0 0 0 84.50,205.00 Z" fill="#283265"/><rect x="0" y="216" width="200" height="20" fill="#3f5089"/></g>
+<path d="M81,216 L99,216" fill="none" stroke="#2a1f2b" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

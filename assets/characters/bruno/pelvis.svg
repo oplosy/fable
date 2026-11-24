@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240">
+<path d="M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z" fill="#2a1f2b" stroke="#2a1f2b" stroke-width="6.0" stroke-linejoin="round"/>
+<path d="M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z" fill="#33407a"/>
+<clipPath id="pelvis_clip"><path d="M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z"/></clipPath>
+<g clip-path="url(#pelvis_clip)"><rect x="78" y="164" width="14" height="34" fill="#232d5a"/></g>
+<rect x="82" y="167" width="38" height="5" fill="#4a3328"/>
+<path d="M82,172 L120,172" fill="none" stroke="#2a1f2b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="108" y="166" width="7" height="7" rx="1" fill="#c9a24a" stroke="#2a1f2b" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240">
+<path d="M71.00,157.00 L71.00,175.00 A9.0,9.0 0 0 0 89.00,175.00 L89.00,157.00 A9.0,9.0 0 0 0 71.00,157.00 Z" fill="#2a1f2b" stroke="#2a1f2b" stroke-width="6.0" stroke-linejoin="round"/>
+<path d="M71.00,157.00 L71.00,175.00 A9.0,9.0 0 0 0 89.00,175.00 L89.00,157.00 A9.0,9.0 0 0 0 71.00,157.00 Z" fill="#c48f66"/>
+<clipPath id="arm_back_lower_clip"><path d="M71.00,157.00 L71.00,175.00 A9.0,9.0 0 0 0 89.00,175.00 L89.00,157.00 A9.0,9.0 0 0 0 71.00,157.00 Z"/></clipPath>
+<g clip-path="url(#arm_back_lower_clip)"><rect x="0" y="0" width="200" height="240" fill="#9c6745"/><path d="M75.00,157.00 L75.00,175.00 A9.0,9.0 0 0 0 93.00,175.00 L93.00,157.00 A9.0,9.0 0 0 0 75.00,157.00 Z" fill="#c48f66"/><rect x="0" y="164" width="200" height="60" fill="#741822"/><path d="M75.00,172.00 L75.00,175.00 A9.0,9.0 0 0 0 93.00,175.00 L93.00,172.00 A9.0,9.0 0 0 0 75.00,172.00 Z" fill="#a9272f"/></g>
+<path d="M71,164 L91,166" fill="none" stroke="#2a1f2b" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M73,170 L91,173" fill="none" stroke="#741822" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M73,176 L91,179" fill="none" stroke="#741822" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

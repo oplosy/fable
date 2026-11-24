@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240">
+<path d="M84,180 L78,152 Q70,136 82,129 Q92,125 100,126 Q112,125 122,128 Q134,134 128,152 L120,180 Q100,184 84,180 Z" fill="#2a1f2b" stroke="#2a1f2b" stroke-width="6.0" stroke-linejoin="round"/>
+<path d="M84,180 L78,152 Q70,136 82,129 Q92,125 100,126 Q112,125 122,128 Q134,134 128,152 L120,180 Q100,184 84,180 Z" fill="#f2ede4"/>
+<clipPath id="torso_clip"><path d="M84,180 L78,152 Q70,136 82,129 Q92,125 100,126 Q112,125 122,128 Q134,134 128,152 L120,180 Q100,184 84,180 Z"/></clipPath>
+<g clip-path="url(#torso_clip)"><path d="M70,120 L94,124 Q88,150 92,186 L70,186 Z" fill="#cfc5b5"/></g>
+<path d="M93,128 Q102,144 113,129 Q104,131 93,128 Z" fill="#e3a97a" stroke="#2a1f2b" stroke-width="2" stroke-linejoin="round"/>
+<path d="M106,154 Q112,158 118,155" fill="none" stroke="#cfc5b5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M88,176 Q100,179 116,176" fill="none" stroke="#cfc5b5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

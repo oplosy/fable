@@ -1,0 +1,121 @@
+{
+  "character": "bruno",
+  "canvas": [
+    200,
+    240
+  ],
+  "feet": [
+    100,
+    232
+  ],
+  "draw_order": [
+    "arm_back_upper",
+    "arm_back_lower",
+    "hand_back",
+    "leg_back_upper",
+    "leg_back_lower",
+    "foot_back",
+    "pelvis",
+    "leg_front_upper",
+    "leg_front_lower",
+    "foot_front",
+    "torso",
+    "head",
+    "arm_front_upper",
+    "arm_front_lower",
+    "hand_front"
+  ],
+  "hierarchy": {
+    "pelvis": "",
+    "torso": "pelvis",
+    "head": "torso",
+    "arm_front_upper": "torso",
+    "arm_front_lower": "arm_front_upper",
+    "hand_front": "arm_front_lower",
+    "arm_back_upper": "torso",
+    "arm_back_lower": "arm_back_upper",
+    "hand_back": "arm_back_lower",
+    "leg_front_upper": "pelvis",
+    "leg_front_lower": "leg_front_upper",
+    "foot_front": "leg_front_lower",
+    "leg_back_upper": "pelvis",
+    "leg_back_lower": "leg_back_upper",
+    "foot_back": "leg_back_lower"
+  },
+  "pivots": {
+    "pelvis": [
+      100,
+      178
+    ],
+    "torso": [
+      100,
+      174
+    ],
+    "head": [
+      102,
+      130
+    ],
+    "arm_front_upper": [
+      118,
+      136
+    ],
+    "arm_front_lower": [
+      122,
+      157
+    ],
+    "hand_front": [
+      124,
+      175
+    ],
+    "arm_back_upper": [
+      82,
+      136
+    ],
+    "arm_back_lower": [
+      80,
+      157
+    ],
+    "hand_back": [
+      80,
+      175
+    ],
+    "leg_front_upper": [
+      108,
+      184
+    ],
+    "leg_front_lower": [
+      110,
+      205
+    ],
+    "foot_front": [
+      110,
+      222
+    ],
+    "leg_back_upper": [
+      92,
+      184
+    ],
+    "leg_back_lower": [
+      90,
+      205
+    ],
+    "foot_back": [
+      90,
+      222
+    ]
+  },
+  "points": {
+    "hand_front": [
+      125,
+      183
+    ],
+    "hand_back": [
+      81,
+      183
+    ],
+    "head_top": [
+      103,
+      70
+    ]
+  }
+}
