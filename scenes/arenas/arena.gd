@@ -10,9 +10,9 @@ const BOUNDED := &"bounded"
 @export var bounds := Rect2(-64, -360, 768, 784)
 ## The part of the map the camera may show, in the arena's own coordinates. Everywhere
 ## a fighter can stand or jump must lie inside it. Its size is exactly the view at one of
-## FollowCamera.ZOOMS (640x360, 1280x720 or 2560x1440), so the whole-map shot fills the
+## FollowCamera.ZOOMS (384x216, 768x432 or 1536x864), so the whole-map shot fills the
 ## screen at a crisp zoom and every fighter always fits on it.
-@export var camera_limits := Rect2(0, 0, 640, 360)
+@export var camera_limits := Rect2(-64, -72, 768, 432)
 
 ## The match's single source of randomness (spawn picks, bullet spread), so seeding it
 ## replays a match exactly, e.g. for tests, replays or keeping online peers in sync.
@@ -30,9 +30,8 @@ static func rng_of(node: Node) -> RandomNumberGenerator:
 
 func _ready() -> void:
 	if not fits_camera():
-		push_error("%s: camera_limits %s is not the view at a camera zoom (640x360, 1280x720 or 2560x1440)." % [scene_file_path, camera_limits.size])
-	# The camera only ever shrinks the 3x art (never past 1:1), so mipmaps keep it from
-	# dropping pixels and shimmering while zooming. At the art zoom it draws pixel for pixel.
+		push_error("%s: camera_limits %s is not the view at a camera zoom (384x216, 768x432 or 1536x864)." % [scene_file_path, camera_limits.size])
+	# Art is rasterized for the closest zoom; mipmaps keep it smooth further out.
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 

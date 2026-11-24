@@ -5,7 +5,7 @@ extends Marker2D
 ## FollowCamera.ZOOMS. The arena's camera cuts to the closest shot that holds every
 ## living fighter, so each shot should read as a finished picture at its zoom.
 
-@export var zoom := 3.0
+@export var zoom := 5.0
 
 
 ## The world area the shot shows on a screen of `view` pixels.

@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scenes/arenas/arena.gd" id="1_arena"]
 [ext_resource type="Script" path="res://scenes/arenas/follow_camera.gd" id="2_camera"]
 [ext_resource type="Script" path="res://scenes/arenas/measure_grid.gd" id="3_grid"]
 [ext_resource type="PackedScene" path="res://scenes/props/barrel.tscn" id="4_barrel"]
+[ext_resource type="Script" path="res://scenes/arenas/camera_shot.gd" id="5_shot"]
 
 [sub_resource type="RectangleShape2D" id="floor_shape"]
 size = Vector2(640, 32)
@@ -83,6 +84,16 @@ position = Vector2(112, 328)
 position = Vector2(560, 328)
 
 [node name="ItemSpawns" type="Node2D" parent="."]
+
+[node name="Shots" type="Node2D" parent="."]
+
+[node name="ShotLeft" type="Marker2D" parent="Shots"]
+position = Vector2(192, 250)
+script = ExtResource("5_shot")
+
+[node name="ShotRight" type="Marker2D" parent="Shots"]
+position = Vector2(448, 250)
+script = ExtResource("5_shot")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(320, 180)

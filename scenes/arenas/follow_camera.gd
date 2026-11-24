@@ -6,16 +6,16 @@ extends Camera2D
 ## zoom) that contains every living fighter and glides to another only when the fighters
 ## leave it or fit a closer one, so the picture is always a composed one.
 ##
-## Shots sit only at ZOOMS, where the 3x art shrinks by a whole factor (1:1, 2:1, 4:1);
-## with mipmaps every one of them stays crisp. In between, the zoom only passes through
-## while the camera moves from one shot to the next.
+## Shots sit only at ZOOMS; vector art is rasterized for the closest one and mipmaps
+## keep the others smooth. In between, the zoom only passes through while the camera
+## moves from one shot to the next.
 
-## Screen pixels per world pixel a shot may use. At 3, one pixel of the 3x art is one
-## screen pixel; each step out halves it.
-const ZOOMS: Array[float] = [3.0, 1.5, 0.75]
-## Furthest zoom on any map: a 96 px tall character is then 24 px tall on a 1080p screen,
+## Screen pixels per world pixel a shot may use. At 5 a 28 px fighter is 140 screen px
+## tall; each step out halves it.
+const ZOOMS: Array[float] = [5.0, 2.5, 1.25]
+## Furthest zoom on any map: a 28 px tall fighter is then 35 px tall on a 1080p screen,
 ## the smallest it stays readable.
-const MIN_ZOOM := 0.75
+const MIN_ZOOM := 1.25
 const VIEW := Vector2(1920, 1080)
 ## The whole view at MIN_ZOOM: the largest map there is.
 const MAX_MAP_SIZE := VIEW / MIN_ZOOM

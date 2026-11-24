@@ -11,12 +11,15 @@ const ARENAS := "res://scenes/arenas/"
 
 func run() -> void:
 	var view := Vector2(ProjectSettings.get_setting("display/window/size/viewport_width"), ProjectSettings.get_setting("display/window/size/viewport_height"))
+	check(FollowCamera.ZOOMS == [5.0, 2.5, 1.25], "the camera zooms are 5, 2.5 and 1.25")
 	check(FollowCamera.MAX_MAP_SIZE == view / FollowCamera.MIN_ZOOM, "the map size limit is the render size at the furthest zoom")
 	var oversized := Arena.new()
 	oversized.camera_limits = Rect2(Vector2.ZERO, FollowCamera.MAX_MAP_SIZE + Vector2(16, 0))
 	check(not oversized.fits_camera(), "a map one tile wider than the limit is rejected")
 	oversized.camera_limits = Rect2(Vector2.ZERO, Vector2(1000, 720))
 	check(not oversized.fits_camera(), "a map that is not a whole view at a camera zoom is rejected")
+	oversized.camera_limits = Rect2(0, 0, 640, 360)
+	check(not oversized.fits_camera(), "an old 640x360 map is rejected")
 	oversized.free()
 
 	var found := 0

@@ -17,6 +17,8 @@ size = Vector2(120, 8)
 
 [node name="BotCourse" type="Node2D"]
 script = ExtResource("1_arena")
+bounds = Rect2(-64, -360, 768, 820)
+camera_limits = Rect2(-64, 8, 768, 432)
 
 [node name="GroundWest" type="StaticBody2D" parent="."]
 position = Vector2(150, 344)
