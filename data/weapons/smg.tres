@@ -2,11 +2,18 @@
 
 [ext_resource type="Script" path="res://scenes/weapons/weapon_data.gd" id="1_data"]
 [ext_resource type="PackedScene" path="res://scenes/projectiles/bullet.tscn" id="3_bullet"]
-[ext_resource type="Texture2D" path="res://assets/weapons/smg.png" id="4_art"]
+
+[sub_resource type="Gradient" id="placeholder_color"]
+colors = PackedColorArray(0.3, 0.3, 0.33, 1, 0.3, 0.3, 0.33, 1)
+
+[sub_resource type="GradientTexture2D" id="4_art"]
+gradient = SubResource("placeholder_color")
+width = 38
+height = 17
 
 [resource]
 script = ExtResource("1_data")
-texture = ExtResource("4_art")
+texture = SubResource("4_art")
 projectile_scene = ExtResource("3_bullet")
 display_name = "SMG"
 grip = Vector2(17, 12)
