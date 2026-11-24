@@ -49,7 +49,9 @@ PIVOTS = {
     "leg_back_lower": (90, 205),
     "foot_back": (90, 222),
 }
-POINTS = {"hand_front": (125, 183), "hand_back": (81, 183), "head_top": (103, 70)}
+POINTS = {"hand_front": (125, 183), "hand_back": (81, 183), "head_top": (103, 70),
+          # Where each sneaker's sole meets the floor, for tools/plant_feet.py.
+          "heel_front": (100, 232), "toe_front": (131, 231), "heel_back": (80, 232), "toe_back": (111, 231)}
 DRAW_ORDER = [
     "arm_back_upper", "arm_back_lower", "hand_back",
     "leg_back_upper", "leg_back_lower", "foot_back",
