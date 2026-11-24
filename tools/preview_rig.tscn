@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tools/preview_rig.gd" id="1_preview"]
+
+[node name="PreviewRig" type="Node2D"]
+script = ExtResource("1_preview")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_left = -400.0
+offset_top = -300.0
+offset_right = 400.0
+offset_bottom = 300.0
+color = Color(0.78, 0.8, 0.84, 1)
+z_index = -100
+
+[node name="Floor" type="ColorRect" parent="."]
+offset_left = -400.0
+offset_right = 400.0
+offset_bottom = 40.0
+color = Color(0.45, 0.47, 0.52, 1)
+z_index = -99
