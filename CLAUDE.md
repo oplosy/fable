@@ -27,7 +27,7 @@ New maps, character designs and weapons will be added often, so adding content m
 # Art
 
 - **DONT-OPEN/** (user, session 5) holds everything set aside: reference art, drawing folders (`DONT-OPEN/characters/`, `DONT-OPEN/weapons/`, git-ignored). Godot ignores it (`.gdignore`). Never open, read, use or change anything in it unless the user asks.
-- **Active Art (session 12)**: all pixel art was deleted. Bruno (`bruno.tres`, player 1) is the first vector cutout character: SVG parts drawn by `tools/draw_bruno.py`, previewed with `tools/preview_rig.tscn`; `tools/plant_feet.py` keeps the shared clips' feet out of the floor for a rig's proportions (run it after drawing a new character). `placeholder.tres`, `dummy.tres`, items, props and the Range are still flat placeholder boxes.
+- **Active Art (session 12)**: all pixel art was deleted. Bruno (`bruno.tres`, player 1) is the first vector cutout character, three-quarter view, at the reference quality bar in GAME_DESIGN (ask the user for a reference and show a still sample before drawing any new character): SVG parts drawn by `tools/draw_bruno.py`, previewed with `tools/preview_rig.tscn`; `tools/plant_feet.py` keeps the shared clips' feet out of the floor for a rig's proportions (run it after drawing a new character). `placeholder.tres`, `dummy.tres`, items, props and the Range are still flat placeholder boxes.
 
 # Running Tests
 
