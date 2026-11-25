@@ -35,7 +35,7 @@
       "t": 0.15,
       "root": [
         0,
-        14.44
+        14.36
       ],
       "angles": {
         "pelvis": 0,
@@ -52,7 +52,7 @@
         "coat_back": 8,
         "leg_front_upper": -18.1,
         "leg_front_lower": -241.5,
-        "foot_front": 259.6,
+        "foot_front": 260.6,
         "leg_back_upper": -76.0,
         "leg_back_lower": 107.6,
         "foot_back": -29.6

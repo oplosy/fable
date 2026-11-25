@@ -21,7 +21,7 @@
         "hand_back": 0,
         "leg_front_upper": -8,
         "leg_front_lower": 12,
-        "foot_front": 0,
+        "foot_front": 5.0,
         "leg_back_upper": 8,
         "leg_back_lower": -8,
         "foot_back": 13.5,
@@ -49,7 +49,8 @@
         "scabbard": -22,
         "coat_tail": -25,
         "coat_back": -20,
-        "foot_back": 22.0
+        "foot_back": 22.0,
+        "foot_front": 11.5
       }
     },
     {
@@ -73,7 +74,7 @@
         "foot_front": -10.0,
         "leg_back_upper": -16,
         "leg_back_lower": 14,
-        "foot_back": -2,
+        "foot_back": -14.5,
         "scabbard": 22,
         "coat_tail": 35,
         "coat_back": 30

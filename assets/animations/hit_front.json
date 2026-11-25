@@ -21,7 +21,7 @@
         "hand_back": 10,
         "leg_front_upper": -8,
         "leg_front_lower": 14,
-        "foot_front": -6,
+        "foot_front": 0.0,
         "leg_back_upper": -12,
         "leg_back_lower": 16,
         "foot_back": 4.0,
