@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="200" height="240" viewBox="0 0 200 240">
-<path d="M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z" fill="#2a1f2b" stroke="#2a1f2b" stroke-width="6.0" stroke-linejoin="round"/>
-<path d="M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z" fill="#33407a"/>
-<clipPath id="pelvis_clip"><path d="M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z"/></clipPath>
-<g clip-path="url(#pelvis_clip)"><rect x="78" y="164" width="14" height="34" fill="#232d5a"/></g>
-<rect x="82" y="167" width="38" height="5" fill="#4a3328"/>
-<path d="M82,172 L120,172" fill="none" stroke="#2a1f2b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="108" y="166" width="7" height="7" rx="1" fill="#c9a24a" stroke="#2a1f2b" stroke-width="1.5"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="126" height="168" viewBox="0 0 420 560"><defs><clipPath id="pelvis_1"><path d="M158,396 L272,396 C278,416 278,432 274,446 L162,446 C157,430 155,414 158,396 Z"/></clipPath></defs><path d="M158,396 L272,396 C278,416 278,432 274,446 L162,446 C157,430 155,414 158,396 Z" fill="#3d52a0"/><g clip-path="url(#pelvis_1)"><path d="M150,396 L180,396 C176,416 176,432 180,450 L150,450 Z" fill="#1d2756" opacity="1"/><path d="M150,430 L280,430 L280,450 L150,450 Z" fill="#2b3a7a" opacity="0.6"/></g><path d="M158,396 L272,396 C278,416 278,432 274,446 L162,446 C157,430 155,414 158,396 Z" fill="none" stroke="#1d1a2b" stroke-width="6.0" stroke-linejoin="round"/><path d="M216,404 L216,440" fill="none" stroke="#1d1a2b" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round"/></svg>

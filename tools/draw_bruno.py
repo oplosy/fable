@@ -1,11 +1,16 @@
 """Draws Bruno, the street brawler, as SVG cutout parts and writes his rig.json.
 
 Run from the project root: python tools/draw_bruno.py
-Every part shares one 200x240 canvas (5 art px per world px, so 1 art px is 1 screen px
-at camera zoom 5). He stands three-quarter facing right with his feet pixel at (100, 232).
-Each part is a silhouette with a 3 px outline, a flat base colour, one cel shade from the
-upper front light, and detail lines. Limbs are capsules whose round ends sit on the joints,
-so a child rotating on its parent's cap never opens a gap.
+He stands three-quarter view facing right: the near arm and leg (left on screen) are the
+rig's "front" limbs and draw over the body, the far ones draw behind it.
+Shapes are written in design units on a 420x560 canvas and every SVG is emitted at
+SCALE, so the textures and rig.json are in art pixels at 5 art px per world px (the
+closest camera zoom shows them 1:1). All parts share the canvas, so pivots are canvas points.
+
+Look (user's reference, session 13): thick dark outline, 2-3 cel tones per colour with the
+light from the upper right, a rim highlight on the lit edge, layered costume, big eyes.
+Limbs are tapered capsules whose round ends sit on the joints, so a child turning on its
+parent's cap never opens a gap.
 """
 
 import json
@@ -13,45 +18,51 @@ import math
 from pathlib import Path
 
 OUT = Path("assets/characters/bruno")
-CANVAS = (200, 240)
-FEET = (100, 232)
-OUTLINE = "#2a1f2b"
-LINE = 3.0
+DESIGN = (420, 560)
+SCALE = 0.3
+FEET = (212, 546)
+OUTLINE = "#1d1a2b"
+EDGE = 6.0
 
-# Front colours, then the back limbs one shade darker.
-SKIN, SKIN_SHADE = "#e3a97a", "#b97b54"
-SKIN_BACK, SKIN_BACK_SHADE = "#c48f66", "#9c6745"
-TANK, TANK_SHADE = "#f2ede4", "#cfc5b5"
-JEANS, JEANS_SHADE, CUFF = "#33407a", "#232d5a", "#4f62a3"
-JEANS_BACK, JEANS_BACK_SHADE, CUFF_BACK = "#283265", "#1b2348", "#3f5089"
-RED, RED_SHADE = "#cc3138", "#8e1e28"
-RED_BACK, RED_BACK_SHADE = "#a9272f", "#741822"
-SOLE, SOLE_BACK = "#f2ede4", "#cfc5b5"
-HAIR, HAIR_SHADE = "#3a3035", "#251e22"
-BELT = "#4a3328"
-STUBBLE = "#6e5040"
-SCAR = "#f3cfae"
+SKIN, SKIN_S, SKIN_D, SKIN_H = "#f2bb8e", "#d68a62", "#a9603f", "#ffdcbc"
+HAIR_T, HAIR_B, HAIR_S, HAIR_H = "#55406a", "#2a1f36", "#1a1324", "#8a72ad"
+TANK, TANK_S = "#f5f2ec", "#cdc5d8"
+VEST, VEST_S, VEST_D, VEST_H = "#c8323f", "#8f1f35", "#5c1328", "#f06464"
+JEAN, JEAN_S, JEAN_D, JEAN_H = "#3d52a0", "#2b3a7a", "#1d2756", "#6a83d2"
+WRAP, WRAP_S, WRAP_H = "#d9343f", "#99202f", "#ff7a7a"
+GLOVE, GLOVE_S, GLOVE_H = "#34304a", "#1f1c2e", "#6d6890"
+SHOE, SHOE_S, SHOE_H = "#d9343f", "#99202f", "#ff6a6a"
+SOLE, SOLE_S = "#f5f2ec", "#bdb3c6"
+BELT, BELT_S, GOLD, GOLD_S = "#5b3a2b", "#3b2419", "#f3c64b", "#b9862a"
+IRIS, IRIS_S = "#e39a2c", "#8a4a12"
+# The far limbs sit in the body's shadow.
+FAR_DIM = 0.22
 
-PIVOTS = {
-    "pelvis": (100, 178),
-    "torso": (100, 174),
-    "head": (102, 130),
-    "arm_front_upper": (118, 136),
-    "arm_front_lower": (122, 157),
-    "hand_front": (124, 175),
-    "arm_back_upper": (82, 136),
-    "arm_back_lower": (80, 157),
-    "hand_back": (80, 175),
-    "leg_front_upper": (108, 184),
-    "leg_front_lower": (110, 205),
-    "foot_front": (110, 222),
-    "leg_back_upper": (92, 184),
-    "leg_back_lower": (90, 205),
-    "foot_back": (90, 222),
+# Joint centres and cap radii (design units).
+ARM = {
+    "front": {"shoulder": (142, 288, 22), "elbow": (138, 346, 17), "wrist": (143, 390, 15)},
+    "back": {"shoulder": (284, 288, 20), "elbow": (290, 346, 16), "wrist": (289, 390, 14)},
 }
-POINTS = {"hand_front": (125, 183), "hand_back": (81, 183), "head_top": (103, 70),
-          # Where each sneaker's sole meets the floor, for tools/plant_feet.py.
-          "heel_front": (100, 232), "toe_front": (131, 231), "heel_back": (80, 232), "toe_back": (111, 231)}
+LEG = {
+    "front": {"hip": (188, 418, 26), "knee": (190, 466, 22), "ankle": (190, 500, 19)},
+    "back": {"hip": (244, 418, 25), "knee": (246, 464, 21), "ankle": (246, 496, 18)},
+}
+PIVOTS = {
+    "pelvis": (215, 402),
+    "torso": (215, 392),
+    "head": (210, 250),
+    **{f"arm_{s}_upper": ARM[s]["shoulder"][:2] for s in ARM},
+    **{f"arm_{s}_lower": ARM[s]["elbow"][:2] for s in ARM},
+    **{f"hand_{s}": ARM[s]["wrist"][:2] for s in ARM},
+    **{f"leg_{s}_upper": LEG[s]["hip"][:2] for s in LEG},
+    **{f"leg_{s}_lower": LEG[s]["knee"][:2] for s in LEG},
+    **{f"foot_{s}": LEG[s]["ankle"][:2] for s in LEG},
+}
+POINTS = {
+    "hand_front": (141, 410), "hand_back": (291, 408), "head_top": (205, 12),
+    # Where each sneaker's sole meets the floor, for tools/plant_feet.py.
+    "heel_front": (152, 546), "toe_front": (252, 544), "heel_back": (222, 540), "toe_back": (306, 538),
+}
 DRAW_ORDER = [
     "arm_back_upper", "arm_back_lower", "hand_back",
     "leg_back_upper", "leg_back_lower", "foot_back",
@@ -69,184 +80,325 @@ HIERARCHY = {
 }
 
 
-def capsule(a, b, width):
-    """Closed path of a bone from a to b, `width` thick, with round ends on both joints."""
+class Part:
+    """One part's SVG body: shapes with clipped shading, outlines and detail lines."""
+
+    def __init__(self, name):
+        self.name = name
+        self.defs = []
+        self.body = []
+        self.count = 0
+
+    def shape(self, base, fill, shades=(), lines=(), edge=EDGE):
+        """A filled shape, its shades clipped inside it, its outline, then inner lines.
+        A shade is (path, colour[, opacity])."""
+        self.count += 1
+        cid = f"{self.name}_{self.count}"
+        self.defs.append(f'<clipPath id="{cid}"><path d="{base}"/></clipPath>')
+        self.body.append(f'<path d="{base}" fill="{fill}"/>')
+        if shades:
+            self.body.append(f'<g clip-path="url(#{cid})">')
+            for s in shades:
+                opacity = s[2] if len(s) > 2 else 1
+                self.body.append(f'<path d="{s[0]}" fill="{s[1]}" opacity="{opacity}"/>')
+            self.body.append("</g>")
+        if edge:
+            self.body.append(f'<path d="{base}" fill="none" stroke="{OUTLINE}" stroke-width="{edge}" stroke-linejoin="round"/>')
+        for d in lines:
+            self.line(d)
+
+    def line(self, d, width=3.0, colour=OUTLINE):
+        self.body.append(f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="{width}" '
+                         f'stroke-linecap="round" stroke-linejoin="round"/>')
+
+    def raw(self, text):
+        self.body.append(text)
+
+    def svg(self):
+        w, h = DESIGN
+        return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w * SCALE:g}" height="{h * SCALE:g}" '
+                f'viewBox="0 0 {w} {h}"><defs>{"".join(self.defs)}</defs>{"".join(self.body)}</svg>\n')
+
+
+def taper(a, ra, b, rb):
+    """Closed path around two circles (centre a radius ra, centre b radius rb): a limb
+    whose round ends sit on its joints."""
     (ax, ay), (bx, by) = a, b
-    angle = math.atan2(by - ay, bx - ax)
-    r = width / 2.0
-    nx, ny = -math.sin(angle) * r, math.cos(angle) * r
-    return (f"M{ax + nx:.2f},{ay + ny:.2f} L{bx + nx:.2f},{by + ny:.2f} "
-            f"A{r},{r} 0 0 0 {bx - nx:.2f},{by - ny:.2f} L{ax - nx:.2f},{ay - ny:.2f} "
-            f"A{r},{r} 0 0 0 {ax + nx:.2f},{ay + ny:.2f} Z")
+    d = math.dist(a, b)
+    theta = math.atan2(by - ay, bx - ax)
+    alpha = math.acos(max(-1.0, min(1.0, (ra - rb) / d)))
+
+    def at(c, r, angle):
+        return f"{c[0] + r * math.cos(angle):.2f},{c[1] + r * math.sin(angle):.2f}"
+
+    return (f"M{at(a, ra, theta + alpha)} L{at(b, rb, theta + alpha)} "
+            f"A{rb},{rb} 0 0 0 {at(b, rb, theta - alpha)} L{at(a, ra, theta - alpha)} "
+            f"A{ra},{ra} 0 1 0 {at(a, ra, theta + alpha)} Z")
 
 
-def svg(body):
-    w, h = CANVAS
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">\n'
-            f"{body}</svg>\n")
+def shifted(a, ra, b, rb, dx, dy, grow=0.0):
+    return taper((a[0] + dx, a[1] + dy), ra + grow, (b[0] + dx, b[1] + dy), rb + grow)
 
 
-def figure(name, silhouette, base, shade=None, details=""):
-    """A part: outline under the silhouette, base fill, the shade clipped to it, details."""
-    shade_layer = ""
-    if shade:
-        shade_layer = (f'<clipPath id="{name}_clip"><path d="{silhouette}"/></clipPath>\n'
-                       f'<g clip-path="url(#{name}_clip)">{shade}</g>\n')
-    return (f'<path d="{silhouette}" fill="{OUTLINE}" stroke="{OUTLINE}" stroke-width="{LINE * 2}" stroke-linejoin="round"/>\n'
-            f'<path d="{silhouette}" fill="{base}"/>\n'
-            f"{shade_layer}{details}")
+def limb(part, a, ra, b, rb, base, shade, light, far, lines=()):
+    """A tapered limb with shading; `base` fills the lit side over the shade."""
+    full = f"M0,0 H{DESIGN[0]} V{DESIGN[1]} H0 Z"
+    shades: list = [(full, shade), (shifted(a, ra, b, rb, ra * 0.5, -2), base),
+              (shifted(a, ra, b, rb, ra * 1.75, -2), light, 0.75)]
+    if far:
+        shades.append((full, OUTLINE, FAR_DIM))
+    part.shape(taper(a, ra, b, rb), base, shades, lines)
 
 
-def line(d, colour=OUTLINE, width=2.0):
-    return f'<path d="{d}" fill="none" stroke="{colour}" stroke-width="{width}" stroke-linecap="round" stroke-linejoin="round"/>\n'
-
-
-def offset_shade(silhouette, colour, dx, dy):
-    """The silhouette shifted away from the light: what is left uncovered reads as shade."""
-    return f'<path d="{silhouette}" fill="{colour}" transform="translate({dx},{dy})"/>\n'
-
-
-def limb(name, a, b, width, base, shade):
-    sil = capsule(a, b, width)
-    # Light from the upper front (right): the back (left) edge falls in shade.
-    shade_layer = f'<rect x="0" y="0" width="200" height="240" fill="{shade}"/>' + \
-        f'<path d="{capsule((a[0] + 4, a[1]), (b[0] + 4, b[1]), width)}" fill="{base}"/>'
-    return figure(name, sil, base, shade_layer)
+def is_far(side):
+    return side == "back"
 
 
 def arm_upper(side):
-    front = side == "front"
-    a, b = PIVOTS[f"arm_{side}_upper"], PIVOTS[f"arm_{side}_lower"]
-    return limb(f"arm_{side}_upper", a, b, 19, SKIN if front else SKIN_BACK, SKIN_SHADE if front else SKIN_BACK_SHADE)
+    p = Part(f"arm_{side}_upper")
+    s, e = ARM[side]["shoulder"], ARM[side]["elbow"]
+    lines = [] if is_far(side) else [f"M{e[0] - 8},{e[1] - 22} C{e[0] - 2},{e[1] - 18} {e[0] + 4},{e[1] - 18} {e[0] + 10},{e[1] - 22}"]
+    limb(p, s[:2], s[2], e[:2], e[2], SKIN, SKIN_S, SKIN_H, is_far(side), lines)
+    # The vest's armhole rim rides on the shoulder.
+    x, y = s[0], s[1] - 12
+    rim = f"M{x - 20},{y + 2} C{x - 12},{y - 10} {x + 10},{y - 12} {x + 22},{y - 2} C{x + 16},{y + 8} {x - 12},{y + 10} {x - 20},{y + 2} Z"
+    shades: list = [(f"M0,{y} H{DESIGN[0]} V{DESIGN[1]} H0 Z", VEST_S)]
+    if is_far(side):
+        shades.append((f"M0,0 H{DESIGN[0]} V{DESIGN[1]} H0 Z", OUTLINE, FAR_DIM))
+    p.shape(rim, VEST, shades, edge=5)
+    return p
 
 
 def arm_lower(side):
-    front = side == "front"
-    a, b = PIVOTS[f"arm_{side}_lower"], PIVOTS[f"hand_{side}"]
-    skin, skin_shade = (SKIN, SKIN_SHADE) if front else (SKIN_BACK, SKIN_BACK_SHADE)
-    red, red_shade = (RED, RED_SHADE) if front else (RED_BACK, RED_BACK_SHADE)
-    sil = capsule(a, b, 18)
-    # Hand wraps cover the forearm from a little below the elbow.
-    wrap_top = a[1] + 7
-    shade = (f'<rect x="0" y="0" width="200" height="240" fill="{skin_shade}"/>'
-             f'<path d="{capsule((a[0] + 4, a[1]), (b[0] + 4, b[1]), 18)}" fill="{skin}"/>'
-             f'<rect x="0" y="{wrap_top}" width="200" height="60" fill="{red_shade}"/>'
-             f'<path d="{capsule((a[0] + 4, wrap_top + 8), (b[0] + 4, b[1]), 18)}" fill="{red}"/>')
-    details = line(f"M{a[0] - 9},{wrap_top} L{a[0] + 11},{wrap_top + 2}")
-    for y in (wrap_top + 6, wrap_top + 12):
-        details += line(f"M{a[0] - 7},{y} L{a[0] + 11},{y + 3}", red_shade, 1.5)
-    return figure(f"arm_{side}_lower", sil, skin, shade, details)
+    p = Part(f"arm_{side}_lower")
+    e, w = ARM[side]["elbow"], ARM[side]["wrist"]
+    limb(p, e[:2], e[2], w[:2], w[2], SKIN, SKIN_S, SKIN_H, is_far(side))
+    # Red hand wraps over the lower forearm.
+    top = e[1] + 16
+    wrap = taper((e[0] + (w[0] - e[0]) * 0.35, top), e[2] + 1, w[:2], w[2] + 1)
+    full = f"M0,0 H{DESIGN[0]} V{DESIGN[1]} H0 Z"
+    shades: list = [(full, WRAP_S), (shifted((e[0] + (w[0] - e[0]) * 0.35, top), e[2] + 1, w[:2], w[2] + 1, 8, -2), WRAP),
+              (shifted((e[0] + (w[0] - e[0]) * 0.35, top), e[2] + 1, w[:2], w[2] + 1, 26, -2), WRAP_H, 0.7)]
+    if is_far(side):
+        shades.append((full, OUTLINE, FAR_DIM))
+    bands = [f"M{w[0] - 17},{top + 10} L{w[0] + 17},{top + 6}", f"M{w[0] - 17},{top + 22} L{w[0] + 17},{top + 18}"]
+    p.shape(wrap, WRAP, shades, bands, edge=5)
+    return p
 
 
 def hand(side):
-    front = side == "front"
-    x, y = POINTS[f"hand_{side}"]
-    red, red_shade = (RED, RED_SHADE) if front else (RED_BACK, RED_BACK_SHADE)
-    sil = f"M{x - 10},{y - 7} Q{x - 10},{y - 10} {x - 6},{y - 10} L{x + 6},{y - 10} Q{x + 11},{y - 10} {x + 11},{y - 5} " \
-          f"L{x + 11},{y + 5} Q{x + 11},{y + 9} {x + 6},{y + 9} L{x - 5},{y + 9} Q{x - 10},{y + 9} {x - 10},{y + 5} Z"
-    shade = f'<rect x="{x - 12}" y="{y + 4}" width="26" height="8" fill="{red_shade}"/>'
-    # Knuckle creases on the front of the fist.
-    details = "".join(line(f"M{x + k},{y - 9} L{x + k},{y - 3}", red_shade, 1.5) for k in (0, 4, 8))
-    return figure(f"hand_{side}", sil, red, shade, details)
+    p = Part(f"hand_{side}")
+    x, y = ARM[side]["wrist"][:2]
+    # A fingerless glove balled into a fist below the wrist.
+    fist = (f"M{x - 18},{y + 2} C{x - 26},{y + 14} {x - 22},{y + 34} {x - 8},{y + 40} "
+            f"C{x + 8},{y + 46} {x + 26},{y + 40} {x + 28},{y + 26} C{x + 30},{y + 12} {x + 24},{y + 2} {x + 14},{y - 2} "
+            f"C{x + 4},{y - 6} {x - 10},{y - 4} {x - 18},{y + 2} Z")
+    full = f"M0,0 H{DESIGN[0]} V{DESIGN[1]} H0 Z"
+    shades: list = [(f"M{x - 30},{y + 18} C{x - 20},{y + 38} {x},{y + 46} {x + 20},{y + 46} L{x + 20},{y + 60} L{x - 30},{y + 60} Z", GLOVE_S),
+              (f"M{x - 16},{y + 26} C{x - 4},{y + 30} {x + 10},{y + 30} {x + 22},{y + 26} L{x + 22},{y + 34} C{x + 10},{y + 38} {x - 4},{y + 38} {x - 16},{y + 34} Z", GLOVE_S),
+              (f"M{x + 10},{y + 2} C{x + 22},{y + 4} {x + 26},{y + 12} {x + 26},{y + 20} C{x + 20},{y + 12} {x + 14},{y + 8} {x + 6},{y + 6} Z", GLOVE_H, 0.9)]
+    if is_far(side):
+        shades.append((full, OUTLINE, FAR_DIM))
+    knuckles = [f"M{x - 4},{y + 6} C{x},{y + 14} {x},{y + 24} {x - 4},{y + 32}",
+                f"M{x + 10},{y + 6} C{x + 14},{y + 14} {x + 14},{y + 24} {x + 10},{y + 32}"]
+    p.shape(fist, GLOVE, shades, knuckles)
+    return p
 
 
 def leg_upper(side):
-    front = side == "front"
-    a, b = PIVOTS[f"leg_{side}_upper"], PIVOTS[f"leg_{side}_lower"]
-    return limb(f"leg_{side}_upper", a, b, 21, JEANS if front else JEANS_BACK, JEANS_SHADE if front else JEANS_BACK_SHADE)
+    p = Part(f"leg_{side}_upper")
+    h, k = LEG[side]["hip"], LEG[side]["knee"]
+    limb(p, h[:2], h[2], k[:2], k[2], JEAN, JEAN_D, JEAN_H, is_far(side))
+    return p
 
 
 def leg_lower(side):
-    front = side == "front"
-    a, b = PIVOTS[f"leg_{side}_lower"], PIVOTS[f"foot_{side}"]
-    jeans, shade_c, cuff = (JEANS, JEANS_SHADE, CUFF) if front else (JEANS_BACK, JEANS_BACK_SHADE, CUFF_BACK)
-    sil = capsule(a, (b[0], b[1] + 2), 19)
-    shade = (f'<rect x="0" y="0" width="200" height="240" fill="{shade_c}"/>'
-             f'<path d="{capsule((a[0] + 4, a[1]), (b[0] + 4, b[1] + 2), 19)}" fill="{jeans}"/>'
-             f'<rect x="0" y="{b[1] - 6}" width="200" height="20" fill="{cuff}"/>')
-    details = line(f"M{b[0] - 9},{b[1] - 6} L{b[0] + 9},{b[1] - 6}")
-    return figure(f"leg_{side}_lower", sil, jeans, shade, details)
+    p = Part(f"leg_{side}_lower")
+    k, a = LEG[side]["knee"], LEG[side]["ankle"]
+    lines = []
+    shades_extra = []
+    if not is_far(side):
+        # A torn knee with skin showing.
+        x, y = k[:2]
+        rip = f"M{x - 14},{y - 2} L{x - 6},{y - 8} L{x},{y} L{x + 8},{y - 6} L{x + 14},{y + 2} L{x + 10},{y + 12} L{x + 2},{y + 8} L{x - 4},{y + 16} L{x - 12},{y + 10} Z"
+        shades_extra.append((rip, SKIN_S))
+        lines = [f"M{x - 14},{y - 2} L{x - 6},{y - 8} L{x},{y} L{x + 8},{y - 6} L{x + 14},{y + 2}",
+                 f"M{x - 12},{y + 10} L{x - 4},{y + 16} L{x + 2},{y + 8} L{x + 10},{y + 12}"]
+    full = f"M0,0 H{DESIGN[0]} V{DESIGN[1]} H0 Z"
+    shades: list = [(full, JEAN_D), (shifted(k, k[2], a, a[2], k[2] * 0.5, -2), JEAN),
+              (shifted(k, k[2], a, a[2], k[2] * 1.75, -2), JEAN_H, 0.75)] + shades_extra
+    if is_far(side):
+        shades.append((full, OUTLINE, FAR_DIM))
+    p.shape(taper(k[:2], k[2], a[:2], a[2]), JEAN, shades, lines)
+    # Rolled cuff above the shoe.
+    x, y, r = a
+    cuff = f"M{x - r - 3},{y - 14} L{x + r + 3},{y - 14} L{x + r + 3},{y + 2} L{x - r - 3},{y + 2} Z"
+    cuff_shades: list = [(f"M0,{y - 4} H{DESIGN[0]} V{DESIGN[1]} H0 Z", JEAN_S)]
+    if is_far(side):
+        cuff_shades.append((full, OUTLINE, FAR_DIM))
+    p.shape(cuff, JEAN_H, cuff_shades, edge=5)
+    return p
 
 
 def foot(side):
-    front = side == "front"
-    x, y = PIVOTS[f"foot_{side}"]
-    red, red_shade, sole = (RED, RED_SHADE, SOLE) if front else (RED_BACK, RED_BACK_SHADE, SOLE_BACK)
-    ground = FEET[1]
-    # High-top: the collar wraps the ankle, the shoe runs forward to a rounded toe.
-    sil = (f"M{x - 10},{y - 7} L{x + 8},{y - 7} L{x + 10},{y + 1} Q{x + 21},{y + 1} {x + 24},{ground - 5} "
-           f"Q{x + 25},{ground} {x + 19},{ground} L{x - 10},{ground} Q{x - 12},{ground} {x - 12},{ground - 3} Z")
-    shade = f'<rect x="{x - 12}" y="{y - 8}" width="7" height="20" fill="{red_shade}"/>'
-    details = (f'<path d="M{x - 12},{ground - 4} L{x + 25},{ground - 4} L{x + 25},{ground} L{x - 12},{ground} Z" fill="{sole}"/>\n'
-               + line(f"M{x - 12},{ground - 4} L{x + 24},{ground - 4}")
-               + line(f"M{x - 2},{y - 3} L{x + 4},{y + 5}", red_shade, 1.5)
-               + line(f"M{x + 4},{y - 3} L{x - 1},{y + 5}", red_shade, 1.5))
-    return figure(f"foot_{side}", sil, red, shade, details)
+    p = Part(f"foot_{side}")
+    x, y, _ = LEG[side]["ankle"]
+    heel, toe = POINTS[f"heel_{side}"], POINTS[f"toe_{side}"]
+    floor = heel[1]
+    # A chunky red high-top: collar round the ankle, toe forward to the right.
+    shoe = (f"M{x - 26},{y - 6} L{x + 22},{y - 6} C{x + 30},{y + 6} {x + 42},{y + 12} {toe[0] - 8},{floor - 30} "
+            f"C{toe[0] + 2},{floor - 26} {toe[0] + 4},{floor - 14} {toe[0] - 2},{floor - 8} L{heel[0] + 2},{floor - 8} "
+            f"C{heel[0] - 2},{floor - 24} {x - 32},{y + 4} {x - 26},{y - 6} Z")
+    full = f"M0,0 H{DESIGN[0]} V{DESIGN[1]} H0 Z"
+    shades: list = [(f"M0,{floor - 22} H{DESIGN[0]} V{DESIGN[1]} H0 Z", SHOE_S),
+              (f"M{x - 16},{y} C{x + 4},{y + 6} {x + 24},{y + 12} {x + 42},{y + 18} C{x + 24},{y + 8} {x + 6},{y + 2} {x - 8},{y - 2} Z", SHOE_H, 0.8)]
+    if is_far(side):
+        shades.append((full, OUTLINE, FAR_DIM))
+    laces = [f"M{x - 10},{y + 2} L{x + 6},{y + 16}", f"M{x + 4},{y + 2} L{x - 10},{y + 16}",
+             f"M{x + 14},{y + 8} L{x + 26},{y + 20}", f"M{x + 24},{y + 8} L{x + 14},{y + 20}"]
+    p.shape(shoe, SHOE, shades)
+    for d in laces:
+        p.line(d, 3.0, SOLE)
+    sole = (f"M{heel[0] - 2},{floor - 16} L{toe[0] - 2},{floor - 16} C{toe[0] + 4},{floor - 10} {toe[0] + 2},{floor - 2} {toe[0] - 6},{floor} "
+            f"L{heel[0] + 4},{floor} C{heel[0] - 4},{floor - 2} {heel[0] - 5},{floor - 10} {heel[0] - 2},{floor - 16} Z")
+    sole_shades: list = [(f"M0,{floor - 6} H{DESIGN[0]} V{DESIGN[1]} H0 Z", SOLE_S)]
+    if is_far(side):
+        sole_shades.append((full, OUTLINE, FAR_DIM))
+    p.shape(sole, SOLE, sole_shades)
+    cap = f"M{toe[0] - 26},{floor - 30} C{toe[0] - 14},{floor - 28} {toe[0] - 4},{floor - 24} {toe[0]},{floor - 18} C{toe[0] - 8},{floor - 12} {toe[0] - 20},{floor - 12} {toe[0] - 28},{floor - 16} Z"
+    p.shape(cap, SOLE, sole_shades[1:], edge=4)
+    return p
 
 
 def pelvis():
-    sil = "M82,170 Q82,166 86,166 L116,166 Q120,166 120,170 L121,190 Q121,194 117,194 L85,194 Q81,194 81,190 Z"
-    shade = f'<rect x="78" y="164" width="14" height="34" fill="{JEANS_SHADE}"/>'
-    details = (f'<rect x="82" y="167" width="38" height="5" fill="{BELT}"/>\n'
-               + line("M82,172 L120,172", OUTLINE, 1.5)
-               + f'<rect x="108" y="166" width="7" height="7" rx="1" fill="#c9a24a" stroke="{OUTLINE}" stroke-width="1.5"/>\n')
-    return figure("pelvis", sil, JEANS, shade, details)
+    p = Part("pelvis")
+    hips = "M158,396 L272,396 C278,416 278,432 274,446 L162,446 C157,430 155,414 158,396 Z"
+    p.shape(hips, JEAN, [("M150,396 L180,396 C176,416 176,432 180,450 L150,450 Z", JEAN_D),
+                         ("M150,430 L280,430 L280,450 L150,450 Z", JEAN_S, 0.6)],
+            ["M216,404 L216,440"])
+    return p
 
 
 def torso():
-    # Broad shoulders tapering to the waist; the tank's scoop shows the neck and chest.
-    sil = ("M84,180 L78,152 Q70,136 82,129 Q92,125 100,126 Q112,125 122,128 Q134,134 128,152 "
-           "L120,180 Q100,184 84,180 Z")
-    shade = f'<path d="M70,120 L94,124 Q88,150 92,186 L70,186 Z" fill="{TANK_SHADE}"/>'
-    details = (f'<path d="M93,128 Q102,144 113,129 Q104,131 93,128 Z" fill="{SKIN}" stroke="{OUTLINE}" stroke-width="2" stroke-linejoin="round"/>\n'
-               + line("M106,154 Q112,158 118,155", TANK_SHADE, 2)
-               + line("M88,176 Q100,179 116,176", TANK_SHADE, 2))
-    return figure("torso", sil, TANK, shade, details)
+    p = Part("torso")
+    # Neck under the head.
+    p.shape("M188,226 L188,266 L234,266 L232,228 Z", SKIN, [("M180,226 L240,226 L240,252 C222,258 200,254 180,246 Z", SKIN_S)])
+    # Tank top.
+    p.shape("M178,256 L264,256 C270,300 268,350 264,396 L176,396 C173,346 173,300 178,256 Z", TANK,
+            [("M176,256 L200,256 C194,300 194,350 198,396 L176,396 Z", TANK_S),
+             ("M196,322 C212,334 236,334 254,322 L254,332 C236,344 212,344 196,332 Z", TANK_S, 0.8),
+             ("M240,270 C252,280 258,296 258,312 C252,298 246,284 236,276 Z", "#ffffff", 0.9)])
+    p.shape("M190,256 C200,282 232,284 246,256 Z", SKIN, [("M190,256 L246,256 L246,266 C228,270 206,270 190,264 Z", SKIN_S)], edge=4)
+    # Open leather vest.
+    p.shape("M138,272 C148,258 170,253 190,255 C186,292 190,332 198,396 L160,396 C151,372 145,345 141,318 C137,300 135,285 138,272 Z", VEST,
+            [("M134,250 L162,250 C156,300 160,350 168,400 L134,400 Z", VEST_S),
+             ("M134,380 L200,380 L200,400 L134,400 Z", VEST_D, 0.7),
+             ("M176,262 C182,300 184,340 190,380 L184,380 C178,340 174,300 170,264 Z", VEST_H, 0.7)],
+            ["M176,300 L188,302", "M180,330 L192,332"])
+    p.shape("M250,255 C268,255 284,261 291,276 C297,300 293,330 285,350 C281,370 274,384 268,396 L256,396 C262,350 262,300 250,255 Z", VEST,
+            [("M250,255 L262,255 C268,300 268,350 262,396 L250,396 Z", VEST_S),
+             ("M274,270 C284,282 288,300 286,320 C282,302 278,286 270,276 Z", VEST_H, 0.8)])
+    # Popped collar.
+    p.shape("M166,262 C162,240 176,230 196,236 L202,258 C190,256 176,258 166,262 Z", VEST, [("M160,248 L204,248 L204,262 L160,262 Z", VEST_D)])
+    p.shape("M236,258 L244,236 C258,232 270,242 268,264 C258,258 246,256 236,258 Z", VEST, [("M232,252 L272,252 L272,266 L232,266 Z", VEST_D)])
+    # Belt with a gold buckle.
+    p.shape("M157,384 L273,384 L272,402 L159,402 Z", BELT, [("M155,396 L276,396 L276,404 L155,404 Z", BELT_S)], ["M168,390 L172,390"])
+    p.shape("M210,382 L236,382 L236,404 L210,404 Z", GOLD,
+            [("M226,382 L238,382 L238,406 L226,406 Z", GOLD_S), ("M212,384 L218,384 L214,392 Z", "#fff3c0")], edge=4)
+    p.shape("M216,388 L230,388 L230,398 L216,398 Z", BELT, edge=3)
+    return p
 
 
 def head():
-    # Neck, then a big square head with a heavy jaw, facing right.
-    neck = f'<path d="M94,122 L110,122 L110,136 L94,136 Z" fill="{SKIN_SHADE}" stroke="{OUTLINE}" stroke-width="{LINE * 2}" stroke-linejoin="round"/>\n' \
-           f'<path d="M94,122 L110,122 L110,136 L94,136 Z" fill="{SKIN_SHADE}"/>\n'
-    sil = ("M78,84 Q78,70 94,70 L120,70 Q134,70 134,86 L134,100 L139,106 L135,110 L134,118 "
-           "Q134,130 122,131 L92,131 Q78,131 77,118 Z")
-    shade = (f'<path d="M70,60 L92,60 Q86,96 92,140 L70,140 Z" fill="{SKIN_SHADE}"/>'
-             f'<path d="M96,112 Q112,118 134,110 L140,140 L90,140 Z" fill="{STUBBLE}" fill-opacity="0.45"/>')
-    hair = (f'<path d="M78,90 Q77,70 94,69 L121,69 Q135,70 134,84 Q124,78 114,80 Q100,77 92,84 Q86,88 84,96 Z" '
-            f'fill="{HAIR}" stroke="{OUTLINE}" stroke-width="2" stroke-linejoin="round"/>\n'
-            f'<path d="M80,88 Q80,74 92,72 Q86,80 86,92 Z" fill="{HAIR_SHADE}"/>\n')
-    ear = (f'<path d="M84,96 Q76,96 77,106 Q78,114 86,113 Z" fill="{SKIN}" stroke="{OUTLINE}" stroke-width="2" stroke-linejoin="round"/>\n'
-           + line("M82,101 Q80,106 83,109", SKIN_SHADE, 1.5))
-    face = (f'<path d="M112,91 L131,93 L130,98 L113,96 Z" fill="{HAIR}" stroke="{OUTLINE}" stroke-width="1.5" stroke-linejoin="round"/>\n'
-            f'<ellipse cx="123" cy="103" rx="3" ry="4" fill="{OUTLINE}"/>\n'
-            f'<circle cx="124" cy="101.5" r="1.2" fill="#ffffff"/>\n'
-            + line("M127,88 L130,99", SCAR, 2)
-            + line("M120,121 L131,120", OUTLINE, 2)
-            + line("M134,100 L139,106 L135,110", OUTLINE, 2))
-    return neck + figure("head", sil, SKIN, shade, hair + ear + face)
+    p = Part("head")
+    face = ("M200,62 C245,60 282,86 286,130 C289,165 283,195 268,218 C257,233 246,241 232,243 "
+            "C210,245 175,239 155,223 C132,206 118,179 118,148 C118,100 150,64 200,62 Z")
+    p.shape(face, SKIN,
+            [("M110,90 C150,110 168,150 170,190 C172,215 190,236 214,248 L110,248 Z", SKIN_S),
+             ("M150,108 C190,118 240,118 290,104 L290,130 C240,132 190,132 150,124 Z", SKIN_S, 0.8),
+             ("M160,212 C190,232 230,236 268,212 L268,252 L160,252 Z", "#7a6a8a", 0.28),
+             ("M262,176 C272,180 276,192 272,204 C268,196 264,186 258,180 Z", SKIN_H, 0.9),
+             ("M232,136 C244,134 258,136 268,142 C258,140 244,140 234,142 Z", SKIN_H, 0.7),
+             ("M282,112 C294,150 290,192 272,224 L264,222 C280,190 284,150 276,114 Z", SKIN_H, 0.9)],
+            edge=7)
+    p.shape("M120,152 C108,150 104,166 110,178 C114,188 124,190 130,184 Z", SKIN,
+            [("M114,160 C112,170 116,180 124,182 L120,190 L104,190 L104,150 Z", SKIN_S)],
+            ["M118,162 C114,168 116,176 122,178"], edge=5)
+    hair = ("M118,178 C110,150 102,115 116,88 C126,62 148,40 178,32 L170,14 C196,16 214,20 228,28 L238,8 "
+            "C262,20 280,38 290,60 L310,58 C302,78 292,92 282,102 C264,94 242,94 224,102 C206,110 190,114 174,112 "
+            "C162,120 154,132 150,150 C148,162 142,172 134,178 Z")
+    p.defs.append(f'<linearGradient id="hair_gradient" x1="0" y1="0" x2="0.3" y2="1">'
+                  f'<stop offset="0" stop-color="{HAIR_T}"/><stop offset="1" stop-color="{HAIR_B}"/></linearGradient>')
+    p.shape(hair, "url(#hair_gradient)",
+            [("M100,120 C130,110 150,130 160,160 C150,170 140,180 130,186 L96,186 Z", HAIR_S, 0.8),
+             ("M170,100 C200,104 240,90 290,96 L290,110 L170,120 Z", HAIR_S, 0.7),
+             ("M150,52 C180,36 220,34 252,44 C222,44 186,50 160,64 Z", HAIR_H, 0.9),
+             ("M232,58 C254,62 274,72 286,84 C270,78 252,72 236,68 Z", HAIR_H, 0.8),
+             ("M126,90 C134,74 146,62 160,56 C150,68 140,80 134,96 Z", HAIR_H, 0.6)],
+            ["M180,40 C200,60 214,76 222,96", "M236,30 C250,50 262,66 270,92", "M150,70 C160,88 166,100 168,110"],
+            edge=7)
+    # Brows.
+    p.shape("M184,146 L234,150 L232,140 C216,134 198,132 188,136 Z", HAIR_B, edge=4)
+    p.shape("M248,149 L278,145 L276,137 C266,136 256,138 250,141 Z", HAIR_B, edge=4)
+    # Near eye.
+    p.shape("M190,156 L232,160 C230,174 220,182 209,181 C198,180 191,170 190,156 Z", "#ffffff",
+            [("M188,154 L234,154 L234,166 C220,164 204,164 188,166 Z", "#d9d4e6")], edge=4)
+    p.shape("M206,158 C214,156 222,158 224,166 C225,174 220,180 214,180 C207,180 204,172 206,158 Z", IRIS,
+            [("M200,154 L228,154 L228,166 L200,166 Z", IRIS_S, 0.8)], edge=2)
+    p.raw(f'<ellipse cx="215" cy="169" rx="4.5" ry="6" fill="{OUTLINE}"/>')
+    p.raw('<circle cx="211" cy="163" r="3" fill="#ffffff"/><circle cx="219" cy="174" r="1.5" fill="#ffffff"/>')
+    p.line("M186,155 L234,160", 6)
+    # Far eye.
+    p.shape("M248,159 L274,157 C274,170 268,178 261,178 C254,178 249,170 248,159 Z", "#ffffff",
+            [("M246,156 L276,156 L276,166 L246,166 Z", "#d9d4e6")], edge=4)
+    p.shape("M258,159 C264,158 270,160 270,167 C270,174 266,178 262,178 C257,178 256,170 258,159 Z", IRIS,
+            [("M254,156 L274,156 L274,166 L254,166 Z", IRIS_S, 0.8)], edge=2)
+    p.raw(f'<ellipse cx="264" cy="169" rx="3.5" ry="5.5" fill="{OUTLINE}"/>')
+    p.raw('<circle cx="261" cy="164" r="2.2" fill="#ffffff"/>')
+    p.line("M246,159 L276,156", 6)
+    # Nose, smirk.
+    p.shape("M256,170 C262,180 266,188 262,194 C258,196 252,196 248,192 Z", SKIN_S, edge=0)
+    p.line("M258,172 C264,182 266,190 260,194 C256,195 252,194 250,192")
+    p.line("M226,214 C238,216 250,214 262,206", 4)
+    p.line("M262,206 L266,202")
+    p.line("M236,222 C242,224 248,223 252,221", 2, SKIN_D)
+    # Band-aid on the near cheek.
+    p.raw('<g transform="rotate(-25 186 196)">')
+    p.shape("M170,190 L202,190 C206,190 206,202 202,202 L170,202 C166,202 166,190 170,190 Z", "#f2d3a8",
+            [("M166,197 L206,197 L206,204 L166,204 Z", "#d9b282")], edge=3)
+    p.shape("M181,190 L191,190 L191,202 L181,202 Z", "#e8c08e", edge=0)
+    p.raw("</g>")
+    return p
 
 
 PARTS = {
     "pelvis": pelvis, "torso": torso, "head": head,
-    "arm_front_upper": lambda: arm_upper("front"), "arm_front_lower": lambda: arm_lower("front"), "hand_front": lambda: hand("front"),
-    "arm_back_upper": lambda: arm_upper("back"), "arm_back_lower": lambda: arm_lower("back"), "hand_back": lambda: hand("back"),
-    "leg_front_upper": lambda: leg_upper("front"), "leg_front_lower": lambda: leg_lower("front"), "foot_front": lambda: foot("front"),
-    "leg_back_upper": lambda: leg_upper("back"), "leg_back_lower": lambda: leg_lower("back"), "foot_back": lambda: foot("back"),
+    **{f"arm_{s}_upper": (lambda s=s: arm_upper(s)) for s in ARM},
+    **{f"arm_{s}_lower": (lambda s=s: arm_lower(s)) for s in ARM},
+    **{f"hand_{s}": (lambda s=s: hand(s)) for s in ARM},
+    **{f"leg_{s}_upper": (lambda s=s: leg_upper(s)) for s in LEG},
+    **{f"leg_{s}_lower": (lambda s=s: leg_lower(s)) for s in LEG},
+    **{f"foot_{s}": (lambda s=s: foot(s)) for s in LEG},
 }
+
+
+def art(point):
+    """A design-unit point in art pixels."""
+    return [round(point[0] * SCALE, 2), round(point[1] * SCALE, 2)]
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, draw in PARTS.items():
-        (OUT / f"{name}.svg").write_text(svg(draw()), encoding="utf-8")
+        (OUT / f"{name}.svg").write_text(draw().svg(), encoding="utf-8")
     rig = {
         "character": "bruno",
-        "canvas": list(CANVAS),
-        "feet": list(FEET),
+        "canvas": art(DESIGN),
+        "feet": art(FEET),
         "draw_order": DRAW_ORDER,
         "hierarchy": HIERARCHY,
-        "pivots": {k: list(v) for k, v in PIVOTS.items()},
-        "points": {k: list(v) for k, v in POINTS.items()},
+        "pivots": {k: art(v) for k, v in PIVOTS.items()},
+        "points": {k: art(v) for k, v in POINTS.items()},
     }
     (OUT / "rig.json").write_text(json.dumps(rig, indent=2) + "\n", encoding="utf-8")
     print(f"wrote {len(PARTS)} parts to {OUT}")
